@@ -13,7 +13,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "loadShader.h"
+#include "loadShaders.h"
 #include "loadTextures.h"
 #include "Skybox.h"
 #include "Camera.h"
@@ -27,8 +27,8 @@ Skybox::Skybox(std::vector<const GLchar*> files_, GLfloat multiplier_) {
     texture = Skybox::loadCubemap(files_);
 
     // create and compile shader programs for skybox
-    shaderID = loadShader("SkyboxTextureShader.vert",
-                          "SkyboxTextureShader.frag");
+    shaderID = loadShaders("SkyboxTextureShader.vert",
+                           "SkyboxTextureShader.frag");
 
     // get a handle for our "skyboxSampler" uniform
     textureID = glGetUniformLocation(shaderID, "skyboxSampler");
@@ -83,7 +83,8 @@ Skybox::Skybox(std::vector<const GLchar*> files_, GLfloat multiplier_) {
 
 void Skybox::update(const Camera &cam) {
     // remove translations from view matrix
-    viewMatrix = cam.Projection * glm::mat4(glm::mat3(cam.View));
+//    viewMatrix = cam.Projection * glm::mat4(glm::mat3(cam.View));
+    viewMatrix = cam.Projection * cam.View;
 }
 void Skybox::draw() {
 

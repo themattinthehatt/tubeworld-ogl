@@ -26,7 +26,7 @@ private:
     float verticalAngle0;                   // vertical angle in radians
     float verticalAngle;                    // vertical angle in radians
 
-    const float maxSpeed = 80.f;            // max pan speed
+    const float maxSpeed = 200.f;           // max pan speed
     const float maxRotationSpeed = 3.0f;    // max rotation speed
     float speed;                            // pan speed
     float rotationSpeed;                    // rotation speed

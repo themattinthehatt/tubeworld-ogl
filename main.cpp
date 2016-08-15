@@ -14,7 +14,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "loadShader.h"
+#include "loadShaders.h"
 #include "loadTextures.h"
 #include "Camera.h"
 #include "Skybox.h"
@@ -90,10 +90,10 @@ int main() {
 
     // set up skybox
     // +x, -x, +y, -y, +z, -z
-    std::vector<const char*> files ={"box3/right.bmp", "box3/right.bmp",
-                                     "box3/right.bmp", "box3/right.bmp",
-                                     "box3/right.bmp", "box3/right.bmp"};
-    Skybox skybox = Skybox(files, 100.0f);
+    std::vector<const char*> files ={"textures/box3/right.bmp", "textures/box3/right.bmp",
+                                     "textures/box3/right.bmp", "textures/box3/right.bmp",
+                                     "textures/box3/right.bmp", "textures/box3/right.bmp"};
+    Skybox skybox = Skybox(files, 1000.0f);
 
     /*
      * -------------------------------------------------------------------------
@@ -101,16 +101,16 @@ int main() {
      * -------------------------------------------------------------------------
      */
 
-    bool isTextureRendered = true;
+    bool isTextureRendered = false;
     GLuint programID;
     if (isTextureRendered)
         // create and compile our GLSL program from the shaders
-        programID = loadShader("TextureShader.vert",
+        programID = loadShaders("TextureShader.vert",
                                "TextureShader.frag");
     else
         // create and compile our GLSL program from the shaders
-        programID = loadShader("SolidShader.vert",
-                               "SolidShader.frag");
+        programID = loadShaders("SolidShader2.vert",
+                                "SolidShader.frag");
 
     // give the MVP matrix to GLSL; get a handle on our "MVP" uniform
     GLuint MatrixID = glGetUniformLocation(programID, "MVP");
@@ -128,9 +128,9 @@ int main() {
 
     // COPY VERTEX ARRAY INTO A BUFFER
     // specify model coordinates
-    int numCubesX = 5;
-    int numCubesY = 5;
-    int numCubesZ = 1;
+    int numCubesX = 20;
+    int numCubesY = 1;
+    int numCubesZ = 20;
     int numCubes = numCubesX * numCubesY * numCubesZ;
     GLfloat g_vertex_buffer_data[numCubes * numModelVertices *
                                  3]; // numModelVertices in CubeModelCoordinates.h
@@ -166,7 +166,7 @@ int main() {
     GLuint UVBufferID;      // id our UV coordinates buffer
     GLuint ColorBufferID;   // id our color buffer
     if (isTextureRendered) {
-        Texture = loadBMP_custom("uvtemplate.bmp");
+        Texture = loadBMP_custom("textures/uvtemplate.bmp");
         // get a handle for our "myTextureSampler" uniform
         TextureID = glGetUniformLocation(programID, "myTextureSampler");
 
@@ -241,18 +241,18 @@ int main() {
         // compute view and projection matrices from keyboard and mouse input
         cam.update();
 
-        modelMatrix = glm::mat4(1.0);
-        MVP = cam.Projection * cam.View * modelMatrix;
-
         // ------------------- RENDER SKYBOX -----------------------------------
         skybox.update(cam);
         skybox.draw();
 
         // ------------------- RENDER CUBES ------------------------------------
-//        // play with colors
+        modelMatrix = glm::mat4(1.0);
+        MVP = cam.Projection * cam.View * modelMatrix;
+
+        // play with colors
         GLfloat timeValue = glfwGetTime();
-        GLfloat hueMultiplier = (sin(timeValue) / 2) + 0.5;
-        GLuint timeMultiplier = glGetUniformLocation(programID, "time");
+        GLfloat hueMultiplier = (sinf(timeValue) / 2.0f) + 0.5f;
+        GLuint timeID = glGetUniformLocation(programID, "time");
 
         // use our shader (makes programID "currently bound" shader?)
         glUseProgram(programID);
@@ -260,7 +260,7 @@ int main() {
         // send our transformation to the currently bound shader, in the "MVP" uniform
         // This is done in the main loop since each model will have a different MVP matrix
         glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
-        glUniform1f(timeMultiplier, hueMultiplier);
+        glUniform1f(timeID, hueMultiplier);
 
         if (isTextureRendered) {
             // Activate the texture unit first before binding texture
