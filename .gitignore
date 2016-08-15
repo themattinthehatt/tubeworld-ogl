@@ -30,3 +30,6 @@
 
 # CLion files
 *.idea*
+
+# textures
+textures/*
