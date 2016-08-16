@@ -38,13 +38,17 @@ private:
     float fov;                              // field of view, in degrees
 
     GLFWwindow *window;                     // window to draw in
+    const bool *keysPressed;                // pointer to keysPressed array
+    const bool *keysToggled;                // pointer to keysToggled array
 
 public:
 
     glm::mat4 View;                         // view matrix
     glm::mat4 Projection;                   // projection matrix
 
-    Camera(GLFWwindow *window);             // constructor
+    Camera(GLFWwindow *window,
+           bool *keysPressed,
+           bool *keysToggled);              // constructor
     ~Camera();                              // destructor
     void handleInput();                     // interface with keyboard
     void update();                          // move camera

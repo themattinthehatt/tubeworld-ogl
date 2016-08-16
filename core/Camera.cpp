@@ -11,8 +11,13 @@
 /* Camera();
  * Constructor method for Camera class
  */
-Camera::Camera(GLFWwindow *window_)
+Camera::Camera(GLFWwindow *window_, bool *keysPressed_,
+                                    bool *keysToggled_)
 {
+    // store pointers to key state arrays
+    keysPressed = keysPressed_;
+    keysToggled = keysToggled_;
+
     // window for drawing
     window = window_;
 
@@ -60,56 +65,55 @@ Camera::~Camera() {};
 void Camera::handleInput()
 {
     // move forward or up
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+    if (keysPressed[GLFW_KEY_UP]) {
+        if (keysPressed[GLFW_KEY_LEFT_SHIFT])
             position += up * deltaTime * speed;
         else
             position += heading * deltaTime * speed;
     }
     // move backward or down
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+    if (keysPressed[GLFW_KEY_DOWN]) {
+        if (keysPressed[GLFW_KEY_LEFT_SHIFT])
             position -= up * deltaTime * speed;
         else
             position -= heading * deltaTime * speed;
     }
     // strafe right
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+    if (keysPressed[GLFW_KEY_RIGHT]) {
         position += right * deltaTime * speed;
     }
     // strafe left
-    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+    if (keysPressed[GLFW_KEY_LEFT]) {
         position -= right * deltaTime * speed;
     }
     // rotate up
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+    if (keysPressed[GLFW_KEY_W]) {
         verticalAngle -= deltaTime * rotationSpeed;
     }
     // rotate down
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+    if (keysPressed[GLFW_KEY_S]) {
         verticalAngle += deltaTime * rotationSpeed;
     }
     // rotate right
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+    if (keysPressed[GLFW_KEY_D]) {
         horizontalAngle -= deltaTime * rotationSpeed;
     }
     // rotate left
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+    if (keysPressed[GLFW_KEY_A]) {
         horizontalAngle += deltaTime * rotationSpeed;
     }
     // decrease speed
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+    if (keysPressed[GLFW_KEY_E]) {
         speed -= 0.1;
     }
     // increase speed
-    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+    if (keysPressed[GLFW_KEY_R]) {
         speed += 0.1;
     }
     // reset
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+    if (keysPressed[GLFW_KEY_Q]) {
         reset();
     }
-
 
     // clamp vertical angle b/t 0 and PI
     if (verticalAngle < 0)

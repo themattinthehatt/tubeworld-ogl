@@ -13,11 +13,14 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "loadShaders.h"
-#include "loadTextures.h"
-#include "Skybox.h"
-#include "Camera.h"
+#include "loaders/loadShaders.h"
+#include "loaders/loadTextures.h"
 
+#include "Skybox.h"
+
+/* Skybox()
+ * Constructor method for Camera class
+ */
 Skybox::Skybox(std::vector<const GLchar*> files_, GLfloat multiplier_) {
 
     // multiplier sets bounds of skybox
@@ -27,8 +30,8 @@ Skybox::Skybox(std::vector<const GLchar*> files_, GLfloat multiplier_) {
     texture = Skybox::loadCubemap(files_);
 
     // create and compile shader programs for skybox
-    shaderID = loadShaders("SkyboxTextureShader.vert",
-                           "SkyboxTextureShader.frag");
+    shaderID = loadShaders("shaders/SkyboxTextureShader.vert",
+                           "shaders/SkyboxTextureShader.frag");
 
     // get a handle for our "skyboxSampler" uniform
     textureID = glGetUniformLocation(shaderID, "skyboxSampler");
@@ -81,11 +84,26 @@ Skybox::Skybox(std::vector<const GLchar*> files_, GLfloat multiplier_) {
 
 }
 
+/*
+ * ~Skybox();
+ * Destructor method for Skybox class
+ */
+Skybox::~Skybox() {}
+
+/*
+ * update()
+ * Update position of skybox
+ */
 void Skybox::update(const Camera &cam) {
     // remove translations from view matrix
 //    viewMatrix = cam.Projection * glm::mat4(glm::mat3(cam.View));
     viewMatrix = cam.Projection * cam.View;
 }
+
+/*
+ * draw()
+ * Draw skybox on screen
+ */
 void Skybox::draw() {
 
     // disable depth writing so skybox will be drawn on the background
@@ -115,6 +133,10 @@ void Skybox::draw() {
     glDepthMask(GL_TRUE);
 }
 
+/*
+ * clear()
+ * Clean up VAOs, VBOs, etc.
+ */
 void Skybox::clean() {
     glDeleteProgram(shaderID);
     glDeleteVertexArrays(1, &vertexArrayID);
@@ -122,10 +144,11 @@ void Skybox::clean() {
     glDeleteBuffers(1, &vertexBufferID);
 
 }
-Skybox::~Skybox() {
 
-}
-
+/*
+ * loadCubemap()
+ * Construct a cubemap from 6 separate textures
+ */
 GLuint Skybox::loadCubemap(std::vector<const GLchar*> files) {
 
     // create 1 OpenGL texture

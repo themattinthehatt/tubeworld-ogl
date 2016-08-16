@@ -15,10 +15,10 @@ void main() // main function
     // sets the vertex position to whatever was in the buffer
     gl_Position = MVP * vec4(vertexPos, 1);
 
-    // the color of each vertex will depend on it's distance from the origin
+    // the color of each vertex will depend on its distance from the origin
     fragmentColor.r = 0.01f * sqrt(vertexPos.x*vertexPos.x +
-                      vertexPos.y*vertexPos.y +
-                      vertexPos.z*vertexPos.z);
+                                   vertexPos.y*vertexPos.y +
+                                   vertexPos.z*vertexPos.z);
     fragmentColor.g = 1.0f;
     fragmentColor.b = 1.0f;
 }

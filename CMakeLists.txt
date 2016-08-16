@@ -6,8 +6,14 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -g -std=c++11 -O3")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -std=c++11")
 
-set(SOURCE_FILES main.cpp loadShaders.cpp Camera.cpp loadTextures.cpp
-                 loadCubemap.cpp Skybox.cpp)
+set(SOURCE_FILES
+        main.cpp
+        core/Camera.cpp
+        core/Skybox.cpp
+        core/loaders/loadShaders.cpp
+        core/loaders/loadTextures.cpp
+        core/loaders/loadCubemap.cpp
+        cube-array/CubeArray.cpp)
 
 add_executable(tubeworld ${SOURCE_FILES})
 
