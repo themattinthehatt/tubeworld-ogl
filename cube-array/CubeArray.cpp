@@ -50,12 +50,19 @@ CubeArray::CubeArray(int numCubesX_, int numCubesY_, int numCubesZ_,
 
     // COPY VERTEX ARRAY AND CENTERS ARRAY INTO BUFFERS
     // specify model coordinates
-    int numCubes = numCubesX * numCubesY * numCubesZ;
+//    int numCubes = (numCubesX * numCubesY * numCubesZ);
+//    GLfloat g_vertex_buffer_data[numCubes * numVertices * 3];
+//    GLfloat g_center_buffer_data[numCubes * numVertices * 3];
+//    // populate buffer_data
+//    createCubeArray(numCubesX, numCubesY, numCubesZ, numVertices,
+//                    g_vertex_buffer_data, g_center_buffer_data);
+
+    int numCubes = (numCubesX * numCubesZ - (numCubesX - 2) * (numCubesZ - 2))* numCubesY;
     GLfloat g_vertex_buffer_data[numCubes * numVertices * 3];
     GLfloat g_center_buffer_data[numCubes * numVertices * 3];
     // populate buffer_data
-    createCubeArray(numCubesX, numCubesY, numCubesZ, numVertices,
-                    g_vertex_buffer_data, g_center_buffer_data);
+    createHollowCubeArray(numCubesX, numCubesY, numCubesZ, numVertices, numCubes,
+                          g_vertex_buffer_data, g_center_buffer_data);
 
 
     // CUBE MODEL COORDINATES
@@ -128,31 +135,11 @@ CubeArray::CubeArray(int numCubesX_, int numCubesY_, int numCubesZ_,
                 0,
                 (GLvoid *) 0
         );
+        glEnableVertexAttribArray(2);
+        // break buffer binding
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
-    else {
-        // create data to put in color buffer
-        GLfloat g_color_buffer_data[numCubes*numVertices*3];
-        createColorArray(numCubes, numVertices, g_color_buffer_data);
-        // generate 1 buffer, put the resulting identifier in VertexBufferID
-        glGenBuffers(1, &colorBufferID);
-        // bind newly created buffer to GL_ARRAY_BUFFER target
-        glBindBuffer(GL_ARRAY_BUFFER, colorBufferID);
-        // copy data into buffer's memory
-        glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data),
-                     g_color_buffer_data, GL_STATIC_DRAW);
 
-        glVertexAttribPointer(
-                2,
-                3,
-                GL_FLOAT,
-                GL_FALSE,
-                0,
-                (GLvoid *) 0
-        );
-    }
-    glEnableVertexAttribArray(2);
-    // break buffer binding
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
     // unbind the VAO
     glBindVertexArray(0);
 }
@@ -249,6 +236,48 @@ void CubeArray::createCubeArray(int numCubesX, int numCubesY, int numCubesZ,
                 cubeCenters[counter + 0] = scale * static_cast<float>(i);
                 cubeCenters[counter + 1] = scale * static_cast<float>(j);
                 cubeCenters[counter + 2] = scale * static_cast<float>(k);
+            }
+        }
+    }
+
+    int fullVertexCount = 0;
+    for (int i = 0; i < numCubes; ++i) {
+        for (int j = 0; j < numVertices; ++j) {
+            fullVertexCount = (i * numVertices + j) * 3;
+            for (int k = 0; k < 3; ++k) {
+                vertex_buffer_data[fullVertexCount + k] =
+                        CubeArray::cubeModelCoordinates[j * 3 + k];
+                center_buffer_data[fullVertexCount + k] =
+                        cubeCenters[i * 3 + k];
+            }
+        }
+    }
+}
+
+/*
+ * createCubeArray()
+ * Create initial position for each vertex
+ */
+void CubeArray::createHollowCubeArray(int numCubesX, int numCubesY, int numCubesZ,
+                                      int numVertices, int numCubes,
+                                      GLfloat *vertex_buffer_data,
+                                      GLfloat *center_buffer_data)
+{
+    int counter = 0;
+    float scale = 5.0f;
+    GLfloat cubeCenters[numCubes * 3];
+    for (int i = 0; i < numCubesX; ++i) {
+        for (int k = 0; k < numCubesZ; ++k) {
+            if (i == 0 || i == numCubesX-1 || k == 0 || k == numCubesZ-1) {
+                for (int j = 0; j < numCubesY; ++j) {
+                    cubeCenters[counter + 0] =
+                            scale * static_cast<float>(i);
+                    cubeCenters[counter + 1] =
+                            scale * static_cast<float>(j);
+                    cubeCenters[counter + 2] =
+                            scale * static_cast<float>(k);
+                    counter += 3;
+                }
             }
         }
     }

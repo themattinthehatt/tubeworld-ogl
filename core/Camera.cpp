@@ -18,7 +18,7 @@ Camera::Camera(bool *keysPressed_, bool *keysToggled_)
     keysToggled = keysToggled_;
 
     // start near origin facing along y-axis
-    position0 = glm::vec3(0,-5,0);
+    position0 = glm::vec3(7.5,-5,7.5);
     horizontalAngle0 = PI/2;
     verticalAngle0 = PI/2;
 

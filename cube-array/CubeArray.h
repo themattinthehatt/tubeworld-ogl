@@ -66,6 +66,12 @@ public:
     static void createSTArray(int numCubes, int numVertices,
                               GLfloat *buffer_data);
 
+    // create initial position data for each vertex
+    static void createHollowCubeArray(int numCubesX, int numCubesY, int numCubesZ,
+                                      int numVertices, int numCubes,
+                                      GLfloat *vertex_buffer_data,
+                                      GLfloat *center_buffer_data);
+
 };
 
 

@@ -42,7 +42,7 @@ int main() {
 
     // open a window and create its OpenGL context
     GLFWwindow *window;
-    window = glfwCreateWindow(1600, 1200, "tubeworld 2.0", nullptr, nullptr);
+    window = glfwCreateWindow(1200, 900, "tubeworld 2.0", nullptr, nullptr);
 //    window = glfwCreateWindow(1920, 1080, "tubeworld 2.0", nullptr, nullptr);
     if (window == nullptr) {
         std::cout << "Failed to open GLFW window." << std::endl;
