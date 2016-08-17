@@ -97,7 +97,7 @@ int main() {
                                      "textures/box3/right.bmp",
                                      "textures/box3/right.bmp",
                                      "textures/box3/right.bmp"};
-    Skybox skybox = Skybox(files, 1000.0f);
+    Skybox skybox = Skybox(files, 1000.0f, keysPressed, keysToggled);
 
     // set up cubes
     int numCubesX = 4;
@@ -108,14 +108,17 @@ int main() {
                                     isTextureRendered);
 
     // initialize camera
-    Camera cam = Camera(window, keysPressed, keysToggled);
+    Camera cam = Camera(keysPressed, keysToggled);
 
     // determine render mode
-    bool areFilledPolys = true;
-    if (areFilledPolys)
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    else
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    bool polygonTrigger = false;
+    GLuint polygonMode = 0;
+    enum PolygonMode {
+        FILL,
+        LINE,
+        POINT,
+        MAX_POLYGON_MODES
+    };
 
     // -------------------------------------------------------------------------
     // Run draw loop
@@ -125,10 +128,27 @@ int main() {
         // check for mouse and keyboard events
         glfwPollEvents();
 
-        // set black background on screen clear
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         // clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // update render mode if tab key was just released
+        if (keysToggled[GLFW_KEY_CAPS_LOCK] != polygonTrigger) {
+            polygonTrigger = !polygonTrigger;
+            polygonMode = (polygonMode + 1) % MAX_POLYGON_MODES;
+        }
+        switch (polygonMode) {
+            case FILL:
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                break;
+            case LINE:
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                break;
+            case POINT:
+                glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+                break;
+            default:
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
 
         // compute view and projection matrices from keyboard and mouse input
         cam.update();

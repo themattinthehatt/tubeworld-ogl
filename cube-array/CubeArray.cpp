@@ -1,7 +1,7 @@
 //
 // Created by mattw on 8/16/16.
 //
-
+#include <iostream>
 #include "CubeArray.h"
 #include "../core/loaders/loadShaders.h"
 #include "../core/loaders/loadTextures.h"
@@ -30,11 +30,12 @@ CubeArray::CubeArray(int numCubesX_, int numCubesY_, int numCubesZ_,
     }
 
     // give the MVP matrix to GLSL; get a handle on our "MVP" uniform
-    modelMatrix = glm::mat4(1.0);
-    viewMatrix = glm::mat4(1.0);
-    projectionMatrix = glm::mat4(1.0);
+    mMatrix = glm::mat4(1.0);
+    vpMatrix = glm::mat4(1.0);
     mvpMatrix = glm::mat4(1.0);
-    mvpMatrixID = glGetUniformLocation(shaderID, "MVP");
+    mMatrixID = glGetUniformLocation(shaderID, "mMatrix");
+    vpMatrixID = glGetUniformLocation(shaderID, "vpMatrix");
+    mvpMatrixID = glGetUniformLocation(shaderID, "mvpMatrix");
     // give time parameter to GLSL
     timeParamID = glGetUniformLocation(shaderID, "time");
 
@@ -47,15 +48,17 @@ CubeArray::CubeArray(int numCubesX_, int numCubesY_, int numCubesZ_,
     glBindVertexArray(vertexArrayID);
     // from here we bind/config corresponding VBO(s) and attribute pointers
 
-    // COPY VERTEX ARRAY INTO A BUFFER
+    // COPY VERTEX ARRAY AND CENTERS ARRAY INTO BUFFERS
     // specify model coordinates
     int numCubes = numCubesX * numCubesY * numCubesZ;
     GLfloat g_vertex_buffer_data[numCubes * numVertices * 3];
-    // populate g_vertex_buffer_data
+    GLfloat g_center_buffer_data[numCubes * numVertices * 3];
+    // populate buffer_data
     createCubeArray(numCubesX, numCubesY, numCubesZ, numVertices,
-                    g_vertex_buffer_data);
+                    g_vertex_buffer_data, g_center_buffer_data);
 
 
+    // CUBE MODEL COORDINATES
     // generate 1 buffer, put the resulting identifier in VertexBufferID
     glGenBuffers(1, &vertexBufferID);
     // bind newly created buffer to GL_ARRAY_BUFFER target
@@ -63,6 +66,7 @@ CubeArray::CubeArray(int numCubesX_, int numCubesY_, int numCubesZ_,
     // copy data into buffer's memory
     glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data),
                  g_vertex_buffer_data, GL_STATIC_DRAW);
+
     // set vertex attribute pointers
     glVertexAttribPointer(
             0,         // attribute 0; must match "layout" in shader
@@ -73,6 +77,29 @@ CubeArray::CubeArray(int numCubesX_, int numCubesY_, int numCubesZ_,
             (GLvoid*)0   // array buffer offset
     );
     glEnableVertexAttribArray(0);
+    // break buffer binding
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
+    // CUBE CENTER COORDINATES
+    // generate 1 buffer, put the resulting identifier in centerBufferID
+    glGenBuffers(1, &centerBufferID);
+    // bind newly created buffer to GL_ARRAY_BUFFER target
+    glBindBuffer(GL_ARRAY_BUFFER, centerBufferID);
+    // copy data into buffer's memory
+    glBufferData(GL_ARRAY_BUFFER, sizeof(g_center_buffer_data),
+                 g_center_buffer_data, GL_STATIC_DRAW);
+
+    // set vertex attribute pointers
+    glVertexAttribPointer(
+            1,         // attribute 0; must match "layout" in shader
+            3,         // size (# vertices)
+            GL_FLOAT,  // type
+            GL_FALSE,  // normalized?
+            0,         // stride
+            (GLvoid*)0   // array buffer offset
+    );
+    glEnableVertexAttribArray(1);
     // break buffer binding
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -94,7 +121,7 @@ CubeArray::CubeArray(int numCubesX_, int numCubesY_, int numCubesZ_,
                      g_st_buffer_data, GL_STATIC_DRAW);
 
         glVertexAttribPointer(
-                1,
+                2,
                 2,
                 GL_FLOAT,
                 GL_FALSE,
@@ -115,7 +142,7 @@ CubeArray::CubeArray(int numCubesX_, int numCubesY_, int numCubesZ_,
                      g_color_buffer_data, GL_STATIC_DRAW);
 
         glVertexAttribPointer(
-                1,
+                2,
                 3,
                 GL_FLOAT,
                 GL_FALSE,
@@ -123,7 +150,7 @@ CubeArray::CubeArray(int numCubesX_, int numCubesY_, int numCubesZ_,
                 (GLvoid *) 0
         );
     }
-    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
     // break buffer binding
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     // unbind the VAO
@@ -141,8 +168,10 @@ CubeArray::~CubeArray() {}
  * Update position of cube array
  */
 void CubeArray::update(const Camera &cam) {
-    mvpMatrix = cam.Projection * cam.View * modelMatrix;
     time = glfwGetTime();
+    mMatrix = glm::mat4(1.0);
+    vpMatrix = cam.Projection * cam.View;
+    mvpMatrix = vpMatrix * mMatrix;
 }
 
 /*
@@ -155,8 +184,11 @@ void CubeArray::draw() {
 
     // send our transformation to the currently bound shader, in the "MVP" uniform
     // This is done in the main loop since each model will have a different MVP matrix
+    glUniformMatrix4fv(mMatrixID, 1, GL_FALSE, &mMatrix[0][0]);
+    glUniformMatrix4fv(vpMatrixID, 1, GL_FALSE, &vpMatrix[0][0]);
     glUniformMatrix4fv(mvpMatrixID, 1, GL_FALSE, &mvpMatrix[0][0]);
-    glUniform1f(timeParamID, (sinf(time) / 2.0f) + 0.5f);
+    //glUniform1f(timeParamID, (sinf(time) / 2.0f) + 0.5f);
+    glUniform1f(timeParamID, time);
 
     if (isTextureRendered) {
         // Activate the texture unit first before binding texture
@@ -176,6 +208,9 @@ void CubeArray::draw() {
     glDrawArrays(GL_TRIANGLES, 0, numVertices*numCubesX*numCubesY*numCubesZ);
     // break vertex array object binding
     glBindVertexArray(0);
+    // break texture binding
+    glBindTexture(GL_TEXTURE_2D, 0);
+
 }
 
 /*
@@ -200,7 +235,8 @@ void CubeArray::clean() {
  * Create initial position for each vertex
  */
 void CubeArray::createCubeArray(int numCubesX, int numCubesY, int numCubesZ,
-                     int numVertices, GLfloat *buffer_data)
+                                int numVertices, GLfloat *vertex_buffer_data,
+                                GLfloat *center_buffer_data)
 {
     int numCubes = numCubesX * numCubesY * numCubesZ;
     int counter = 0;
@@ -222,9 +258,10 @@ void CubeArray::createCubeArray(int numCubesX, int numCubesY, int numCubesZ,
         for (int j = 0; j < numVertices; ++j) {
             fullVertexCount = (i * numVertices + j) * 3;
             for (int k = 0; k < 3; ++k) {
-                buffer_data[fullVertexCount + k] =
-                        CubeArray::cubeModelCoordinates[j * 3 + k]
-                        + cubeCenters[i * 3 + k];
+                vertex_buffer_data[fullVertexCount + k] =
+                        CubeArray::cubeModelCoordinates[j * 3 + k];
+                center_buffer_data[fullVertexCount + k] =
+                        cubeCenters[i * 3 + k];
             }
         }
     }

@@ -17,6 +17,13 @@ private:
     GLuint numVertices = 36;    // number of vertices in a cube
     static GLfloat skyboxModelCoordinates[];
 
+    enum RenderMode {
+        RENDER_CUBEMAP0,
+        RENDER_BLACK,
+        RENDER_WHITE,
+        MAX_RENDER_MODES
+    };
+
 public:
     GLuint vertexArrayID;       // ID of VAO
     GLuint vertexBufferID;      // ID of VBO
@@ -26,8 +33,14 @@ public:
     glm::mat4 viewMatrix;       // view matrix
     GLuint viewMatrixID;        // ID of view matrix for shaders
 
+    const bool *keysPressed;    // pointer to keysPressed array
+    const bool *keysToggled;    // pointer to keysToggled array
+    bool renderTrigger = false; // returns true upon release of proper key
+    GLuint renderMode = 0;      // specifies current mode of skybox rendering
+
     // constructor
-    Skybox(std::vector<const GLchar*> files_, GLfloat multiplier_);
+    Skybox(std::vector<const GLchar*> files, GLfloat multiplier,
+           const bool *keysPressed, const bool *keysToggled);
     // destructor
     ~Skybox();
     // update skybox position

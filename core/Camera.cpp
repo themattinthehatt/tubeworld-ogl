@@ -11,15 +11,11 @@
 /* Camera();
  * Constructor method for Camera class
  */
-Camera::Camera(GLFWwindow *window_, bool *keysPressed_,
-                                    bool *keysToggled_)
+Camera::Camera(bool *keysPressed_, bool *keysToggled_)
 {
     // store pointers to key state arrays
     keysPressed = keysPressed_;
     keysToggled = keysToggled_;
-
-    // window for drawing
-    window = window_;
 
     // start near origin facing along y-axis
     position0 = glm::vec3(0,-5,0);
@@ -67,40 +63,40 @@ void Camera::handleInput()
     // move forward or up
     if (keysPressed[GLFW_KEY_UP]) {
         if (keysPressed[GLFW_KEY_LEFT_SHIFT])
-            position += up * deltaTime * speed;
+            moveUp(deltaTime * speed);
         else
-            position += heading * deltaTime * speed;
+            moveForward(deltaTime * speed);
     }
     // move backward or down
     if (keysPressed[GLFW_KEY_DOWN]) {
         if (keysPressed[GLFW_KEY_LEFT_SHIFT])
-            position -= up * deltaTime * speed;
+            moveDown(deltaTime * speed);
         else
-            position -= heading * deltaTime * speed;
+            moveBackward(deltaTime * speed);
     }
     // strafe right
     if (keysPressed[GLFW_KEY_RIGHT]) {
-        position += right * deltaTime * speed;
+        moveRight(deltaTime * speed);
     }
     // strafe left
     if (keysPressed[GLFW_KEY_LEFT]) {
-        position -= right * deltaTime * speed;
+        moveLeft(deltaTime * speed);
     }
     // rotate up
     if (keysPressed[GLFW_KEY_W]) {
-        verticalAngle -= deltaTime * rotationSpeed;
+        rotateUp(deltaTime * rotationSpeed);
     }
     // rotate down
     if (keysPressed[GLFW_KEY_S]) {
-        verticalAngle += deltaTime * rotationSpeed;
+        rotateDown(deltaTime * rotationSpeed);
     }
     // rotate right
     if (keysPressed[GLFW_KEY_D]) {
-        horizontalAngle -= deltaTime * rotationSpeed;
+        rotateRight(deltaTime * rotationSpeed);
     }
     // rotate left
     if (keysPressed[GLFW_KEY_A]) {
-        horizontalAngle += deltaTime * rotationSpeed;
+        rotateLeft(deltaTime * rotationSpeed);
     }
     // decrease speed
     if (keysPressed[GLFW_KEY_E]) {
@@ -174,4 +170,36 @@ void Camera::reset()
     position = position0;
     horizontalAngle = horizontalAngle0;
     verticalAngle = verticalAngle0;
+}
+
+// movement functions
+void Camera::moveForward(GLfloat distance_) {
+    position += heading * distance_;
+}
+void Camera::moveUp(GLfloat distance_) {
+    position += up * distance_;
+}
+void Camera::moveBackward(GLfloat distance_) {
+    position -= heading * distance_;
+}
+void Camera::moveDown(GLfloat distance_) {
+    position -= up * distance_;
+}
+void Camera::moveRight(GLfloat distance_) {
+    position += right * distance_;
+}
+void Camera::moveLeft(GLfloat distance_) {
+    position -= right * distance_;
+}
+void Camera::rotateUp(GLfloat rotationAngle_) {
+    verticalAngle -= rotationAngle_; // we're in standard spherical coords
+}
+void Camera::rotateDown(GLfloat rotationAngle_) {
+    verticalAngle += rotationAngle_;
+}
+void Camera::rotateRight(GLfloat rotationAngle_) {
+    horizontalAngle -= rotationAngle_;
+}
+void Camera::rotateLeft(GLfloat rotationAngle_) {
+    horizontalAngle += rotationAngle_;
 }

@@ -9,7 +9,7 @@
 bool keysPressed[GLFW_KEY_LAST] = {};
 
 // array for toggled keys
-bool  keysToggled[GLFW_KEY_LAST] = {};
+bool keysToggled[GLFW_KEY_LAST] = {};
 
 // Is called whenever a key is pressed/released via GLFW
 void keyHandler(GLFWwindow* window, int key, int scancode, int action, int mode)

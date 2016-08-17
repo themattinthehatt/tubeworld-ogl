@@ -27,12 +27,14 @@ public:
     GLuint texture;
     GLuint textureID;
     GLuint shaderID;
+    GLuint centerBufferID;
     GLuint colorBufferID;
     GLuint stBufferID;
-    glm::mat4 modelMatrix;
-    glm::mat4 viewMatrix;
-    glm::mat4 projectionMatrix;
+    glm::mat4 mMatrix;
+    glm::mat4 vpMatrix;
     glm::mat4 mvpMatrix;
+    GLuint mMatrixID;
+    GLuint vpMatrixID;
     GLuint mvpMatrixID;
     GLfloat time;
     GLuint timeParamID;
@@ -55,7 +57,8 @@ public:
 
     // create initial position data for each vertex
     static void createCubeArray(int numCubesX, int numCubesY, int numCubesZ,
-                                int numVertices, GLfloat *buffer_data);
+                                int numVertices, GLfloat *vertex_buffer_data,
+                                GLfloat *center_buffer_data);
     // create initial color data for each vertex
     static void createColorArray(int numCubes, int numVertices,
                                  GLfloat *buffer_data);

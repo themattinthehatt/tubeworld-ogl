@@ -21,10 +21,15 @@
 /* Skybox()
  * Constructor method for Camera class
  */
-Skybox::Skybox(std::vector<const GLchar*> files_, GLfloat multiplier_) {
+Skybox::Skybox(std::vector<const GLchar*> files_, GLfloat multiplier_,
+               const bool *keysPressed_, const bool *keysToggled_) {
 
     // multiplier sets bounds of skybox
     multiplier = multiplier_;
+
+    // keyboard input for toggling skybox
+    keysPressed = keysPressed_;
+    keysToggled = keysToggled_;
 
     // load images that will serve as skybox textures
     texture = Skybox::loadCubemap(files_);
@@ -78,10 +83,8 @@ Skybox::Skybox(std::vector<const GLchar*> files_, GLfloat multiplier_) {
     glEnableVertexAttribArray(0);
     // break buffer binding
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-
     // unbind the VAO
     glBindVertexArray(0);
-
 }
 
 /*
@@ -98,6 +101,12 @@ void Skybox::update(const Camera &cam) {
     // remove translations from view matrix
 //    viewMatrix = cam.Projection * glm::mat4(glm::mat3(cam.View));
     viewMatrix = cam.Projection * cam.View;
+
+    // update render mode if tab key was just released
+    if (keysToggled[GLFW_KEY_TAB] != renderTrigger) {
+        renderTrigger = !renderTrigger;
+        renderMode = (renderMode + 1) % MAX_RENDER_MODES;
+    }
 }
 
 /*
@@ -106,31 +115,47 @@ void Skybox::update(const Camera &cam) {
  */
 void Skybox::draw() {
 
-    // disable depth writing so skybox will be drawn on the background
-    glDepthMask(GL_FALSE);
+    switch (renderMode) {
+        case RENDER_CUBEMAP0:
+            // disable depth writing so skybox will be drawn on the background
+            glDepthMask(GL_FALSE);
 
-    // use our shader
-    glUseProgram(shaderID);
+            // use our shader
+            glUseProgram(shaderID);
 
-    // send our transformation to the currently bound shader
-    glUniformMatrix4fv(viewMatrixID, 1, GL_FALSE, &viewMatrix[0][0]);
+            // send our transformation to the currently bound shader
+            glUniformMatrix4fv(viewMatrixID, 1, GL_FALSE, &viewMatrix[0][0]);
 
-    // Activate the texture unit first before binding texture
-    glActiveTexture(GL_TEXTURE0);
-    // binds texture to the currently active texture unit
-    glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
-    // puts the texture in texture unit 0
-    glUniform1i(textureID, 0);
+            // Activate the texture unit first before binding texture
+            glActiveTexture(GL_TEXTURE0);
+            // binds texture to the currently active texture unit
+            glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
+            // puts the texture in texture unit 0
+            glUniform1i(textureID, 0);
 
-    // bind vertex array
-    glBindVertexArray(vertexArrayID);
-    // draw the square!
-    glDrawArrays(GL_TRIANGLES, 0, numVertices);
-    // break vertex array object binding
-    glBindVertexArray(0);
+            // bind vertex array
+            glBindVertexArray(vertexArrayID);
+            // draw the square!
+            glDrawArrays(GL_TRIANGLES, 0, numVertices);
+            // break vertex array object binding
+            glBindVertexArray(0);
+            // binds texture to the currently active texture unit
+            glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
-    // re-enable depth writing for rest of scene
-    glDepthMask(GL_TRUE);
+            // re-enable depth writing for rest of scene
+            glDepthMask(GL_TRUE);
+
+            break;
+        case RENDER_BLACK:
+            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+            break;
+        case RENDER_WHITE:
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            break;
+        default:
+            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    }
+
 }
 
 /*
