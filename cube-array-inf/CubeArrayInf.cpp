@@ -17,6 +17,9 @@ CubeArrayInf::CubeArrayInf(int numCubesX_, int numCubesY_, int numCubesZ_,
     numCubesX = numCubesX_;
     numCubesY = numCubesY_;
     numCubesZ = numCubesZ_;
+    cubeSpacing = 5.0f;
+    cubeSpacingMin = 2.0f;
+    cubeSpacingMax = 10.0f;
 
     isTextureRendered = isTextureRendered_;
     if (isTextureRendered) {
@@ -65,7 +68,7 @@ CubeArrayInf::CubeArrayInf(int numCubesX_, int numCubesY_, int numCubesZ_,
                * numCubesY;
     g_center_buffer_data = new glm::vec3[numCubes];
     createHollowCubeArray(numCubesX, numCubesY, numCubesZ, glm::vec3(0.f, 0.f, 0.f),
-                             g_center_buffer_data);
+                          cubeSpacing, g_center_buffer_data);
 
 //    numCubes = numCubesX * numCubesY * numCubesZ;
 //    glm::vec3 *g_center_buffer_data;
@@ -171,7 +174,6 @@ void CubeArrayInf::update(const Camera &cam) {
     vpMatrix = cam.getProjection() * cam.getView();
     mvpMatrix = vpMatrix * mMatrix;
     playerPos = cam.getPosition();
-    playerPos0 = cam.getPosition0();
 }
 
 /*
@@ -192,7 +194,7 @@ void CubeArrayInf::draw() {
     // update cube centers
     tubeOrigin = glm::vec3(0.0f, round(playerPos.y/5.0f) * 5.0f, 0.0f);
     createHollowCubeArray(numCubesX, numCubesY, numCubesZ, tubeOrigin,
-                          g_center_buffer_data);
+                          cubeSpacing, g_center_buffer_data);
     // bind buffer to GL_ARRAY_BUFFER target
     glBindBuffer(GL_ARRAY_BUFFER, centerBufferID);
     // copy data into buffer's memory
@@ -265,19 +267,18 @@ void CubeArrayInf::createCubeArray(int numCubesX, int numCubesY, int numCubesZ,
 
 
 void CubeArrayInf::createHollowCubeArray(int numCubesX, int numCubesY, int numCubesZ,
-                                            glm::vec3 origin,
+                                            glm::vec3 origin, float cubeSpacing,
                                             glm::vec3 center_buffer_data[])
 {
     int counter = 0;
-    float scale = 5.0f;
     for (int i = 0; i < numCubesX; ++i) {
         for (int k = 0; k < numCubesZ; ++k) {
             if (i == 0 || i == numCubesX-1 || k == 0 || k == numCubesZ-1) {
                 for (int j = 0; j < numCubesY; ++j) {
                     center_buffer_data[counter] = glm::vec3(
-                      origin.x + scale * static_cast<float>(-numCubesX/2 + i),
-                      origin.y + scale * static_cast<float>(-numCubesY/4 + j),
-                      origin.z + scale * static_cast<float>(-numCubesZ/2 + k));
+                      origin.x + cubeSpacing * static_cast<float>(-numCubesX/2 + i),
+                      origin.y + cubeSpacing * static_cast<float>(-numCubesY/4 + j),
+                      origin.z + cubeSpacing * static_cast<float>(-numCubesZ/2 + k));
                     counter++;
                 }
             }

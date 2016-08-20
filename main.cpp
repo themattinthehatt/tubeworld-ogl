@@ -21,7 +21,7 @@
 #include "core/Skybox.h"
 #include "core/KeyHandler.h"
 #include "cube-array-inf/CubeArrayInf.h"
-#include "cube-array-inst/CubeArrayInst.h"
+#include "cube-array-ring/CubeArrayRing.h"
 
 
 
@@ -115,11 +115,13 @@ int main() {
     int numCubesY = 300;
     int numCubesZ = 5;
     bool isTextureRendered = false;
-    CubeArrayInf cubearray = CubeArrayInf(numCubesX, numCubesY, numCubesZ,
-                                    isTextureRendered);
+//    CubeArrayInf cubearray = CubeArrayInf(numCubesX, numCubesY, numCubesZ, isTextureRendered);
+    CubeArrayRing cubearray = CubeArrayRing(5, 5, 100);
 
+    // initialize player
+    Player player = Player(keysPressed, keysToggled);
     // initialize camera
-    Camera cam = Camera(keysPressed, keysToggled);
+    Camera cam = Camera();
 
     // determine render mode
     bool polygonTrigger = false;
@@ -161,8 +163,11 @@ int main() {
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         }
 
-        // compute view and projection matrices from keyboard and mouse input
-        cam.update();
+        // update player position
+        player.update();
+
+        // compute view and projection matrices from player info
+        cam.update(player);
 
         // RENDER SKYBOX
         skybox.update(cam);

@@ -8,13 +8,14 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -std=c++11")
 
 set(SOURCE_FILES
         main.cpp
+        core/Player.cpp
         core/Camera.cpp
         core/Skybox.cpp
         core/loaders/loadShaders.cpp
         core/loaders/loadTextures.cpp
         core/loaders/loadCubemap.cpp
         cube-array-inf/CubeArrayInf.cpp
-        cube-array-inst/CubeArrayInst.cpp)
+        cube-array-ring/CubeArrayRing.cpp)
 
 
 add_executable(tubeworld ${SOURCE_FILES})
