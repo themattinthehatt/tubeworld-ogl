@@ -100,7 +100,7 @@ Skybox::~Skybox() {}
 void Skybox::update(const Camera &cam) {
     // remove translations from view matrix
 //    viewMatrix = cam.Projection * glm::mat4(glm::mat3(cam.View));
-    viewMatrix = cam.Projection * cam.View;
+    viewMatrix = cam.getProjection() * cam.getView();
 
     // update render mode if tab key was just released
     if (keysToggled[GLFW_KEY_TAB] != renderTrigger) {

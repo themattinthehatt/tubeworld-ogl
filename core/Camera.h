@@ -37,13 +37,13 @@ private:
 
     GLfloat fov;                            // field of view, in degrees
 
+    glm::mat4 View;                         // view matrix
+    glm::mat4 Projection;                   // projection matrix
+
     const bool *keysPressed;                // pointer to keysPressed array
     const bool *keysToggled;                // pointer to keysToggled array
 
 public:
-
-    glm::mat4 View;                         // view matrix
-    glm::mat4 Projection;                   // projection matrix
 
     Camera(bool *keysPressed,
            bool *keysToggled);              // constructor
@@ -51,6 +51,12 @@ public:
     void handleInput();                     // interface with keyboard
     void update();                          // move camera
     void reset();                           // reset camera
+
+    // getters
+    glm::vec3 getPosition() const { return position; }
+    glm::vec3 getPosition0() const { return position0; }
+    glm::mat4 getView() const { return View; }
+    glm::mat4 getProjection() const { return Projection; }
 
     // movement functions
     void moveForward(GLfloat distance);

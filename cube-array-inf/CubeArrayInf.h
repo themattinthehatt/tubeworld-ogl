@@ -1,24 +1,26 @@
 //
 // Created by mattw on 8/16/16.
 //
+// use the standard vertex attributes for data per vertex and use the instanced
+// array for storing data that is unique per instance.
 
-#ifndef TUBEWORLD_CUBEARRAY_H
-#define TUBEWORLD_CUBEARRAY_H
+#ifndef TUBEWORLD_CUBEARRAYINF_H
+#define TUBEWORLD_CUBEARRAYINF_H
 
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include "../core/Camera.h"
 
-class CubeArray {
+class CubeArrayInf {
 private:
 
 
 public:
     GLuint numVertices = 36;
     static GLfloat cubeModelCoordinates[];
-    static GLfloat cubeColorCoordinates[];
     static GLfloat cubeSTCoordinates[];
+    glm::vec3 *g_center_buffer_data;
 
     bool isTextureRendered;
 
@@ -36,18 +38,22 @@ public:
     GLuint mMatrixID;
     GLuint vpMatrixID;
     GLuint mvpMatrixID;
+    glm::vec3 playerPos;
+    glm::vec3 playerPos0;
+    glm::vec3 tubeOrigin;
     GLfloat time;
     GLuint timeParamID;
 
     int numCubesX;
     int numCubesY;
     int numCubesZ;
+    int numCubes;
 
     // constructor
-    CubeArray(int numCubesX, int numCubesY, int numCubesZ,
+    CubeArrayInf(int numCubesX, int numCubesY, int numCubesZ,
               bool isTextureRendered);
     // destructor
-    ~CubeArray();
+    ~CubeArrayInf();
     // update dynamics of cube array
     void update(const Camera &cam);
     // draw cube array
@@ -57,21 +63,16 @@ public:
 
     // create initial position data for each vertex
     static void createCubeArray(int numCubesX, int numCubesY, int numCubesZ,
-                                int numVertices, GLfloat *vertex_buffer_data,
-                                GLfloat *center_buffer_data);
-    // create initial color data for each vertex
-    static void createColorArray(int numCubes, int numVertices,
-                                 GLfloat *buffer_data);
+                                glm::vec3 center_buffer_data[]);
     // create initial texture coordinate data for each vertex
     static void createSTArray(int numCubes, int numVertices,
                               GLfloat *buffer_data);
-
     // create initial position data for each vertex
     static void createHollowCubeArray(int numCubesX, int numCubesY, int numCubesZ,
-                                      int numVertices, int numCubes,
-                                      GLfloat *vertex_buffer_data,
-                                      GLfloat *center_buffer_data);
+                                         glm::vec3 origin,
+                                         glm::vec3 center_buffer_data[]);
+
 };
 
 
-#endif //TUBEWORLD_CUBEARRAY_H
+#endif //TUBEWORLD_CUBEARRAYINF_H

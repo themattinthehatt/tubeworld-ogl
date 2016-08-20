@@ -1,3 +1,5 @@
+
+
 // Include standard headers
 #include <cstdio>
 #include <cstdlib>
@@ -12,11 +14,16 @@
 // Include GLM - 3D mathematics
 #include <glm/glm.hpp>
 
+#include "core/Debug.h"
+
 // include tubeworld components
 #include "core/Camera.h"
 #include "core/Skybox.h"
 #include "core/KeyHandler.h"
-#include "cube-array/CubeArray.h"
+#include "cube-array-inf/CubeArrayInf.h"
+#include "cube-array-inst/CubeArrayInst.h"
+
+
 
 int main() {
 
@@ -42,8 +49,9 @@ int main() {
 
     // open a window and create its OpenGL context
     GLFWwindow *window;
-    window = glfwCreateWindow(1200, 900, "tubeworld 2.0", nullptr, nullptr);
-//    window = glfwCreateWindow(1920, 1080, "tubeworld 2.0", nullptr, nullptr);
+    GLuint screenWidth = 1200;
+    GLuint screenHeight = 900;
+    window = glfwCreateWindow(screenWidth, screenHeight, "tubeworld 2.0", nullptr, nullptr);
     if (window == nullptr) {
         std::cout << "Failed to open GLFW window." << std::endl;
         glfwTerminate();
@@ -53,6 +61,14 @@ int main() {
 
     // set up callback function for when a physical key is pressed or released
     glfwSetKeyCallback(window, keyHandler);
+    // ensure we can capture key presses
+    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+
+    // hide the mouse and enable unlimited movement
+    // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    // set the mouse at the center of the screen
+    // glfwPollEvents();
+    // glfwSetCursorPos(window, 1024/2, 768/2);
 
     // -------------------------------------------------------------------------
     // GLEW - queries location of OpenGL functions at run-time and stores
@@ -64,22 +80,17 @@ int main() {
         return -1;
     }
 
+    GL_CHECK(true);
+
     // tell OpenGL the size of the rendering window
-    int width, height;
-    glfwGetFramebufferSize(window, &width, &height);
+//    int width, height;
+//    glfwGetFramebufferSize(window, &width, &height);
     // OpenGL uses data specified here to transform the 2D coordinates it
     // processes to the coordinates on the screen
-    glViewport(0, 0, width, height); // lower left corner, width, height
+    glViewport(0, 0, screenWidth, screenHeight); // lower left corner, width, height
 
-    // ensure we can capture the escape key being pressed below
-    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
-    // hide the mouse and enable unlimited movement
-    // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    // set the mouse at the center of the screen
-    // glfwPollEvents();
-    // glfwSetCursorPos(window, 1024/2, 768/2);
-
+    // OpenGL options
     // enable depth test
     glEnable(GL_DEPTH_TEST);
     // accept fragment if it is closer to the camera than the former one
@@ -100,11 +111,11 @@ int main() {
     Skybox skybox = Skybox(files, 1000.0f, keysPressed, keysToggled);
 
     // set up cubes
-    int numCubesX = 4;
-    int numCubesY = 100;
-    int numCubesZ = 4;
+    int numCubesX = 5;
+    int numCubesY = 300;
+    int numCubesZ = 5;
     bool isTextureRendered = false;
-    CubeArray cubearray = CubeArray(numCubesX, numCubesY, numCubesZ,
+    CubeArrayInf cubearray = CubeArrayInf(numCubesX, numCubesY, numCubesZ,
                                     isTextureRendered);
 
     // initialize camera
