@@ -195,3 +195,10 @@ void Player::rotateRight(GLfloat rotationAngle_) {
 void Player::rotateLeft(GLfloat rotationAngle_) {
     horizontalAngle += rotationAngle_;
 }
+void Player::moveTheta(GLfloat rotationAngle, glm::vec3 origin) {
+    glm::mat4 model;
+    model = glm::rotate(model, rotationAngle, glm::vec3(0.0f, 0.0f, 1.0f));
+    position = origin + glm::vec3(model * glm::vec4(position-origin, 1.0f));
+//    heading = glm::vec3(model * glm::vec4(heading, 0.0f));
+    horizontalAngle += rotationAngle;
+}

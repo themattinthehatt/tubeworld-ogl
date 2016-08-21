@@ -8,6 +8,9 @@ in float sinTime;
 // output data
 out vec3 color;
 
+//
+//uniform float time;
+
 // forward declaration
 vec3 hsvToRgb(vec3 hsv);
 
@@ -18,7 +21,7 @@ void main() {
     // output color = color specified in the vertex shader,
     // interpolated between all 3 surrounding vertices
     color = fragmentColor;
-    color.r += sinTime; // let GPU throw out numbers > 1.0
+    color.r += 0.3 * sinTime; // let GPU throw out numbers > 1.0
     color = hsvToRgb(color);
 }
 

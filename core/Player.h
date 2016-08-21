@@ -47,11 +47,32 @@ public:
     void reset();                           // reset camera
 
     // getters
-    glm::vec3 getPosition() const { return position; }
     glm::vec3 getPosition0() const { return position0; }
+    glm::vec3 getPosition() const { return position; }
     glm::vec3 getHeading() const { return heading; }
     glm::vec3 getRight() const { return right; }
     glm::vec3 getUp() const { return up; }
+    GLfloat getHorizontalAngle() const { return horizontalAngle; }
+    GLfloat getVerticalAngle() const { return verticalAngle; }
+    GLfloat getSpeed() const { return speed; }
+    GLfloat getMaxSpeed() const { return maxSpeed; }
+    GLfloat getRotationSpeed() const { return rotationSpeed; }
+    GLfloat getLastTime() const { return lastTime; }
+    GLfloat getCurrentTime() const { return currentTime; }
+    GLfloat getDeltaTime() const { return deltaTime; }
+
+    // setters
+    void setHeading(glm::vec3 direction) { heading = direction; }
+    void setRight(glm::vec3 direction) { right = direction; }
+    void setUp(glm::vec3 direction) { up = direction; }
+    void incrementSpeed(GLfloat increment) { speed += increment; }
+    void setSpeed(GLfloat new_speed) { speed = new_speed; }
+    void incrementRotationSpeed(GLfloat increment) { rotationSpeed += increment; }
+    void setVerticalAngle(GLfloat angle) { verticalAngle = angle; }
+    void setHorizontalAngle(GLfloat angle) { horizontalAngle = angle; }
+    void setLastTime(GLfloat time) { lastTime = time; }
+    void setCurrentTime(GLfloat time) { currentTime = time; }
+    void setDeltaTime(GLfloat time) { deltaTime = time; }
 
     // movement functions
     void moveForward(GLfloat distance);
@@ -64,6 +85,7 @@ public:
     void rotateDown(GLfloat rotationAngle);
     void rotateRight(GLfloat rotationAngle);
     void rotateLeft(GLfloat rotationAngle);
+    void moveTheta(GLfloat rotationAngle, glm::vec3 origin);
 };
 
 

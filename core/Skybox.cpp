@@ -12,6 +12,7 @@
 #include <cmath>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <iostream>
 
 #include "loaders/loadShaders.h"
 #include "loaders/loadTextures.h"

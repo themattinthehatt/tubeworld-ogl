@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
+#include <vector>
 
 // Include GLEW. Always include it before gl.h and glfw.h, since it's a bit magic
 #include <GL/glew.h>
@@ -48,10 +49,23 @@ int main() {
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
     // open a window and create its OpenGL context
+    int count;
+    GLFWmonitor **monitors = glfwGetMonitors(&count);
+    GLFWmonitor *useMonitor;
+    int monitorID = 0;
+    if (monitorID < count) {
+        useMonitor = monitors[monitorID];
+    } else useMonitor = monitors[0];
     GLFWwindow *window;
-    GLuint screenWidth = 1200;
-    GLuint screenHeight = 900;
-    window = glfwCreateWindow(screenWidth, screenHeight, "tubeworld 2.0", nullptr, nullptr);
+
+    const GLFWvidmode *mode = glfwGetVideoMode(useMonitor);
+    int xResolution = mode->width;
+    int yResolution = mode->height;
+
+    GLuint screenWidth = xResolution; //1200;
+    GLuint screenHeight = yResolution; //900;
+//    window = glfwCreateWindow(screenWidth, screenHeight, "tubeworld 2.0", nullptr, nullptr);
+    window = glfwCreateWindow(screenWidth, screenHeight, "tubeworld 2.0", useMonitor, nullptr);
     if (window == nullptr) {
         std::cout << "Failed to open GLFW window." << std::endl;
         glfwTerminate();
@@ -69,6 +83,8 @@ int main() {
     // set the mouse at the center of the screen
     // glfwPollEvents();
     // glfwSetCursorPos(window, 1024/2, 768/2);
+
+//    glfwSwapInterval(1);
 
     // -------------------------------------------------------------------------
     // GLEW - queries location of OpenGL functions at run-time and stores
@@ -116,7 +132,7 @@ int main() {
     int numCubesZ = 5;
     bool isTextureRendered = false;
 //    CubeArrayInf cubearray = CubeArrayInf(numCubesX, numCubesY, numCubesZ, isTextureRendered);
-    CubeArrayRing cubearray = CubeArrayRing(5, 5, 100);
+    CubeArrayRing cubearray = CubeArrayRing(5, 5, 100, keysPressed, keysToggled);
 
     // initialize player
     Player player = Player(keysPressed, keysToggled);
@@ -128,15 +144,18 @@ int main() {
     GLuint polygonMode = 0;
     enum PolygonMode {
         FILL,
-        LINE,
         POINT,
+        LINE,
         MAX_POLYGON_MODES
     };
 
     // -------------------------------------------------------------------------
     // Run draw loop
     // -------------------------------------------------------------------------
+    int counter = 0;
     do {
+
+        counter++;
 
         // check for mouse and keyboard events
         glfwPollEvents();
@@ -163,19 +182,13 @@ int main() {
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         }
 
-        // update player position
-        player.update();
-
-        // compute view and projection matrices from player info
-        cam.update(player);
+        // RENDER CUBES
+        cubearray.update(cam, player);
+        cubearray.draw();
 
         // RENDER SKYBOX
         skybox.update(cam);
         skybox.draw();
-
-        // RENDER CUBES
-        cubearray.update(cam);
-        cubearray.draw();
 
         // swap screen buffers - outputs the buffer we have been drawing to this
         // iteration to the screen

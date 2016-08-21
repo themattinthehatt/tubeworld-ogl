@@ -5,7 +5,6 @@
 #ifndef PLAYGROUND_SKYBOX_H
 #define PLAYGROUND_SKYBOX_H
 
-#include <vector>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include "Camera.h"
