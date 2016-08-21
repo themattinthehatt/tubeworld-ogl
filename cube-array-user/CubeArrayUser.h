@@ -43,6 +43,17 @@ public:
     glm::vec3 *headings;
     glm::vec3 *ups;
     glm::vec3 *rights;
+    GLfloat speed = 10.f;
+    GLfloat deltaHorizontalAngle = 0.0f;
+    GLfloat deltaVerticalAngle = 0.0f;
+    GLfloat decayRightHorizontalAngle = 0.0f;
+    GLfloat decayLeftHorizontalAngle = 0.0f;
+    GLfloat decayUpVerticalAngle = 0.0f;
+    GLfloat decayDownVerticalAngle = 0.0f;
+    GLfloat growthRightHorizontalAngle = 0.0f;
+    GLfloat growthLeftHorizontalAngle = 0.0f;
+    GLfloat growthUpVerticalAngle = 0.0f;
+    GLfloat growthDownVerticalAngle = 0.0f;
 
     GLfloat sideLength;
     GLfloat spacing;
