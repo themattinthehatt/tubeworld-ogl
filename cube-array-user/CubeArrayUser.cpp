@@ -4,14 +4,14 @@
 #include <iostream>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "CubeArrayRing.h"
+#include "CubeArrayUser.h"
 #include "../core/loaders/loadShaders.h"
 
 /*
  * CubeArray()
  * Constructor method for CubeArray class
  */
-CubeArrayRing::CubeArrayRing(int numCubesHorizontal_, int numCubesVertical_,
+CubeArrayUser::CubeArrayUser(int numCubesHorizontal_, int numCubesVertical_,
                              int numCubeRings_,
                              const bool *keysPressed_, const bool *keysToggled_) {
 
@@ -22,8 +22,8 @@ CubeArrayRing::CubeArrayRing(int numCubesHorizontal_, int numCubesVertical_,
     keysToggled = keysToggled_;
 
     // create and compile our GLSL program from the shaders
-    shaderID = loadShaders("cube-array-ring/SolidShader.vert",
-                           "cube-array-ring/SolidShader.frag");
+    shaderID = loadShaders("cube-array-user/SolidShader.vert",
+                           "cube-array-user/SolidShader.frag");
 
     // give the MVP matrix to GLSL; get a handle on our "MVP" uniform
     mMatrix = glm::mat4(1.0);
@@ -162,7 +162,7 @@ CubeArrayRing::CubeArrayRing(int numCubesHorizontal_, int numCubesVertical_,
     glBindBuffer(GL_ARRAY_BUFFER, radialBufferID);
     // copy data into buffer's memory
     glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * numCubeRings * numModelsPerRing,
-                 g_radial_buffer_data, GL_STATIC_DRAW);
+                 g_radial_buffer_data, GL_DYNAMIC_DRAW);
 
     // set vertex attribute pointers
     glEnableVertexAttribArray(2);
@@ -187,7 +187,7 @@ CubeArrayRing::CubeArrayRing(int numCubesHorizontal_, int numCubesVertical_,
     glBindBuffer(GL_ARRAY_BUFFER, rotationBufferID);
     // copy data into buffer's memory
     glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * numCubeRings * numModelsPerRing,
-                 g_rotation_buffer_data, GL_STATIC_DRAW);
+                 g_rotation_buffer_data, GL_DYNAMIC_DRAW);
 
     // set vertex attribute pointers
     GLsizei vec4size = sizeof(glm::vec4);
@@ -213,19 +213,38 @@ CubeArrayRing::CubeArrayRing(int numCubesHorizontal_, int numCubesVertical_,
 
     delete[] angles;
 
+    horizontalAngles = new GLfloat[numCubeRings];
+    verticalAngles = new GLfloat[numCubeRings];
+    positions = new glm::vec3[numCubeRings];
+    headings = new glm::vec3[numCubeRings];
+    ups = new glm::vec3[numCubeRings];
+    rights = new glm::vec3[numCubeRings];
+
+    for (int i = 0; i < numCubeRings; ++i) {
+        positions[0] = glm::vec3(0.f, 0.f, 0.f);
+        horizontalAngles[0] = PI/2;
+        verticalAngles[0] = PI/2;
+        headings[0] = glm::vec3(0.f,1.f, 0.f);
+        ups[0] = glm::vec3(0.f, 0.f, 1.f);
+        rights[0] = glm::vec3(1.f, 0.f, 0.f);
+    }
 }
 
 /*
  * ~CubeArray()
  * Destructor method for CubeArray class
  */
-CubeArrayRing::~CubeArrayRing() {}
+CubeArrayUser::~CubeArrayUser() {}
 
 /*
  * update()
  * Update position of cube array
  */
-void CubeArrayRing::update(Camera &cam, Player &player) {
+void CubeArrayUser::update(Camera &cam, Player &player) {
+
+    GLfloat angle;
+    GLfloat distance;
+    glm::vec3 displacement;
 
     // update render mode if tab key was just released
     if (keysToggled[GLFW_KEY_SPACE] != playerModeTrigger) {
@@ -234,73 +253,96 @@ void CubeArrayRing::update(Camera &cam, Player &player) {
     }
     switch (playerMode) {
         case PLAYER_FREE:
-            std::cout << "player free" << std::endl;
             // let player update like normal
             player.update();
             // compute view and projection matrices from player info
             cam.update(player);
             break;
         case PLAYER_BOUND:
-            std::cout << "player bound" << std::endl;
+        {
+
+            // update beginning of positions
+//            positions[0] = player.getPosition();
+//            horizontalAngles[0] = player.getHorizontalAngle();
+//            verticalAngles[0] = player.getVerticalAngle();
+//            headings[0] = player.getHeading();
+//            ups[0] = player.getUp();
+//            rights[0] = player.getRight();
+
+
+
+//            std::cout << positions[0].x << " " <<
+//                      positions[0].y << " " <<
+//                      positions[0].z << "   " <<
+//                      headings[0].x << " " <<
+//                      headings[0].y << " " <<
+//                      headings[0].z << std::endl;
+
             // change player controls
             // update time variables.
             player.setLastTime(player.getCurrentTime());
             player.setCurrentTime(static_cast<float>(glfwGetTime()));
             player.setDeltaTime(player.getCurrentTime() - player.getLastTime());
-            player.moveTheta(player.getDeltaTime() * player.getRotationSpeed(),
-                             glm::vec3(0.f, 0.f, 0.f));
+
+            // always move forward
+            distance = player.getDeltaTime() * player.getSpeed();
+            angle = player.getDeltaTime() * player.getRotationSpeed();
+            player.moveForward(0.01);
+
             // move forward or up
             if (keysPressed[GLFW_KEY_UP]) {
                 if (keysPressed[GLFW_KEY_LEFT_SHIFT])
-                    player.moveUp(player.getDeltaTime() * player.getSpeed());
+                    player.moveUp(distance);
                 else
-                    player.moveTheta(player.getDeltaTime() * player.getRotationSpeed(),
-                                     glm::vec3(0.f, 0.f, 0.f));
+                    player.moveForward(distance);
             }
             // move backward or down
             if (keysPressed[GLFW_KEY_DOWN]) {
                 if (keysPressed[GLFW_KEY_LEFT_SHIFT])
-                    player.moveDown(player.getDeltaTime() * player.getSpeed());
+                    player.moveDown(distance);
                 else
-                    player.moveTheta(-player.getDeltaTime() * player.getRotationSpeed(),
-                                     glm::vec3(0.f, 0.f, 0.f));
+                    player.moveDown(distance);
             }
             // strafe right
             if (keysPressed[GLFW_KEY_RIGHT]) {
-                player.moveRight(player.getDeltaTime() * player.getSpeed());
+                player.moveRight(distance);
             }
             // strafe left
             if (keysPressed[GLFW_KEY_LEFT]) {
-                player.moveLeft(player.getDeltaTime() * player.getSpeed());
+                player.moveLeft(distance);
             }
             // rotate up
             if (keysPressed[GLFW_KEY_W]) {
-                player.rotateUp(player.getDeltaTime() * player.getRotationSpeed());
+                player.rotateUp(angle);
             }
             // rotate down
             if (keysPressed[GLFW_KEY_S]) {
-                player.rotateDown(player.getDeltaTime() * player.getRotationSpeed());
+                player.rotateDown(angle);
             }
             // rotate right
             if (keysPressed[GLFW_KEY_D]) {
-                player.rotateRight(player.getDeltaTime() * player.getRotationSpeed());
+                player.rotateRight(angle);
             }
             // rotate left
             if (keysPressed[GLFW_KEY_A]) {
-                player.rotateLeft(player.getDeltaTime() * player.getRotationSpeed());
+                player.rotateLeft(angle);
             }
             // decrease speed
             if (keysPressed[GLFW_KEY_E]) {
-                player.incrementRotationSpeed(-0.001f);
+                player.incrementSpeed(-0.1f);
             }
             // increase speed
             if (keysPressed[GLFW_KEY_R]) {
-                player.incrementRotationSpeed(0.001f);
+                player.incrementSpeed(0.1f);
             }
             // reset
             if (keysPressed[GLFW_KEY_Q]) {
                 player.reset();
             }
+
+            // -----------------------------------------------------------------
+            //                     Update player info
+            // -----------------------------------------------------------------
 
             // clamp vertical angle b/t 0 and PI
             if (player.getVerticalAngle() < 0)
@@ -310,7 +352,8 @@ void CubeArrayRing::update(Camera &cam, Player &player) {
 
             // mod out horizontal angle by 2*PI
             player.setHorizontalAngle(static_cast<float>(
-                                 fmod(player.getHorizontalAngle(), 2.0f * PI)));
+                                              fmod(player.getHorizontalAngle(),
+                                                   2.0f * PI)));
 
             // restrict speed
             if (player.getSpeed() > player.getMaxSpeed())
@@ -320,31 +363,187 @@ void CubeArrayRing::update(Camera &cam, Player &player) {
 
             // update heading information.
             player.setHeading(glm::vec3(
-                    cos(player.getHorizontalAngle()) * sin(player.getVerticalAngle()),
-                    sin(player.getHorizontalAngle()) * sin(player.getVerticalAngle()),
+                    cos(player.getHorizontalAngle()) *
+                    sin(player.getVerticalAngle()),
+                    sin(player.getHorizontalAngle()) *
+                    sin(player.getVerticalAngle()),
                     cos(player.getVerticalAngle()))
             );
             // right vector
             player.setRight(glm::vec3(
-                    cos(player.getHorizontalAngle() - PI/2),
-                    sin(player.getHorizontalAngle() - PI/2),
+                    cos(player.getHorizontalAngle() - PI / 2),
+                    sin(player.getHorizontalAngle() - PI / 2),
                     0)
             );
             // up vector
             player.setUp(glm::cross(player.getRight(), player.getHeading()));
 
+            // -----------------------------------------------------------------
+            //                          Update path
+            // -----------------------------------------------------------------
+//
+            positions[0] = player.getPosition();
+            horizontalAngles[0] = player.getHorizontalAngle();
+            verticalAngles[0] = player.getVerticalAngle();
+            headings[0] = player.getHeading();
+            ups[0] = player.getUp();
+            rights[0] = player.getRight();
+
+//            std::cout <<
+//                      verticalAngles[0] << " " << horizontalAngles[0] << " " <<
+//                      positions[0].x << " " <<
+//                      positions[0].y << " " <<
+//                      positions[0].z << "   " <<
+//                      headings[0].x << " " <<
+//                      headings[0].y << " " <<
+//                      headings[0].z << std::endl;
+
+
+//            for (int i = 0; i < 10; ++i) {
+//                positions[i] = positions[i+1] ;
+//                horizontalAngles[i] = horizontalAngles[i+1];
+//                verticalAngles[i] = verticalAngles[i+1];
+//                headings[i] = headings[i+1];
+//                ups[i] = ups[i+1];
+//                rights[i] = rights[i+1];
+//            }
+
+            distance = player.getDeltaTime() * player.getSpeed();
+            angle = player.getDeltaTime() * player.getRotationSpeed();
+            for (int i = 1; i < numCubeRings; ++i) {
+
+                // always move forward
+                positions[i] = positions[i-1] + headings[i-1] *
+                                                  std::max(distance, 2*spacing);
+
+                verticalAngles[i] = verticalAngles[i-1];
+                horizontalAngles[i] = horizontalAngles[i-1];
+
+//                if (i == 1) {
+//                    std::cout <<
+//                              positions[i].x << " " <<
+//                              positions[i].y << " " <<
+//                              positions[i].z << "   " <<
+//                              positions[i-1].x << " " <<
+//                              positions[i-1].y << " " <<
+//                              positions[i-1].z << "   " <<
+//                              headings[i-1].x << " " <<
+//                              headings[i-1].y << " " <<
+//                              headings[i-1].z << std::endl;
+//                }
+                // move forward or up
+                if (keysPressed[GLFW_KEY_UP]) {
+                    if (keysPressed[GLFW_KEY_LEFT_SHIFT])
+                        positions[i] = positions[i] + ups[i-1] * distance;
+                    else
+                        positions[i] = positions[i] + headings[i-1] * distance;
+                }
+                // move backward or down
+                if (keysPressed[GLFW_KEY_DOWN]) {
+                    if (keysPressed[GLFW_KEY_LEFT_SHIFT])
+                        positions[i] = positions[i] - ups[i-1] * distance;
+                    else
+                    positions[i] = positions[i] - headings[i-1] * distance;
+                }
+                // strafe right
+                if (keysPressed[GLFW_KEY_RIGHT]) {
+                    positions[i] = positions[i] + rights[i-1] * distance;
+                }
+                // strafe left
+                if (keysPressed[GLFW_KEY_LEFT]) {
+                    positions[i] = positions[i] - rights[i-1] * distance;
+                }
+                // rotate up
+                if (keysPressed[GLFW_KEY_W]) {
+                    verticalAngles[i] = verticalAngles[i-1] - angle;
+                }
+                // rotate down
+                if (keysPressed[GLFW_KEY_S]) {
+                    verticalAngles[i] = verticalAngles[i-1] + angle;
+                }
+                // rotate right
+                if (keysPressed[GLFW_KEY_D]) {
+                    horizontalAngles[i] = horizontalAngles[i-1] - angle;
+                }
+                // rotate left
+                if (keysPressed[GLFW_KEY_A]) {
+                    horizontalAngles[i] = horizontalAngles[i-1] + angle;
+                }
+
+                // clamp vertical angle b/t 0 and PI
+                if (verticalAngles[i] < 0)
+                    verticalAngles[i] = 0;
+                else if (verticalAngles[i] > PI)
+                    verticalAngles[i] = PI;
+
+                // mod out horizontal angle by 2*PI
+                horizontalAngles[i] = static_cast<float>(fmod(horizontalAngles[i], 2.0f * PI));
+
+
+                // update heading information.
+                headings[i] = glm::vec3(
+                        cos(horizontalAngles[i]) * sin(verticalAngles[i]),
+                        sin(horizontalAngles[i]) * sin(verticalAngles[i]),
+                        cos(verticalAngles[i])
+                );
+                // right vector
+                rights[i] = glm::vec3(
+                        cos(horizontalAngles[i] - PI/2),
+                        sin(horizontalAngles[i] - PI/2),
+                        0
+                );
+                // up vector
+                ups[i] = glm::cross(rights[i], headings[i]);
+
+//                if (i == 0 || i == 1) {
+                    std::cout <<
+                              verticalAngles[i] << " " <<
+                              horizontalAngles[i] << " " <<
+                              positions[i].x << " " <<
+                              positions[i].y << " " <<
+                              positions[i].z << "   " <<
+                              headings[i].x << " " <<
+                              headings[i].y << " " <<
+                              headings[i].z << std::endl;
+//                }
+            }
+
+            // ringOffsets
+//            for (int i = 0; i < numCubeRings; ++i) {
+//                ringOffsets[i] = positions[i];
+//                rotationMatrix[i] = glm::mat4(1.0f);
+//            }
+
+            // get all vertices
+            int counter = 0;
+            for (int i = 0; i < numCubeRings; ++i) {
+                for (int j = 0; j < numModelsPerRing; ++j) {
+                    g_center_buffer_data[counter] = positions[i];
+                    g_rotation_buffer_data[counter] =
+                            glm::rotate(glm::rotate(glm::mat4(1.0f),
+                                 horizontalAngles[i], glm::vec3(0.f, 0.f, 1.f)),
+                                 verticalAngles[i], glm::vec3(1.f, 0.f, 0.f));
+                    counter++;
+                }
+            }
+
 
 
             // update camera
             cam.update(player);
+//            cam.update();
 
             break;
-
+        }
         default:
             player.update();
             cam.update(player);
     }
 
+    // update ring offsets and normals
+
+
+    // good
     time = glfwGetTime();
     mMatrix = glm::mat4(1.0);
     vpMatrix = cam.getProjection() * cam.getView();
@@ -356,7 +555,7 @@ void CubeArrayRing::update(Camera &cam, Player &player) {
  * draw()
  * Draw cube array to screen
  */
-void CubeArrayRing::draw() {
+void CubeArrayUser::draw() {
     // use our shader (makes programID "currently bound" shader?)
     glUseProgram(shaderID);
 
@@ -369,6 +568,21 @@ void CubeArrayRing::draw() {
 
     // bind vertex array
     glBindVertexArray(vertexArrayID);
+
+    // send g_center_buffer_data to GPU
+    glBindBuffer(GL_ARRAY_BUFFER, centerBufferID);
+    // copy data into buffer's memory
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * numCubeRings * numModelsPerRing,
+                 g_center_buffer_data, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    // send rotation matrices to GPU
+    glBindBuffer(GL_ARRAY_BUFFER, rotationBufferID);
+    // copy data into buffer's memory
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * numCubeRings * numModelsPerRing,
+                 g_rotation_buffer_data, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
     // draw arrays using currently active shaders
     glDrawArraysInstanced(GL_TRIANGLES, 0, numVerticesPerInstance,
                           numCubeRings * numModelsPerRing);
@@ -381,7 +595,7 @@ void CubeArrayRing::draw() {
  * clean()
  * Clean up VAOs, VBOs, etc.
  */
-void CubeArrayRing::clean() {
+void CubeArrayUser::clean() {
     glDeleteVertexArrays(1, &vertexArrayID);
     glDeleteBuffers(1, &vertexBufferID);
     glDeleteProgram(shaderID);
@@ -394,9 +608,16 @@ void CubeArrayRing::clean() {
     delete[] normalVec;
     delete[] rotationMatrix;
     delete[] g_rotation_buffer_data;
+    delete[] horizontalAngles;
+    delete[] verticalAngles;
+    delete[] positions;
+    delete[] headings;
+    delete[] ups;
+    delete[] rights;
+
 }
 
-glm::vec3 CubeArrayRing::cubeModelCoordinates[] = {
+glm::vec3 CubeArrayUser::cubeModelCoordinates[] = {
         glm::vec3(-1.0f,-1.0f,-1.0f), // triangle 1 : begin
         glm::vec3(-1.0f,-1.0f, 1.0f),
         glm::vec3(-1.0f, 1.0f, 1.0f), // triangle 1 : end

@@ -34,6 +34,7 @@ public:
     Camera();                               // constructor
     ~Camera();                              // destructor
     void update(const Player &player);      // move camera
+    void update();                          // static camera
 
     // getters
     glm::vec3 getPosition() const { return position; }

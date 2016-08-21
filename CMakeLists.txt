@@ -15,7 +15,8 @@ set(SOURCE_FILES
         core/loaders/loadTextures.cpp
         core/loaders/loadCubemap.cpp
         cube-array-inf/CubeArrayInf.cpp
-        cube-array-ring/CubeArrayRing.cpp)
+        cube-array-ring/CubeArrayRing.cpp
+        cube-array-user/CubeArrayUser.cpp)
 
 
 add_executable(tubeworld ${SOURCE_FILES})

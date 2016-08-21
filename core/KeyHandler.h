@@ -19,7 +19,7 @@ void keyHandler(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
     if (action == GLFW_PRESS) {
         keysPressed[key] = true;
-        std::cout << key << std::endl;
+//        std::cout << key << std::endl;
         first_release = true;
 //        std::cout << keysPressed[key] << std::endl;
     }

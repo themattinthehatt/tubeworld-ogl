@@ -61,3 +61,14 @@ void Camera::update(const Player &player)
     // update the view matrix.
     View = glm::lookAt(position, position + heading, up);
 }
+
+void Camera::update()
+{
+    position = glm::vec3(0.f, -8000.f, 0.f);
+    heading = glm::vec3(0.f, 1.f, 0.f);
+    right = glm::vec3(1.f, 0.f, 0.f);
+    up = glm::vec3(0.f, 0.f, 1.f);
+
+    // update the view matrix.
+    View = glm::lookAt(position, position + heading, up);
+}

@@ -23,6 +23,7 @@
 #include "core/KeyHandler.h"
 #include "cube-array-inf/CubeArrayInf.h"
 #include "cube-array-ring/CubeArrayRing.h"
+#include "cube-array-user/CubeArrayUser.h"
 
 
 
@@ -64,8 +65,8 @@ int main() {
 
     GLuint screenWidth = xResolution; //1200;
     GLuint screenHeight = yResolution; //900;
-//    window = glfwCreateWindow(screenWidth, screenHeight, "tubeworld 2.0", nullptr, nullptr);
-    window = glfwCreateWindow(screenWidth, screenHeight, "tubeworld 2.0", useMonitor, nullptr);
+    window = glfwCreateWindow(screenWidth, screenHeight, "tubeworld 2.0", nullptr, nullptr);
+//    window = glfwCreateWindow(screenWidth, screenHeight, "tubeworld 2.0", useMonitor, nullptr);
     if (window == nullptr) {
         std::cout << "Failed to open GLFW window." << std::endl;
         glfwTerminate();
@@ -127,12 +128,13 @@ int main() {
     Skybox skybox = Skybox(files, 1000.0f, keysPressed, keysToggled);
 
     // set up cubes
-    int numCubesX = 5;
-    int numCubesY = 300;
-    int numCubesZ = 5;
-    bool isTextureRendered = false;
+//    int numCubesX = 5;
+//    int numCubesY = 300;
+//    int numCubesZ = 5;
+//    bool isTextureRendered = false;
 //    CubeArrayInf cubearray = CubeArrayInf(numCubesX, numCubesY, numCubesZ, isTextureRendered);
-    CubeArrayRing cubearray = CubeArrayRing(5, 5, 100, keysPressed, keysToggled);
+//    CubeArrayRing cubearray = CubeArrayRing(5, 5, 100, keysPressed, keysToggled);
+    CubeArrayUser cubearray = CubeArrayUser(5, 5, 100, keysPressed, keysToggled);
 
     // initialize player
     Player player = Player(keysPressed, keysToggled);
