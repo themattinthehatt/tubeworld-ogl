@@ -16,7 +16,11 @@ set(SOURCE_FILES
         core/loaders/loadCubemap.cpp
         cube-array-inf/CubeArrayInf.cpp
         cube-array-ring/CubeArrayRing.cpp
-        cube-array-user/CubeArrayUser.cpp)
+        cube-array-user/CubeArrayUser.cpp
+        tube-traveller/TubeTraveller.cpp
+        tube-traveller/PathUserInput.cpp
+        tube-traveller/CubeTube.cpp
+)
 
 
 add_executable(tubeworld ${SOURCE_FILES})

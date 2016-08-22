@@ -24,6 +24,7 @@
 #include "cube-array-inf/CubeArrayInf.h"
 #include "cube-array-ring/CubeArrayRing.h"
 #include "cube-array-user/CubeArrayUser.h"
+#include "tube-traveller/TubeTraveller.h"
 
 
 
@@ -134,7 +135,8 @@ int main() {
 //    bool isTextureRendered = false;
 //    CubeArrayInf cubearray = CubeArrayInf(numCubesX, numCubesY, numCubesZ, isTextureRendered);
 //    CubeArrayRing cubearray = CubeArrayRing(5, 5, 100, keysPressed, keysToggled);
-    CubeArrayUser cubearray = CubeArrayUser(5, 5, 300, keysPressed, keysToggled);
+//    CubeArrayUser cubearray = CubeArrayUser(5, 5, 300, keysPressed, keysToggled);
+    TubeTraveller cubearray = TubeTraveller(5, 5, 1000, keysPressed, keysToggled);
 
     // initialize player
     Player player = Player(keysPressed, keysToggled);
