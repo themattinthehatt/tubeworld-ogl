@@ -34,285 +34,251 @@ PathUserInput::PathUserInput(GLuint numCenters_,
 }
 
 
-void PathUserInput::update(Camera &cam, Player &player) {
+void PathUserInput::update(Player &player) {
     GLfloat distance;
 
-    // update render mode if tab key was just released
-    if (keysToggled[GLFW_KEY_SPACE] != playerModeTrigger) {
-        playerModeTrigger = !playerModeTrigger;
-        playerMode = (playerMode + 1) % MAX_PLAYER_MODES;
+    // -----------------------------------------------------------------
+    //                     Update player position
+    // -----------------------------------------------------------------
+
+    // update time variables.
+    player.setLastTime(player.getCurrentTime());
+    player.setCurrentTime(static_cast<float>(glfwGetTime()));
+    player.setDeltaTime(player.getCurrentTime() - player.getLastTime());
+
+    // always move forward
+    distance = player.getDeltaTime() * player.getSpeed();
+    deltaHorzAngle = player.getDeltaTime() * player.getRotationSpeed();
+    deltaVertAngle = player.getDeltaTime() * player.getRotationSpeed();
+    player.moveForward(0.1);
+
+    // move forward or up
+    if (keysPressed[GLFW_KEY_UP]) {
+        if (keysPressed[GLFW_KEY_LEFT_SHIFT])
+            player.moveUp(distance);
+        else
+            speed += 0.01f;
     }
-    switch (playerMode) {
-        case PLAYER_FREE:
-            // let player update like normal
-            player.update();
-            // compute view and projection matrices from player info
-            cam.update(player);
-            break;
-        case PLAYER_BOUND:
-        {
-            // -----------------------------------------------------------------
-            //                     Update player position
-            // -----------------------------------------------------------------
+    // move backward or down
+    if (keysPressed[GLFW_KEY_DOWN]) {
+        if (keysPressed[GLFW_KEY_LEFT_SHIFT])
+            player.moveDown(distance);
+        else
+            speed -= 0.01f;
+    }
+    // strafe right
+    if (keysPressed[GLFW_KEY_RIGHT]) {
+        player.moveRight(distance);
+    }
+    // strafe left
+    if (keysPressed[GLFW_KEY_LEFT]) {
+        player.moveLeft(distance);
+    }
+    // rotate up
+    if (keysPressed[GLFW_KEY_W]) {
+        // don't instantaneously update angle; let it grow slowly
+        growthUpVertAngle *= 0.9f;
+        player.rotateUp((1 - growthUpVertAngle) * deltaVertAngle);
+        // any decay will start from this same angle
+        decayUpVertAngle = (1 - growthUpVertAngle);
+    } else {
+        // key not pressed; reset growth multiplier
+        growthUpVertAngle = 1.0f;
+        // decay
+        decayUpVertAngle *= 0.9;
+    }
+    // rotate down
+    if (keysPressed[GLFW_KEY_S]) {
+        growthDownVertAngle *= 0.9f;
+        player.rotateDown((1 - growthDownVertAngle) * deltaVertAngle);
+        decayDownVertAngle = (1 - growthDownVertAngle);
+    } else {
+        growthDownVertAngle = 1.0f;
+        decayDownVertAngle *= 0.9;
+    }
+    // rotate right
+    if (keysPressed[GLFW_KEY_D]) {
+        growthRightHorzAngle *= 0.9f;
+        player.rotateRight((1 - growthRightHorzAngle) * deltaHorzAngle);
+        decayRightHorzAngle = (1 - growthRightHorzAngle);
+    } else {
+        growthRightHorzAngle = 1.0f;
+        decayRightHorzAngle *= 0.9;
+    }
+    // rotate left
+    if (keysPressed[GLFW_KEY_A]) {
+        growthLeftHorzAngle *= 0.9f;
+        player.rotateLeft((1 - growthLeftHorzAngle) * deltaHorzAngle);
+        decayLeftHorzAngle = (1 - growthLeftHorzAngle);
+    } else {
+        growthLeftHorzAngle = 1.0f;
+        decayLeftHorzAngle *= 0.9;
+    }
+    // decrease speed
+    if (keysPressed[GLFW_KEY_E]) {
+        player.incrementSpeed(-0.1f);
+    }
+    // increase speed
+    if (keysPressed[GLFW_KEY_R]) {
+        player.incrementSpeed(0.1f);
+    }
+    // reset
+    if (keysPressed[GLFW_KEY_Q]) {
+        player.reset();
+    }
 
-            // update time variables.
-            player.setLastTime(player.getCurrentTime());
-            player.setCurrentTime(static_cast<float>(glfwGetTime()));
-            player.setDeltaTime(player.getCurrentTime() - player.getLastTime());
+    // -----------------------------------------------------------------
+    //                     Update player info
+    // -----------------------------------------------------------------
 
-            // always move forward
-            distance = player.getDeltaTime() * player.getSpeed();
-            deltaHorzAngle = player.getDeltaTime() * player.getRotationSpeed();
-            deltaVertAngle = player.getDeltaTime() * player.getRotationSpeed();
-            player.moveForward(0.1);
+    // clamp vertical angle b/t 0 and PI
+    if (player.getVerticalAngle() < 0)
+        player.setVerticalAngle(0);
+    else if (player.getVerticalAngle() > PI)
+        player.setVerticalAngle(PI);
 
-            // move forward or up
-            if (keysPressed[GLFW_KEY_UP]) {
-                if (keysPressed[GLFW_KEY_LEFT_SHIFT])
-                    player.moveUp(distance);
-                else
-                    speed += 0.01f;
-            }
-            // move backward or down
-            if (keysPressed[GLFW_KEY_DOWN]) {
-                if (keysPressed[GLFW_KEY_LEFT_SHIFT])
-                    player.moveDown(distance);
-                else
-                    speed -= 0.01f;
-            }
-            // strafe right
-            if (keysPressed[GLFW_KEY_RIGHT]) {
-                player.moveRight(distance);
-            }
-            // strafe left
-            if (keysPressed[GLFW_KEY_LEFT]) {
-                player.moveLeft(distance);
-            }
-            // rotate up
-            if (keysPressed[GLFW_KEY_W]) {
-                // don't instantaneously update angle; let it grow slowly
-                growthUpVertAngle *= 0.9f;
-                player.rotateUp((1 - growthUpVertAngle) *
-                                deltaVertAngle);
-                // any decay will start from this same angle
-                decayUpVertAngle = (1 - growthUpVertAngle) *
-                                       deltaVertAngle;
-            } else {
-                // key not pressed; reset growth multiplier
-                growthUpVertAngle = 1.0f;
-            }
-            // rotate down
-            if (keysPressed[GLFW_KEY_S]) {
-                growthDownVertAngle *= 0.9f;
-                player.rotateDown((1 - growthDownVertAngle) *
-                                  deltaVertAngle);
-                decayDownVertAngle = (1 - growthDownVertAngle) *
-                                         deltaVertAngle;
-            } else {
-                growthDownVertAngle = 1.0f;
-            }
-            // rotate right
-            if (keysPressed[GLFW_KEY_D]) {
-                growthRightHorzAngle *= 0.9f;
-                player.rotateRight((1 - growthRightHorzAngle) *
-                                   deltaHorzAngle);
-                decayRightHorzAngle = (1 - growthRightHorzAngle) *
-                                            deltaHorzAngle;
-            } else {
-                growthRightHorzAngle = 1.0f;
-            }
-            // rotate left
-            if (keysPressed[GLFW_KEY_A]) {
-                growthLeftHorzAngle *= 0.9f;
-                player.rotateLeft((1 - growthLeftHorzAngle) *
-                                  deltaHorzAngle);
-                decayLeftHorzAngle = (1 - growthLeftHorzAngle) *
-                                           deltaHorzAngle;
-            } else {
-                growthLeftHorzAngle = 1.0f;
-            }
-            // decrease speed
-            if (keysPressed[GLFW_KEY_E]) {
-                player.incrementSpeed(-0.1f);
-            }
-            // increase speed
-            if (keysPressed[GLFW_KEY_R]) {
-                player.incrementSpeed(0.1f);
-            }
-            // reset
-            if (keysPressed[GLFW_KEY_Q]) {
-                player.reset();
-            }
+    // mod out horizontal angle by 2*PI
+    player.setHorizontalAngle(static_cast<float>(
+                                      fmod(player.getHorizontalAngle(),
+                                           2.0f * PI)));
 
-            // decrease size of angle multipliers
-            decayUpVertAngle *= 0.9;
-            decayDownVertAngle *= 0.9;
-            decayRightHorzAngle *= 0.9;
-            decayLeftHorzAngle *= 0.9;
+    // restrict speed
+    if (player.getSpeed() > player.getMaxSpeed())
+        player.setSpeed(player.getMaxSpeed());
+    else if (player.getSpeed() < 0)
+        player.setSpeed(0);
 
-            // -----------------------------------------------------------------
-            //                     Update player info
-            // -----------------------------------------------------------------
+    // update heading information.
+    player.setHeading(glm::vec3(
+            cos(player.getHorizontalAngle()) *
+            sin(player.getVerticalAngle()),
+            sin(player.getHorizontalAngle()) *
+            sin(player.getVerticalAngle()),
+            cos(player.getVerticalAngle()))
+    );
+    // right vector
+    player.setRight(glm::vec3(
+            cos(player.getHorizontalAngle() - PI / 2),
+            sin(player.getHorizontalAngle() - PI / 2),
+            0)
+    );
+    // up vector
+    player.setUp(glm::cross(player.getRight(), player.getHeading()));
 
-            // clamp vertical angle b/t 0 and PI
-            if (player.getVerticalAngle() < 0)
-                player.setVerticalAngle(0);
-            else if (player.getVerticalAngle() > PI)
-                player.setVerticalAngle(PI);
+    // -----------------------------------------------------------------
+    //                          Update path
+    // -----------------------------------------------------------------
 
-            // mod out horizontal angle by 2*PI
-            player.setHorizontalAngle(static_cast<float>(
-                                              fmod(player.getHorizontalAngle(),
-                                                   2.0f * PI)));
+    float temp = static_cast<float>(fmod(glfwGetTime() * speed,
+                                    std::max(distance, 2*spacing)));
+    // position[0] and position[1] are extrapolated from current player
+    // position; all further position points are extrapolated from
+    // position[1] and user input
+    positions[0] = player.getPosition() - player.getHeading() * temp;
+    horizontalAngles[0] = player.getHorizontalAngle();
+    verticalAngles[0] = player.getVerticalAngle();
+    headings[0] = player.getHeading();
+    ups[0] = player.getUp();
+    rights[0] = player.getRight();
 
-            // restrict speed
-            if (player.getSpeed() > player.getMaxSpeed())
-                player.setSpeed(player.getMaxSpeed());
-            else if (player.getSpeed() < 0)
-                player.setSpeed(0);
+    positions[1] = player.getPosition() + player.getHeading() *
+                              (std::max(distance, 2*spacing) - temp);
+    horizontalAngles[1] = player.getHorizontalAngle();
+    verticalAngles[1] = player.getVerticalAngle();
+    headings[1] = player.getHeading();
+    ups[1] = player.getUp();
+    rights[1] = player.getRight();
 
-            // update heading information.
-            player.setHeading(glm::vec3(
-                    cos(player.getHorizontalAngle()) *
-                    sin(player.getVerticalAngle()),
-                    sin(player.getHorizontalAngle()) *
-                    sin(player.getVerticalAngle()),
-                    cos(player.getVerticalAngle()))
-            );
-            // right vector
-            player.setRight(glm::vec3(
-                    cos(player.getHorizontalAngle() - PI / 2),
-                    sin(player.getHorizontalAngle() - PI / 2),
-                    0)
-            );
-            // up vector
-            player.setUp(glm::cross(player.getRight(), player.getHeading()));
+    for (int i = 2; i < numCenters; ++i) {
 
-            // -----------------------------------------------------------------
-            //                          Update path
-            // -----------------------------------------------------------------
+        // always move forward
+        positions[i] = positions[i - 1] + headings[i - 1] *
+                                          std::max(distance, 2 * spacing);
+        verticalAngles[i] = verticalAngles[i - 1];
+        horizontalAngles[i] = horizontalAngles[i - 1];
 
-            float temp = static_cast<float>(fmod(glfwGetTime() * speed,
-                                            std::max(distance, 2*spacing)));
-            // position[0] and position[1] are extrapolated from current player
-            // position; all further position points are extrapolated from
-            // position[1] and user input
-            positions[0] = player.getPosition() - player.getHeading() * temp;
-            horizontalAngles[0] = player.getHorizontalAngle();
-            verticalAngles[0] = player.getVerticalAngle();
-            headings[0] = player.getHeading();
-            ups[0] = player.getUp();
-            rights[0] = player.getRight();
-
-            positions[1] = player.getPosition() + player.getHeading() *
-                                      (std::max(distance, 2*spacing) - temp);
-            horizontalAngles[1] = player.getHorizontalAngle();
-            verticalAngles[1] = player.getVerticalAngle();
-            headings[1] = player.getHeading();
-            ups[1] = player.getUp();
-            rights[1] = player.getRight();
-
-            distance = player.getDeltaTime() * player.getSpeed();
-            deltaHorzAngle = player.getDeltaTime() * player.getRotationSpeed();
-            deltaVertAngle = player.getDeltaTime() * player.getRotationSpeed();
-            for (int i = 2; i < numCenters; ++i) {
-
-                // always move forward
-                positions[i] = positions[i-1] + headings[i-1] *
-                                                std::max(distance, 2*spacing);
-                verticalAngles[i] = verticalAngles[i-1];
-                horizontalAngles[i] = horizontalAngles[i-1];
-
-                // move forward or up
-                if (keysPressed[GLFW_KEY_UP]) {
-                    if (keysPressed[GLFW_KEY_LEFT_SHIFT])
-                        positions[i] = positions[i] + ups[i-1] * distance;
-                    else
-                        positions[i] = positions[i] + headings[i-1] * distance;
-                }
-                // move backward or down
-                if (keysPressed[GLFW_KEY_DOWN]) {
-                    if (keysPressed[GLFW_KEY_LEFT_SHIFT])
-                        positions[i] = positions[i] - ups[i-1] * distance;
-                    else
-                        positions[i] = positions[i] - headings[i-1] * distance;
-                }
-                // strafe right
-                if (keysPressed[GLFW_KEY_RIGHT]) {
-                    positions[i] = positions[i] + rights[i-1] * distance;
-                }
-                // strafe left
-                if (keysPressed[GLFW_KEY_LEFT]) {
-                    positions[i] = positions[i] - rights[i-1] * distance;
-                }
-                // rotate up
-                if (keysPressed[GLFW_KEY_W]) {
-                    verticalAngles[i] = verticalAngles[i] -
-                                        (1 - growthUpVertAngle) * deltaVertAngle;
-                } else {
-                    verticalAngles[i] = verticalAngles[i] - decayUpVertAngle;
-                }
-                // rotate down
-                if (keysPressed[GLFW_KEY_S]) {
-                    verticalAngles[i] = verticalAngles[i] +
-                                        (1 - growthDownVertAngle) * deltaVertAngle;
-                } else {
-                    verticalAngles[i] = verticalAngles[i] + decayDownVertAngle;
-                }
-                // rotate right
-                if (keysPressed[GLFW_KEY_D]) {
-                    horizontalAngles[i] = horizontalAngles[i] -
-                                          (1 - growthRightHorzAngle) * deltaHorzAngle;
-                } else {
-                    horizontalAngles[i] = horizontalAngles[i] - decayRightHorzAngle;
-                }
-                // rotate left
-                if (keysPressed[GLFW_KEY_A]) {
-                    horizontalAngles[i] = horizontalAngles[i] +
-                                          (1 - growthLeftHorzAngle) * deltaHorzAngle;
-                } else {
-                    horizontalAngles[i] = horizontalAngles[i] + decayLeftHorzAngle;
-                }
-
-                // clamp vertical angle b/t 0 and PI
-                if (verticalAngles[i] < 0)
-                    verticalAngles[i] = 0;
-                else if (verticalAngles[i] > PI)
-                    verticalAngles[i] = PI;
-
-                // mod out horizontal angle by 2*PI
-                horizontalAngles[i] = static_cast<float>(
-                                        fmod(horizontalAngles[i], 2.0f * PI));
-
-
-                // update heading information.
-                headings[i] = glm::vec3(
-                        cos(horizontalAngles[i]) * sin(verticalAngles[i]),
-                        sin(horizontalAngles[i]) * sin(verticalAngles[i]),
-                        cos(verticalAngles[i])
-                );
-                // right vector
-                rights[i] = glm::vec3(
-                        cos(horizontalAngles[i] - PI/2),
-                        sin(horizontalAngles[i] - PI/2),
-                        0
-                );
-                // up vector
-                ups[i] = glm::cross(rights[i], headings[i]);
-
-            }
-
-            // update camera
-            cam.update(player);
-//            cam.update();
-
-            break;
+        // move forward or up
+        if (keysPressed[GLFW_KEY_UP]) {
+            if (keysPressed[GLFW_KEY_LEFT_SHIFT])
+                positions[i] = positions[i] + ups[i - 1] * distance;
+            else
+                positions[i] = positions[i] + headings[i - 1] * distance;
         }
-        default:
-            player.update();
-            cam.update(player);
-    }
+        // move backward or down
+        if (keysPressed[GLFW_KEY_DOWN]) {
+            if (keysPressed[GLFW_KEY_LEFT_SHIFT])
+                positions[i] = positions[i] - ups[i - 1] * distance;
+            else
+                positions[i] = positions[i] - headings[i - 1] * distance;
+        }
+        // strafe right
+        if (keysPressed[GLFW_KEY_RIGHT]) {
+            positions[i] = positions[i] + rights[i - 1] * distance;
+        }
+        // strafe left
+        if (keysPressed[GLFW_KEY_LEFT]) {
+            positions[i] = positions[i] - rights[i - 1] * distance;
+        }
+        // rotate up
+        if (keysPressed[GLFW_KEY_W]) {
+            verticalAngles[i] = verticalAngles[i] -
+                                (1 - growthUpVertAngle) * deltaVertAngle;
+        } else {
+            verticalAngles[i] = verticalAngles[i] -
+                                decayUpVertAngle * deltaVertAngle;
+        }
+        // rotate down
+        if (keysPressed[GLFW_KEY_S]) {
+            verticalAngles[i] = verticalAngles[i] +
+                                (1 - growthDownVertAngle) * deltaVertAngle;
+        } else {
+            verticalAngles[i] = verticalAngles[i] +
+                                decayDownVertAngle * deltaVertAngle;
+        }
+        // rotate right
+        if (keysPressed[GLFW_KEY_D]) {
+            horizontalAngles[i] = horizontalAngles[i] -
+                                  (1 - growthRightHorzAngle) * deltaHorzAngle;
+        } else {
+            horizontalAngles[i] = horizontalAngles[i] -
+                                  decayRightHorzAngle * deltaHorzAngle;
+        }
+        // rotate left
+        if (keysPressed[GLFW_KEY_A]) {
+            horizontalAngles[i] = horizontalAngles[i] +
+                                  (1 - growthLeftHorzAngle) * deltaHorzAngle;
+        } else {
+            horizontalAngles[i] = horizontalAngles[i] +
+                                  decayLeftHorzAngle * deltaHorzAngle;
+        }
 
+        // clamp vertical angle b/t 0 and PI
+//        if (verticalAngles[i] < 0)
+//            verticalAngles[i] = 0;
+//        else if (verticalAngles[i] > PI)
+//            verticalAngles[i] = PI;
+
+        // mod out horizontal angle by 2*PI
+        horizontalAngles[i] = static_cast<float>(
+                fmod(horizontalAngles[i], 2.0f * PI));
+
+
+        // update heading information.
+        headings[i] = glm::vec3(
+                cos(horizontalAngles[i]) * sin(verticalAngles[i]),
+                sin(horizontalAngles[i]) * sin(verticalAngles[i]),
+                cos(verticalAngles[i])
+        );
+        // right vector
+        rights[i] = glm::vec3(
+                cos(horizontalAngles[i] - PI / 2),
+                sin(horizontalAngles[i] - PI / 2),
+                0
+        );
+        // up vector
+        ups[i] = glm::cross(rights[i], headings[i]);
+
+    }
 }
 
 void PathUserInput::clean() {

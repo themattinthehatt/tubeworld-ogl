@@ -7,17 +7,11 @@
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
-#include "../core/Camera.h"
+#include "../core/Player.h"
 
 class PathUserInput {
 private:
 public:
-
-    enum PlayerMode {
-        PLAYER_FREE,
-        PLAYER_BOUND,
-        MAX_PLAYER_MODES
-    };
 
     GLuint numCenters;
     GLfloat spacing;
@@ -42,15 +36,13 @@ public:
 
     const bool *keysPressed;    // pointer to keysPressed array
     const bool *keysToggled;    // pointer to keysToggled array
-    bool playerModeTrigger = false; // returns true upon release of proper key
-    GLuint playerMode = 0;
 
     // constructor
     PathUserInput(GLuint numCenters,
                   const bool *keysPressed,
                   const bool *keysToggled);
     // update dynamics of tube positions
-    void update(Camera &cam, Player &player);
+    void update(Player &player);
     // clean up dynamically allocated memory
     void clean();
 };

@@ -6,17 +6,22 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <GLFW/glfw3.h>
+#include <iostream>
 
 #include "CubeTube.h"
 #include "../core/loaders/loadShaders.h"
-#include "PathUserInput.h"
+#include "../core/loaders/loadObj.h"
 
 CubeTube::CubeTube(GLuint numCubesHorizontal_, GLuint numCubesVertical_,
-                   GLuint numCenters_) {
+                   GLuint numCenters_,
+                   const bool *keysPressed_, const bool *keysToggled_) {
 
     numCubesHorizontal = numCubesHorizontal_;
     numCubesVertical = numCubesVertical_;
     numCenters = numCenters_;
+
+    keysPressed = keysPressed_;
+    keysToggled = keysToggled_;
 
     sideLength = 2.0f;
     spacing = 8.0f;     // distance between ring centers
@@ -34,6 +39,9 @@ CubeTube::CubeTube(GLuint numCubesHorizontal_, GLuint numCubesVertical_,
     mvpMatrixID = glGetUniformLocation(shaderID, "mvpMatrix");
     timeParamID = glGetUniformLocation(shaderID, "time");
 
+    // load cube model
+    bool res = loadObj("tube-traveller/cube.obj", cubeModelCoordinates, uvs, normals);
+    numVertices = static_cast<GLuint>(cubeModelCoordinates.size());
     numModelsPerRing = 2 * numCubesHorizontal + 2 * (numCubesVertical - 2);
     numVerticesPerInstance = numVertices;
 
@@ -104,7 +112,7 @@ CubeTube::CubeTube(GLuint numCubesHorizontal_, GLuint numCubesVertical_,
     glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
     // copy data into buffer's memory
     glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * numVerticesPerInstance,
-                 cubeModelCoordinates, GL_STATIC_DRAW);
+                 &cubeModelCoordinates[0], GL_STATIC_DRAW);
 
     // set vertex attribute pointers
     glEnableVertexAttribArray(0);
@@ -206,18 +214,39 @@ CubeTube::CubeTube(GLuint numCubesHorizontal_, GLuint numCubesVertical_,
 /*
  * update buffers with newly created path data
  */
-void CubeTube::update(const PathUserInput &path, const Camera &cam) {
-    // get all vertices
-    int counter = 0;
-    for (int i = 0; i < numCenters; ++i) {
-        for (int j = 0; j < numModelsPerRing; ++j) {
-            g_center_buffer_data[counter] = path.positions[i];
-            g_rotation_buffer_data[counter] = glm::rotate(glm::rotate(
-                 glm::mat4(1.0f),-path.verticalAngles[i]+PI/2, path.rights[i]),
-                 path.horizontalAngles[i]-PI/2, glm::vec3(0.f, 0.f, 1.f));
-            counter++;
-        }
+void CubeTube::update(const PathUserInput &path, Player &player,
+                      Camera &cam ) {
+
+    // update render mode if tab key was just released
+    if (keysToggled[GLFW_KEY_SPACE] != playerModeTrigger) {
+        playerModeTrigger = !playerModeTrigger;
+        playerMode = (playerMode + 1) % MAX_PLAYER_MODES;
     }
+    switch (playerMode) {
+        case PLAYER_FREE:
+            // let player update like normal
+            //player.update();
+            break;
+        case PLAYER_BOUND:
+        {
+            // get all vertices
+            int counter = 0;
+            for (int i = 0; i < numCenters; ++i) {
+                for (int j = 0; j < numModelsPerRing; ++j) {
+                    g_center_buffer_data[counter] = path.positions[i];
+                    g_rotation_buffer_data[counter] = glm::rotate(glm::rotate(
+                            glm::mat4(1.0f),-path.verticalAngles[i]+PI/2, path.rights[i]),
+                            path.horizontalAngles[i]-PI/2, glm::vec3(0.f, 0.f, 1.f));
+                    counter++;
+                }
+            }
+            break;
+        }
+        default:
+            player.update();
+    }
+    // compute view and projection matrices from player info
+    cam.update(player);
 
     time = glfwGetTime();
     mMatrix = glm::mat4(1.0);
@@ -280,47 +309,3 @@ void CubeTube::clean() {
     delete[] g_rotation_buffer_data;
 
 }
-
-glm::vec3 CubeTube::cubeModelCoordinates[] = {
-        glm::vec3(-1.0f,-1.0f,-1.0f), // triangle 1 : begin
-        glm::vec3(-1.0f,-1.0f, 1.0f),
-        glm::vec3(-1.0f, 1.0f, 1.0f), // triangle 1 : end
-        glm::vec3(1.0f, 1.0f,-1.0f), // triangle 2 : begin
-        glm::vec3(-1.0f,-1.0f,-1.0f),
-        glm::vec3(-1.0f, 1.0f,-1.0f), // triangle 2 : end
-
-        glm::vec3(1.0f,-1.0f, 1.0f),
-        glm::vec3(-1.0f,-1.0f,-1.0f),
-        glm::vec3(1.0f,-1.0f,-1.0f),
-        glm::vec3(1.0f, 1.0f,-1.0f),
-        glm::vec3(1.0f,-1.0f,-1.0f),
-        glm::vec3(-1.0f,-1.0f,-1.0f),
-
-        glm::vec3(-1.0f,-1.0f,-1.0f),
-        glm::vec3(-1.0f, 1.0f, 1.0f),
-        glm::vec3(-1.0f, 1.0f,-1.0f),
-        glm::vec3(1.0f,-1.0f, 1.0f),
-        glm::vec3(-1.0f,-1.0f, 1.0f),
-        glm::vec3(-1.0f,-1.0f,-1.0f),
-
-        glm::vec3(-1.0f, 1.0f, 1.0f),
-        glm::vec3(-1.0f,-1.0f, 1.0f),
-        glm::vec3(1.0f,-1.0f, 1.0f),
-        glm::vec3(1.0f, 1.0f, 1.0f),
-        glm::vec3(1.0f,-1.0f,-1.0f),
-        glm::vec3(1.0f, 1.0f,-1.0f),
-
-        glm::vec3(1.0f,-1.0f,-1.0f),
-        glm::vec3(1.0f, 1.0f, 1.0f),
-        glm::vec3(1.0f,-1.0f, 1.0f),
-        glm::vec3(1.0f, 1.0f, 1.0f),
-        glm::vec3(1.0f, 1.0f,-1.0f),
-        glm::vec3(-1.0f, 1.0f,-1.0f),
-
-        glm::vec3(1.0f, 1.0f, 1.0f),
-        glm::vec3(-1.0f, 1.0f,-1.0f),
-        glm::vec3(-1.0f, 1.0f, 1.0f),
-        glm::vec3(1.0f, 1.0f, 1.0f),
-        glm::vec3(-1.0f, 1.0f, 1.0f),
-        glm::vec3(1.0f,-1.0f, 1.0f)
-};

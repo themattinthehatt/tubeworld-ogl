@@ -7,7 +7,9 @@
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
+#include <vector>
 #include "PathUserInput.h"
+#include "../core/Camera.h"
 
 class CubeTube {
 private:
@@ -15,8 +17,10 @@ public:
 
     const GLfloat PI = 3.14159f;
 
-    GLuint numVertices = 36;
-    static glm::vec3 cubeModelCoordinates[];
+    std::vector<glm::vec3> cubeModelCoordinates;
+    std::vector<glm::vec2> uvs;
+    std::vector<glm::vec3> normals;
+    GLuint numVertices;
 
     int numCubesHorizontal;
     int numCubesVertical;
@@ -49,10 +53,22 @@ public:
     GLfloat time;
     GLuint timeParamID;
 
+    const bool *keysPressed;    // pointer to keysPressed array
+    const bool *keysToggled;    // pointer to keysToggled array
+
+    enum PlayerMode {
+        PLAYER_FREE,
+        PLAYER_BOUND,
+        MAX_PLAYER_MODES
+    };
+    bool playerModeTrigger = false; // returns true upon release of proper key
+    GLuint playerMode = 0;
+
     // constructor
-    CubeTube(GLuint numCubesHorizontal, GLuint numCubesVertical, GLuint numCenters);
+    CubeTube(GLuint numCubesHorizontal, GLuint numCubesVertical, GLuint numCenters,
+             const bool *keysPressed, const bool *keysToggled);
     // update positions/angles of tube elements
-    void update(const PathUserInput &path, const Camera &cam);
+    void update(const PathUserInput &path, Player &player, Camera &cam);
     // draw tube elements
     void draw();
     // clean up VAOs, VBOs, etc.

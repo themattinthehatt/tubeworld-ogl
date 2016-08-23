@@ -254,7 +254,6 @@ void CubeArrayUser::update(Camera &cam, Player &player) {
             // let player update like normal
             player.update();
             // compute view and projection matrices from player info
-            cam.update(player);
             break;
         case PLAYER_BOUND:
         {
@@ -518,16 +517,14 @@ void CubeArrayUser::update(Camera &cam, Player &player) {
                 }
             }
 
-            // update camera
-            cam.update(player);
-//            cam.update();
-
             break;
         }
         default:
             player.update();
-            cam.update(player);
     }
+
+    // update camera
+    cam.update(player);
 
     time = glfwGetTime();
     mMatrix = glm::mat4(1.0);

@@ -135,7 +135,7 @@ int main() {
 //    bool isTextureRendered = false;
 //    CubeArrayInf cubearray = CubeArrayInf(numCubesX, numCubesY, numCubesZ, isTextureRendered);
 //    CubeArrayRing cubearray = CubeArrayRing(5, 5, 100, keysPressed, keysToggled);
-//    CubeArrayUser cubearray = CubeArrayUser(5, 5, 300, keysPressed, keysToggled);
+//    CubeArrayUser cubearray = CubeArrayUser(5, 5, 1000, keysPressed, keysToggled);
     TubeTraveller cubearray = TubeTraveller(5, 5, 1000, keysPressed, keysToggled);
 
     // initialize player

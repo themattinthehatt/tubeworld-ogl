@@ -14,6 +14,7 @@ set(SOURCE_FILES
         core/loaders/loadShaders.cpp
         core/loaders/loadTextures.cpp
         core/loaders/loadCubemap.cpp
+        core/loaders/loadObj.cpp
         cube-array-inf/CubeArrayInf.cpp
         cube-array-ring/CubeArrayRing.cpp
         cube-array-user/CubeArrayUser.cpp
