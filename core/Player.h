@@ -62,6 +62,7 @@ public:
     GLfloat getDeltaTime() const { return deltaTime; }
 
     // setters
+    void setPosition(glm::vec3 pos) { position = pos; }
     void setHeading(glm::vec3 direction) { heading = direction; }
     void setRight(glm::vec3 direction) { right = direction; }
     void setUp(glm::vec3 direction) { up = direction; }

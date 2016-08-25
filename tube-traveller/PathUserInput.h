@@ -13,7 +13,7 @@ class PathUserInput {
 private:
 public:
 
-    GLuint numCenters;
+    GLint numCenters;
     GLfloat spacing;
 
     GLfloat *horizontalAngles;
@@ -38,7 +38,7 @@ public:
     const bool *keysToggled;    // pointer to keysToggled array
 
     // constructor
-    PathUserInput(GLuint numCenters,
+    PathUserInput(GLint numCenters,
                   const bool *keysPressed,
                   const bool *keysToggled);
     // update dynamics of tube positions

@@ -21,12 +21,8 @@
 #include "core/Camera.h"
 #include "core/Skybox.h"
 #include "core/KeyHandler.h"
-#include "cube-array-inf/CubeArrayInf.h"
 #include "cube-array-ring/CubeArrayRing.h"
-#include "cube-array-user/CubeArrayUser.h"
 #include "tube-traveller/TubeTraveller.h"
-
-
 
 int main() {
 
@@ -129,14 +125,8 @@ int main() {
     Skybox skybox = Skybox(files, 1000.0f, keysPressed, keysToggled);
 
     // set up cubes
-//    int numCubesX = 5;
-//    int numCubesY = 300;
-//    int numCubesZ = 5;
-//    bool isTextureRendered = false;
-//    CubeArrayInf cubearray = CubeArrayInf(numCubesX, numCubesY, numCubesZ, isTextureRendered);
 //    CubeArrayRing cubearray = CubeArrayRing(5, 5, 100, keysPressed, keysToggled);
-//    CubeArrayUser cubearray = CubeArrayUser(5, 5, 1000, keysPressed, keysToggled);
-    TubeTraveller cubearray = TubeTraveller(5, 5, 1000, keysPressed, keysToggled);
+    TubeTraveller cubearray = TubeTraveller(100, keysPressed, keysToggled);
 
     // initialize player
     Player player = Player(keysPressed, keysToggled);
@@ -157,9 +147,18 @@ int main() {
     // Run draw loop
     // -------------------------------------------------------------------------
     int counter = 0;
+    GLfloat currentTime = glfwGetTime();
+    GLfloat lastTime;
+    glPointSize(3.f);
     do {
 
         counter++;
+        // output FPS
+//        lastTime = currentTime;
+//        currentTime = glfwGetTime();
+//        if (counter % 100 == 0){
+//            std::cout << 1.f / (currentTime - lastTime) << std::endl;
+//        }
 
         // check for mouse and keyboard events
         glfwPollEvents();

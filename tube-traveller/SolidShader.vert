@@ -16,6 +16,7 @@ uniform mat4 vpMatrix;
 uniform mat4 mvpMatrix;
 uniform float time;
 
+float dist;
 float angle;
 float sinDist;
 float sinTime2;
@@ -25,25 +26,29 @@ void main() // main function
 {
     // calculate angle
     angle = atan(ringCenter.y, ringCenter.x);
+
+    // calculate distance from origin
+    dist = sqrt(ringCenter.x * ringCenter.x +
+                ringCenter.y * ringCenter.y +
+                ringCenter.z * ringCenter.z);
+
 //    sinDist = 2.0f * (sin(0.05f * dist + 0.10f) / 2.0f + 0.5f) + 1.0f;
 //    sinTime = sin(time) / 2.0f + 0.5f;
 //    sinTime2 = (sin(10f * (time - vertexCenter.y)) / 2.0f + 0.5f) + 1.0f;
 //    // sets the vertex position to whatever was in the buffer
 //    gl_Position = mvpMatrix * vec4(sinDist * sinTime2 * vertexPos + vertexCenter, 1);
 
-    //sinDist = 2.0f * (sin(0.05f * dist + 0.10f) / 2.0f + 0.5f) + 0.5f;
-    sinTime = time; //sin(0.5 * time) / 2.0f + 0.5.f;
+    sinDist = 2.0f * (sin(0.001f * dist + 0.10f) / 2.0f + 0.5f) + 0.5f;
+//    sinTime = time; //sin(0.5 * time) / 2.0f + 0.5.f;
     sinTime2 = (sin(5.0f * (time - angle)) / 2.0f + 0.5f) + 0.5f;
     sinTime3 = (sin(5.0f * (time - angle) + 3.14159f/2) / 2.0f + 0.5f) + 0.5f;
     gl_Position = vpMatrix * vec4(ringCenter +
                                   vec3(rotationMatrix *
                                   vec4(ringOffset +
                                   (sinTime2 + sinTime3) * vertexPos, 1)), 1);
-//    gl_Position = vpMatrix * vec4(ringCenter +
-//                                      vec3(rotationMatrix *
-//                                      vec4(ringOffset + vertexPos, 1)), 1);
+
     // the color of each vertex will depend on its distance from the origin
-    fragmentColor.r = 2.f * angle / 3.14159f / 2;
+    fragmentColor.r = sinDist;
     fragmentColor.g = 1.0f;
     fragmentColor.b = 1.0f;
 }

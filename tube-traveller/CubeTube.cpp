@@ -12,18 +12,13 @@
 #include "../core/loaders/loadShaders.h"
 #include "../core/loaders/loadObj.h"
 
-CubeTube::CubeTube(GLuint numCubesHorizontal_, GLuint numCubesVertical_,
-                   GLuint numCenters_,
+CubeTube::CubeTube(GLint numCenters_,
                    const bool *keysPressed_, const bool *keysToggled_) {
-
-    numCubesHorizontal = numCubesHorizontal_;
-    numCubesVertical = numCubesVertical_;
-    numCenters = numCenters_;
 
     keysPressed = keysPressed_;
     keysToggled = keysToggled_;
+    numCenters = numCenters_;
 
-    sideLength = 2.0f;
     spacing = 8.0f;     // distance between ring centers
 
     // create and compile our GLSL program from the shaders
@@ -39,38 +34,99 @@ CubeTube::CubeTube(GLuint numCubesHorizontal_, GLuint numCubesVertical_,
     mvpMatrixID = glGetUniformLocation(shaderID, "mvpMatrix");
     timeParamID = glGetUniformLocation(shaderID, "time");
 
-    // load cube model
-    bool res = loadObj("tube-traveller/cube.obj", cubeModelCoordinates, uvs, normals);
-    numVertices = static_cast<GLuint>(cubeModelCoordinates.size());
-    numModelsPerRing = 2 * numCubesHorizontal + 2 * (numCubesVertical - 2);
-    numVerticesPerInstance = numVertices;
 
     // -------------------------------------------------------------------------
     //                          Fill buffers
     // -------------------------------------------------------------------------
 
-    modelOffsets = new glm::vec3[numModelsPerRing];
-    ringOffsets = new glm::vec3[numCenters];
-    rotationMatrix = new glm::mat4[numCenters];
+    ringModelType = CIRCLE_OF_SQUARES;
+    switch (ringModelType) {
+        case SQUARE_OF_SQUARES: {
+            // load cube model
+            bool res = loadObj("tube-traveller/cube.obj", cubeModelCoordinates,
+                               uvs, normals);
+            numVertices = static_cast<GLuint>(cubeModelCoordinates.size());
+            GLint numCubesHorizontal = 5;
+            GLint numCubesVertical = 5;
+            numModelsPerRing = 2*numCubesHorizontal + 2*(numCubesVertical-2);
+            numVerticesPerInstance = numVertices;
 
-    // get radial offsets
-    int counter = 0;
-    for (int i = 0; i < numCubesHorizontal; ++i) {
-        for (int j = 0; j < numCubesVertical; ++j) {
-            if (i == 0 || i == numCubesHorizontal-1 ||
-                j == 0 || j == numCubesVertical-1) {
-                modelOffsets[counter] = glm::vec3(
-                        spacing * static_cast<float>(-numCubesHorizontal/2 + i),
-                        0,
-                        spacing * static_cast<float>(-numCubesVertical/2 + j));
-                counter++;
+            sideLength = 2.0f;
+
+            modelOffsets = new glm::vec3[numModelsPerRing];
+            // get radial offsets
+            int counter = 0;
+            for (int i = 0; i < numCubesHorizontal; ++i) {
+                for (int j = 0; j < numCubesVertical; ++j) {
+                    if (i == 0 || i == numCubesHorizontal - 1 ||
+                        j == 0 || j == numCubesVertical - 1) {
+                        modelOffsets[counter] = glm::vec3(
+                                spacing *
+                                static_cast<float>(-numCubesHorizontal/2 + i),
+                                0,
+                                spacing *
+                                static_cast<float>(-numCubesVertical/2 + j));
+                        counter++;
+                    }
+                }
             }
+            break;
         }
+        case CIRCLE_OF_SQUARES: {
+            // load cube model
+            std::vector<glm::vec3> cubeModelCoordinates0;
+            bool res = loadObj("tube-traveller/cube.obj", cubeModelCoordinates0,
+                               uvs, normals);
+            numVertices = static_cast<GLuint>(cubeModelCoordinates0.size());
+
+            // number of cubes arranged radially
+            numModelsPerRing = 16;
+
+            // make a ring of cubes a single instance
+            sideLength = 10.f;
+
+            GLfloat angle;
+            for (int i = 0; i < numModelsPerRing; ++i) {
+
+                glm::mat4 modelMat;
+
+                angle = static_cast<float>(i) / numModelsPerRing * 2.f * PI;
+
+                // rotate model cube
+                modelMat = glm::rotate(modelMat, angle, glm::vec3(0.f, 1.f, 0.f));
+
+                // translate model cube
+                modelMat = glm::translate(modelMat,
+                                          glm::vec3(sideLength, 0, 0));
+
+                // transform model cube coordinates
+                for (int j = 0; j < numVertices; ++j) {
+                    cubeModelCoordinates.push_back(glm::vec3(
+                            modelMat * glm::vec4(cubeModelCoordinates0[j], 1.f)));
+                }
+            }
+
+            // make the above a single instance
+            numVerticesPerInstance = numVertices * numModelsPerRing;
+            numModelsPerRing = 1;
+
+            // with only a single instance, model offsets are set to (0,0,0)
+            modelOffsets = new glm::vec3[numModelsPerRing];
+            modelOffsets[0] = glm::vec3(0.f);
+
+            break;
+        }
+        default:
+            std::cerr << "Incorrect model type specified." << std::endl;
+            break;
     }
+
+    ringCenters = new glm::vec3[numCenters];
+    rotationMatrix = new glm::mat4[numCenters];
 
     // get centers
     for (int i = 0; i < numCenters; ++i) {
-        ringOffsets[i] = glm::vec3(0.f, 0.f, 0.f);
+        ringCenters[i] = glm::vec3(0.f, 0.f, 0.f);
         rotationMatrix[i] = glm::rotate(glm::mat4(1.0f),
                                         0.f,
                                         glm::vec3(0.0f, 0.0f, 1.f));
@@ -82,10 +138,10 @@ CubeTube::CubeTube(GLuint numCubesHorizontal_, GLuint numCubesVertical_,
     g_rotation_buffer_data = new glm::mat4[numCenters * numModelsPerRing];
 
     // get all vertices
-    counter = 0;
+    int counter = 0;
     for (int i = 0; i < numCenters; ++i) {
         for (int j = 0; j < numModelsPerRing; ++j) {
-            g_center_buffer_data[counter] = ringOffsets[i];
+            g_center_buffer_data[counter] = ringCenters[i];
             g_radial_buffer_data[counter] = modelOffsets[j];
             g_rotation_buffer_data[counter] = rotationMatrix[i];
             counter++;
@@ -214,7 +270,7 @@ CubeTube::CubeTube(GLuint numCubesHorizontal_, GLuint numCubesVertical_,
 /*
  * update buffers with newly created path data
  */
-void CubeTube::update(const PathUserInput &path, Player &player,
+void CubeTube::update(const PathRandom &path, Player &player,
                       Camera &cam ) {
 
     // update render mode if tab key was just released
@@ -301,7 +357,7 @@ void CubeTube::clean() {
     glDeleteBuffers(1, &rotationBufferID);
     glDeleteProgram(shaderID);
 
-    delete[] ringOffsets;
+    delete[] ringCenters;
     delete[] g_center_buffer_data;
     delete[] modelOffsets;
     delete[] g_radial_buffer_data;

@@ -20,8 +20,9 @@ set(SOURCE_FILES
         cube-array-user/CubeArrayUser.cpp
         tube-traveller/TubeTraveller.cpp
         tube-traveller/PathUserInput.cpp
+        tube-traveller/PathRandom.cpp
         tube-traveller/CubeTube.cpp
-)
+        )
 
 
 add_executable(tubeworld ${SOURCE_FILES})

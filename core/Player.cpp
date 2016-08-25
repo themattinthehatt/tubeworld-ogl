@@ -44,6 +44,8 @@ Player::Player(bool *keysPressed_, bool *keysToggled_)
 
     speed = 10.0f;
     rotationSpeed = 1.0f;
+
+    currentTime = static_cast<float>(glfwGetTime());
 }
 
 /* ~Player();

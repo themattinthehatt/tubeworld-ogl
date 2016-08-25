@@ -8,14 +8,13 @@
 
 #include "PathUserInput.h"
 
-PathUserInput::PathUserInput(GLuint numCenters_,
+PathUserInput::PathUserInput(GLint numCenters,
                              const bool *keysPressed_,
                              const bool *keysToggled_) {
     
     keysPressed = keysPressed_;
     keysToggled = keysToggled_;
 
-    numCenters = numCenters_;
     horizontalAngles = new GLfloat[numCenters];
     verticalAngles = new GLfloat[numCenters];
     positions = new glm::vec3[numCenters];
@@ -85,7 +84,7 @@ void PathUserInput::update(Player &player) {
         // key not pressed; reset growth multiplier
         growthUpVertAngle = 1.0f;
         // decay
-        decayUpVertAngle *= 0.9;
+        decayUpVertAngle *= 0.95;
     }
     // rotate down
     if (keysPressed[GLFW_KEY_S]) {
@@ -94,7 +93,7 @@ void PathUserInput::update(Player &player) {
         decayDownVertAngle = (1 - growthDownVertAngle);
     } else {
         growthDownVertAngle = 1.0f;
-        decayDownVertAngle *= 0.9;
+        decayDownVertAngle *= 0.95;
     }
     // rotate right
     if (keysPressed[GLFW_KEY_D]) {
@@ -103,7 +102,7 @@ void PathUserInput::update(Player &player) {
         decayRightHorzAngle = (1 - growthRightHorzAngle);
     } else {
         growthRightHorzAngle = 1.0f;
-        decayRightHorzAngle *= 0.9;
+        decayRightHorzAngle *= 0.95;
     }
     // rotate left
     if (keysPressed[GLFW_KEY_A]) {
@@ -112,7 +111,7 @@ void PathUserInput::update(Player &player) {
         decayLeftHorzAngle = (1 - growthLeftHorzAngle);
     } else {
         growthLeftHorzAngle = 1.0f;
-        decayLeftHorzAngle *= 0.9;
+        decayLeftHorzAngle *= 0.95;
     }
     // decrease speed
     if (keysPressed[GLFW_KEY_E]) {

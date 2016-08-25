@@ -4,15 +4,14 @@
 
 #include "TubeTraveller.h"
 
-TubeTraveller::TubeTraveller(
-    GLuint numCubesHorizontal_, GLuint numCubesVertical_, GLuint numCenters_,
-    const bool *keysPressed_, const bool *keysToggled_)
+TubeTraveller::TubeTraveller(GLint numCenters,
+                             const bool *keysPressed_,
+                             const bool *keysToggled_)
         :
-    cubearray(numCubesHorizontal_, numCubesVertical_, numCenters_,
-              keysPressed_, keysToggled_),
-    path(numCenters_, keysPressed_, keysToggled_) {
+    cubearray(numCenters, keysPressed_, keysToggled_),
+    path(numCenters, keysPressed_, keysToggled_) {
 
-    path.spacing = cubearray.spacing;
+    path.numCenters = cubearray.numCenters;
 }
 
 void TubeTraveller::update(Camera &cam, Player &player) {

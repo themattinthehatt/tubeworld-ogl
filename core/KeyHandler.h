@@ -28,7 +28,7 @@ void keyHandler(GLFWwindow* window, int key, int scancode, int action, int mode)
 //            std::cout << keysToggled[key] << " ";
             keysPressed[key] = false;
             keysToggled[key] = !keysToggled[key];
-            std::cout << keysToggled[key] << std::endl;
+//            std::cout << keysToggled[key] << std::endl;
             first_release = false;
         } else {
             keysPressed[key] = false;

@@ -21,7 +21,7 @@ void main() {
     // output color = color specified in the vertex shader,
     // interpolated between all 3 surrounding vertices
     color = fragmentColor;
-//    color.r += 0.3 * sinTime; // let GPU throw out numbers > 1.0
+    color.r += 0.3 * sinTime; // let GPU throw out numbers > 1.0
     color = hsvToRgb(color);
 }
 

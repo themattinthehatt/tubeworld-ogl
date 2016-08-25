@@ -12,6 +12,7 @@
 #include <glm/glm.hpp>
 #include "../core/Camera.h"
 #include "CubeTube.h"
+#include "PathRandom.h"
 
 class TubeTraveller {
 private:
@@ -19,14 +20,12 @@ private:
 
 public:
 
-    PathUserInput path;
+    PathRandom path;
     CubeTube cubearray;
 
     // constructor
-    TubeTraveller(GLuint numCubesHorizontal_, GLuint numCubesVertical_,
-                  GLuint numCenters_,
+    TubeTraveller(GLint numCenters,
                   const bool *keysPressed_, const bool *keysToggled_);
-
     // update dynamics of cube array
     void update(Camera &cam, Player &player);
     // draw cube array

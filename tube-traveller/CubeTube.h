@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include "PathUserInput.h"
+#include "PathRandom.h"
 #include "../core/Camera.h"
 
 class CubeTube {
@@ -20,15 +21,13 @@ public:
     std::vector<glm::vec3> cubeModelCoordinates;
     std::vector<glm::vec2> uvs;
     std::vector<glm::vec3> normals;
-    GLuint numVertices;
+    GLint numVertices;
 
-    int numCubesHorizontal;
-    int numCubesVertical;
-    int numCenters;
-    int numVerticesPerInstance;
-    GLuint numModelsPerRing;
+    GLint numCenters;
+    GLint numVerticesPerInstance;
+    GLint numModelsPerRing;
 
-    glm::vec3 *ringOffsets;
+    glm::vec3 *ringCenters;
     glm::vec3 *g_center_buffer_data;
     glm::vec3 *modelOffsets;
     glm::vec3 *g_radial_buffer_data;
@@ -64,11 +63,17 @@ public:
     bool playerModeTrigger = false; // returns true upon release of proper key
     GLuint playerMode = 0;
 
+    enum RingModelType {
+        SQUARE_OF_SQUARES,
+        CIRCLE_OF_SQUARES,
+    };
+    RingModelType ringModelType;
+
     // constructor
-    CubeTube(GLuint numCubesHorizontal, GLuint numCubesVertical, GLuint numCenters,
+    CubeTube(GLint numCenters_,
              const bool *keysPressed, const bool *keysToggled);
     // update positions/angles of tube elements
-    void update(const PathUserInput &path, Player &player, Camera &cam);
+    void update(const PathRandom &path, Player &player, Camera &cam);
     // draw tube elements
     void draw();
     // clean up VAOs, VBOs, etc.
