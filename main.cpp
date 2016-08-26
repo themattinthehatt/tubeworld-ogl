@@ -20,7 +20,7 @@
 // include tubeworld components
 #include "core/Camera.h"
 #include "core/Skybox.h"
-#include "core/KeyHandler.h"
+#include "core/IOHandler.h"
 #include "cube-array-ring/CubeArrayRing.h"
 #include "tube-traveller/TubeTraveller.h"
 
@@ -72,7 +72,7 @@ int main() {
     glfwMakeContextCurrent(window);
 
     // set up callback function for when a physical key is pressed or released
-    glfwSetKeyCallback(window, keyHandler);
+    glfwSetKeyCallback(window, IOHandler::getInstance().baseKeyCallback);
     // ensure we can capture key presses
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
@@ -112,6 +112,7 @@ int main() {
     // cull triangles which normal is not towards the camera
     glEnable(GL_CULL_FACE);
 
+    IOHandler &io(IOHandler::getInstance());
     // -------------------------------------------------------------------------
     // Set up scene
     // -------------------------------------------------------------------------
@@ -122,14 +123,14 @@ int main() {
                                      "textures/box3/right.bmp",
                                      "textures/box3/right.bmp",
                                      "textures/box3/right.bmp"};
-    Skybox skybox = Skybox(files, 1000.0f, keysPressed, keysToggled);
+    Skybox skybox = Skybox(files, 1000.0f);
 
     // set up cubes
 //    CubeArrayRing cubearray = CubeArrayRing(5, 5, 100, keysPressed, keysToggled);
-    TubeTraveller cubearray = TubeTraveller(100, keysPressed, keysToggled);
+//    TubeTraveller cubearray = TubeTraveller(100, io);
 
     // initialize player
-    Player player = Player(keysPressed, keysToggled);
+//    Player player = Player(io);
     // initialize camera
     Camera cam = Camera();
 
@@ -167,7 +168,7 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // update render mode if tab key was just released
-        if (keysToggled[GLFW_KEY_CAPS_LOCK] != polygonTrigger) {
+        if (io.keysToggled[GLFW_KEY_CAPS_LOCK] != polygonTrigger) {
             polygonTrigger = !polygonTrigger;
             polygonMode = (polygonMode + 1) % MAX_POLYGON_MODES;
         }
@@ -186,8 +187,8 @@ int main() {
         }
 
         // RENDER CUBES
-        cubearray.update(cam, player);
-        cubearray.draw();
+//        cubearray.update(cam, player);
+//        cubearray.draw();
 
         // RENDER SKYBOX
         skybox.update(cam);
@@ -202,7 +203,7 @@ int main() {
 
     // clean up VAO, VBO, shader program and textures
     skybox.clean();
-    cubearray.clean();
+//    cubearray.clean();
 
     // close OpenGL window and terminate GLFW
     glfwTerminate();

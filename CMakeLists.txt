@@ -22,7 +22,7 @@ set(SOURCE_FILES
         tube-traveller/PathUserInput.cpp
         tube-traveller/PathRandom.cpp
         tube-traveller/CubeTube.cpp
-        )
+)
 
 
 add_executable(tubeworld ${SOURCE_FILES})

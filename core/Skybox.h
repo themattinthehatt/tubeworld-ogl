@@ -8,6 +8,7 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include "Camera.h"
+#include "IOHandler.h"
 
 class Skybox {
 
@@ -32,14 +33,12 @@ public:
     glm::mat4 viewMatrix;       // view matrix
     GLuint viewMatrixID;        // ID of view matrix for shaders
 
-    const bool *keysPressed;    // pointer to keysPressed array
-    const bool *keysToggled;    // pointer to keysToggled array
+    IOHandler &io;              // pointer to keysPressed array
     bool renderTrigger = false; // returns true upon release of proper key
     GLuint renderMode = 0;      // specifies current mode of skybox rendering
 
     // constructor
-    Skybox(std::vector<const GLchar*> files, GLfloat multiplier,
-           const bool *keysPressed, const bool *keysToggled);
+    Skybox(std::vector<const GLchar*> files, GLfloat multiplier);
     // destructor
     ~Skybox();
     // update skybox position

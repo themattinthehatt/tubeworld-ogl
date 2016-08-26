@@ -22,15 +22,11 @@
 /* Skybox()
  * Constructor method for Camera class
  */
-Skybox::Skybox(std::vector<const GLchar*> files_, GLfloat multiplier_,
-               const bool *keysPressed_, const bool *keysToggled_) {
+Skybox::Skybox(std::vector<const GLchar*> files_, GLfloat multiplier_) :
+               io(IOHandler::getInstance()) {
 
     // multiplier sets bounds of skybox
     multiplier = multiplier_;
-
-    // keyboard input for toggling skybox
-    keysPressed = keysPressed_;
-    keysToggled = keysToggled_;
 
     // load images that will serve as skybox textures
     texture = Skybox::loadCubemap(files_);
@@ -104,7 +100,7 @@ void Skybox::update(const Camera &cam) {
     viewMatrix = cam.getProjection() * cam.getView();
 
     // update render mode if tab key was just released
-    if (keysToggled[GLFW_KEY_TAB] != renderTrigger) {
+    if (io.keysToggled[GLFW_KEY_TAB] != renderTrigger) {
         renderTrigger = !renderTrigger;
         renderMode = (renderMode + 1) % MAX_RENDER_MODES;
     }
