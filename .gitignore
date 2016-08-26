@@ -33,3 +33,6 @@
 
 # textures
 textures/*
+
+# old code
+old_code/*
