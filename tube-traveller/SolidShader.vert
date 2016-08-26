@@ -40,12 +40,16 @@ void main() // main function
 
     sinDist = 2.0f * (sin(0.001f * dist + 0.10f) / 2.0f + 0.5f) + 0.5f;
 //    sinTime = time; //sin(0.5 * time) / 2.0f + 0.5.f;
-    sinTime2 = (sin(5.0f * (time - angle)) / 2.0f + 0.5f) + 0.5f;
-    sinTime3 = (sin(5.0f * (time - angle) + 3.14159f/2) / 2.0f + 0.5f) + 0.5f;
+//    sinTime2 = (sin(5.0f * (time - angle)) / 2.0f + 0.5f) + 0.5f;
+//    sinTime3 = (sin(5.0f * (time - angle) + 3.14159f/2) / 2.0f + 0.5f) + 0.5f;
+//    gl_Position = vpMatrix * vec4(ringCenter +
+//                                  vec3(rotationMatrix *
+//                                  vec4(ringOffset +
+//                                  (sinTime2 + sinTime3) * vertexPos, 1)), 1);
+
     gl_Position = vpMatrix * vec4(ringCenter +
                                   vec3(rotationMatrix *
-                                  vec4(ringOffset +
-                                  (sinTime2 + sinTime3) * vertexPos, 1)), 1);
+                                  vec4(ringOffset + vertexPos, 1)), 1);
 
     // the color of each vertex will depend on its distance from the origin
     fragmentColor.r = sinDist;

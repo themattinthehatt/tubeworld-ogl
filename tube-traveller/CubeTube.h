@@ -9,7 +9,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include "PathUserInput.h"
-#include "PathRandom.h"
+#include "PathGenerator.h"
 #include "../core/Camera.h"
 
 class CubeTube {
@@ -52,8 +52,7 @@ public:
     GLfloat time;
     GLuint timeParamID;
 
-    const bool *keysPressed;    // pointer to keysPressed array
-    const bool *keysToggled;    // pointer to keysToggled array
+    IOHandler &io;
 
     enum PlayerMode {
         PLAYER_FREE,
@@ -70,10 +69,9 @@ public:
     RingModelType ringModelType;
 
     // constructor
-    CubeTube(GLint numCenters_,
-             const bool *keysPressed, const bool *keysToggled);
+    CubeTube(GLint numCenters, RingModelType ringModelType);
     // update positions/angles of tube elements
-    void update(const PathRandom &path, Player &player, Camera &cam);
+    void update(const PathGenerator *path, Player &player, Camera &cam);
     // draw tube elements
     void draw();
     // clean up VAOs, VBOs, etc.

@@ -8,27 +8,22 @@
 
 #include "PathUserInput.h"
 
-PathUserInput::PathUserInput(GLint numCenters,
-                             const bool *keysPressed_,
-                             const bool *keysToggled_) {
-    
-    keysPressed = keysPressed_;
-    keysToggled = keysToggled_;
+PathUserInput::PathUserInput(GLint numCenters_) : io(IOHandler::getInstance()){
 
-    horizontalAngles = new GLfloat[numCenters];
-    verticalAngles = new GLfloat[numCenters];
-    positions = new glm::vec3[numCenters];
-    headings = new glm::vec3[numCenters];
-    ups = new glm::vec3[numCenters];
-    rights = new glm::vec3[numCenters];
+    // number of slices
+    numCenters = numCenters_;
 
+    // distance between slice centers
+    spacing = 20.f;
+
+    // set up initial tube orientations
     for (int i = 0; i < numCenters; ++i) {
-        positions[0] = glm::vec3(0.f, 0.f, 0.f);
-        horizontalAngles[0] = PI/2;
-        verticalAngles[0] = PI/2;
-        headings[0] = glm::vec3(0.f,1.f, 0.f);
-        ups[0] = glm::vec3(0.f, 0.f, 1.f);
-        rights[0] = glm::vec3(1.f, 0.f, 0.f);
+        positions.push_back(glm::vec3(0.f, 0.f, 0.f));
+        horizontalAngles.push_back(PI/2);
+        verticalAngles.push_back(PI/2);
+        headings.push_back(glm::vec3(0.f,1.f, 0.f));
+        ups.push_back(glm::vec3(0.f, 0.f, 1.f));
+        rights.push_back(glm::vec3(1.f, 0.f, 0.f));
     }
 }
 
@@ -52,29 +47,29 @@ void PathUserInput::update(Player &player) {
     player.moveForward(0.1);
 
     // move forward or up
-    if (keysPressed[GLFW_KEY_UP]) {
-        if (keysPressed[GLFW_KEY_LEFT_SHIFT])
+    if (io.keysPressed[GLFW_KEY_UP]) {
+        if (io.keysPressed[GLFW_KEY_LEFT_SHIFT])
             player.moveUp(distance);
         else
             speed += 0.01f;
     }
     // move backward or down
-    if (keysPressed[GLFW_KEY_DOWN]) {
-        if (keysPressed[GLFW_KEY_LEFT_SHIFT])
+    if (io.keysPressed[GLFW_KEY_DOWN]) {
+        if (io.keysPressed[GLFW_KEY_LEFT_SHIFT])
             player.moveDown(distance);
         else
             speed -= 0.01f;
     }
     // strafe right
-    if (keysPressed[GLFW_KEY_RIGHT]) {
+    if (io.keysPressed[GLFW_KEY_RIGHT]) {
         player.moveRight(distance);
     }
     // strafe left
-    if (keysPressed[GLFW_KEY_LEFT]) {
+    if (io.keysPressed[GLFW_KEY_LEFT]) {
         player.moveLeft(distance);
     }
     // rotate up
-    if (keysPressed[GLFW_KEY_W]) {
+    if (io.keysPressed[GLFW_KEY_W]) {
         // don't instantaneously update angle; let it grow slowly
         growthUpVertAngle *= 0.9f;
         player.rotateUp((1 - growthUpVertAngle) * deltaVertAngle);
@@ -87,7 +82,7 @@ void PathUserInput::update(Player &player) {
         decayUpVertAngle *= 0.95;
     }
     // rotate down
-    if (keysPressed[GLFW_KEY_S]) {
+    if (io.keysPressed[GLFW_KEY_S]) {
         growthDownVertAngle *= 0.9f;
         player.rotateDown((1 - growthDownVertAngle) * deltaVertAngle);
         decayDownVertAngle = (1 - growthDownVertAngle);
@@ -96,7 +91,7 @@ void PathUserInput::update(Player &player) {
         decayDownVertAngle *= 0.95;
     }
     // rotate right
-    if (keysPressed[GLFW_KEY_D]) {
+    if (io.keysPressed[GLFW_KEY_D]) {
         growthRightHorzAngle *= 0.9f;
         player.rotateRight((1 - growthRightHorzAngle) * deltaHorzAngle);
         decayRightHorzAngle = (1 - growthRightHorzAngle);
@@ -105,7 +100,7 @@ void PathUserInput::update(Player &player) {
         decayRightHorzAngle *= 0.95;
     }
     // rotate left
-    if (keysPressed[GLFW_KEY_A]) {
+    if (io.keysPressed[GLFW_KEY_A]) {
         growthLeftHorzAngle *= 0.9f;
         player.rotateLeft((1 - growthLeftHorzAngle) * deltaHorzAngle);
         decayLeftHorzAngle = (1 - growthLeftHorzAngle);
@@ -114,15 +109,15 @@ void PathUserInput::update(Player &player) {
         decayLeftHorzAngle *= 0.95;
     }
     // decrease speed
-    if (keysPressed[GLFW_KEY_E]) {
+    if (io.keysPressed[GLFW_KEY_E]) {
         player.incrementSpeed(-0.1f);
     }
     // increase speed
-    if (keysPressed[GLFW_KEY_R]) {
+    if (io.keysPressed[GLFW_KEY_R]) {
         player.incrementSpeed(0.1f);
     }
     // reset
-    if (keysPressed[GLFW_KEY_Q]) {
+    if (io.keysPressed[GLFW_KEY_Q]) {
         player.reset();
     }
 
@@ -197,29 +192,29 @@ void PathUserInput::update(Player &player) {
         horizontalAngles[i] = horizontalAngles[i - 1];
 
         // move forward or up
-        if (keysPressed[GLFW_KEY_UP]) {
-            if (keysPressed[GLFW_KEY_LEFT_SHIFT])
+        if (io.keysPressed[GLFW_KEY_UP]) {
+            if (io.keysPressed[GLFW_KEY_LEFT_SHIFT])
                 positions[i] = positions[i] + ups[i - 1] * distance;
             else
                 positions[i] = positions[i] + headings[i - 1] * distance;
         }
         // move backward or down
-        if (keysPressed[GLFW_KEY_DOWN]) {
-            if (keysPressed[GLFW_KEY_LEFT_SHIFT])
+        if (io.keysPressed[GLFW_KEY_DOWN]) {
+            if (io.keysPressed[GLFW_KEY_LEFT_SHIFT])
                 positions[i] = positions[i] - ups[i - 1] * distance;
             else
                 positions[i] = positions[i] - headings[i - 1] * distance;
         }
         // strafe right
-        if (keysPressed[GLFW_KEY_RIGHT]) {
+        if (io.keysPressed[GLFW_KEY_RIGHT]) {
             positions[i] = positions[i] + rights[i - 1] * distance;
         }
         // strafe left
-        if (keysPressed[GLFW_KEY_LEFT]) {
+        if (io.keysPressed[GLFW_KEY_LEFT]) {
             positions[i] = positions[i] - rights[i - 1] * distance;
         }
         // rotate up
-        if (keysPressed[GLFW_KEY_W]) {
+        if (io.keysPressed[GLFW_KEY_W]) {
             verticalAngles[i] = verticalAngles[i] -
                                 (1 - growthUpVertAngle) * deltaVertAngle;
         } else {
@@ -227,7 +222,7 @@ void PathUserInput::update(Player &player) {
                                 decayUpVertAngle * deltaVertAngle;
         }
         // rotate down
-        if (keysPressed[GLFW_KEY_S]) {
+        if (io.keysPressed[GLFW_KEY_S]) {
             verticalAngles[i] = verticalAngles[i] +
                                 (1 - growthDownVertAngle) * deltaVertAngle;
         } else {
@@ -235,7 +230,7 @@ void PathUserInput::update(Player &player) {
                                 decayDownVertAngle * deltaVertAngle;
         }
         // rotate right
-        if (keysPressed[GLFW_KEY_D]) {
+        if (io.keysPressed[GLFW_KEY_D]) {
             horizontalAngles[i] = horizontalAngles[i] -
                                   (1 - growthRightHorzAngle) * deltaHorzAngle;
         } else {
@@ -243,7 +238,7 @@ void PathUserInput::update(Player &player) {
                                   decayRightHorzAngle * deltaHorzAngle;
         }
         // rotate left
-        if (keysPressed[GLFW_KEY_A]) {
+        if (io.keysPressed[GLFW_KEY_A]) {
             horizontalAngles[i] = horizontalAngles[i] +
                                   (1 - growthLeftHorzAngle) * deltaHorzAngle;
         } else {
@@ -280,11 +275,4 @@ void PathUserInput::update(Player &player) {
     }
 }
 
-void PathUserInput::clean() {
-    delete[] horizontalAngles;
-    delete[] verticalAngles;
-    delete[] positions;
-    delete[] headings;
-    delete[] ups;
-    delete[] rights;
-}
+void PathUserInput::clean() { }

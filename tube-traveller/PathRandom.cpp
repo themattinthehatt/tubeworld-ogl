@@ -10,12 +10,10 @@
 
 #include "PathRandom.h"
 
-PathRandom::PathRandom(GLint numCenters,
-                       const bool *keysPressed_,
-                       const bool *keysToggled_) {
+PathRandom::PathRandom(GLint numCenters_) : io(IOHandler::getInstance()){
 
-    keysPressed = keysPressed_;
-    keysToggled = keysToggled_;
+    // number of slices
+    numCenters = numCenters_;
 
     // distance between slice centers
     spacing = 20.0f;
@@ -102,33 +100,33 @@ void PathRandom::update(Player &player) {
 //        player.update();
 
     // increase speed additively or mutliplicatively
-    if (keysPressed[GLFW_KEY_UP]) {
-        if (keysPressed[GLFW_KEY_LEFT_SHIFT])
+    if (io.keysPressed[GLFW_KEY_UP]) {
+        if (io.keysPressed[GLFW_KEY_LEFT_SHIFT])
             speed = 1.01f*speed;
         else
             speed += 0.1f;
     }
     // decrease speed additively or mutliplicatively
-    if (keysPressed[GLFW_KEY_DOWN]) {
-        if (keysPressed[GLFW_KEY_LEFT_SHIFT])
+    if (io.keysPressed[GLFW_KEY_DOWN]) {
+        if (io.keysPressed[GLFW_KEY_LEFT_SHIFT])
             speed = 0.99f*speed;
         else
             speed -= 0.1f;
     }
     // increase vertical curvature
-    if (keysPressed[GLFW_KEY_W]) {
+    if (io.keysPressed[GLFW_KEY_W]) {
         vertAngleUpdateRange += minVertAngleUpdateRange;
     }
     // decrease vertical curvature
-    if (keysPressed[GLFW_KEY_S]) {
+    if (io.keysPressed[GLFW_KEY_S]) {
         vertAngleUpdateRange -= minVertAngleUpdateRange;
     }
     // increase horizontal curvature
-    if (keysPressed[GLFW_KEY_D]) {
+    if (io.keysPressed[GLFW_KEY_D]) {
         horzAngleUpdateRange += minHorzAngleUpdateRange;
     }
     // decrease horizontal curvature
-    if (keysPressed[GLFW_KEY_A]) {
+    if (io.keysPressed[GLFW_KEY_A]) {
         horzAngleUpdateRange -= minHorzAngleUpdateRange;
     }
 
@@ -212,7 +210,6 @@ void PathRandom::update(Player &player) {
             deltaVertAngleUpdate = -maxDeltaVertAngle;
         }
 
-        std::cout << deltaVertAngleUpdate << " " << deltaHorzAngleUpdate << std::endl;
         horizontalAngles[firstElement] = horizontalAngles[lastElement] +
                                          deltaHorzAngleUpdate;
         verticalAngles[firstElement] = verticalAngles[lastElement] +

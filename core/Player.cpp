@@ -12,11 +12,8 @@
 /* Player();
  * Constructor method for Player class
  */
-Player::Player(bool *keysPressed_, bool *keysToggled_)
+Player::Player() : io(IOHandler::getInstance())
 {
-    // store pointers to key state arrays
-    keysPressed = keysPressed_;
-    keysToggled = keysToggled_;
 
     // start near origin facing along y-axis
     position0 = glm::vec3(0,0,0);
@@ -59,53 +56,53 @@ Player::~Player() {};
 void Player::handleInput()
 {
     // move forward or up
-    if (keysPressed[GLFW_KEY_UP]) {
-        if (keysPressed[GLFW_KEY_LEFT_SHIFT])
+    if (io.keysPressed[GLFW_KEY_UP]) {
+        if (io.keysPressed[GLFW_KEY_LEFT_SHIFT])
             moveUp(deltaTime * speed);
         else
             moveForward(deltaTime * speed);
     }
     // move backward or down
-    if (keysPressed[GLFW_KEY_DOWN]) {
-        if (keysPressed[GLFW_KEY_LEFT_SHIFT])
+    if (io.keysPressed[GLFW_KEY_DOWN]) {
+        if (io.keysPressed[GLFW_KEY_LEFT_SHIFT])
             moveDown(deltaTime * speed);
         else
             moveBackward(deltaTime * speed);
     }
     // strafe right
-    if (keysPressed[GLFW_KEY_RIGHT]) {
+    if (io.keysPressed[GLFW_KEY_RIGHT]) {
         moveRight(deltaTime * speed);
     }
     // strafe left
-    if (keysPressed[GLFW_KEY_LEFT]) {
+    if (io.keysPressed[GLFW_KEY_LEFT]) {
         moveLeft(deltaTime * speed);
     }
     // rotate up
-    if (keysPressed[GLFW_KEY_W]) {
+    if (io.keysPressed[GLFW_KEY_W]) {
         rotateUp(deltaTime * rotationSpeed);
     }
     // rotate down
-    if (keysPressed[GLFW_KEY_S]) {
+    if (io.keysPressed[GLFW_KEY_S]) {
         rotateDown(deltaTime * rotationSpeed);
     }
     // rotate right
-    if (keysPressed[GLFW_KEY_D]) {
+    if (io.keysPressed[GLFW_KEY_D]) {
         rotateRight(deltaTime * rotationSpeed);
     }
     // rotate left
-    if (keysPressed[GLFW_KEY_A]) {
+    if (io.keysPressed[GLFW_KEY_A]) {
         rotateLeft(deltaTime * rotationSpeed);
     }
     // decrease speed
-    if (keysPressed[GLFW_KEY_E]) {
+    if (io.keysPressed[GLFW_KEY_E]) {
         speed -= 0.1;
     }
     // increase speed
-    if (keysPressed[GLFW_KEY_R]) {
+    if (io.keysPressed[GLFW_KEY_R]) {
         speed += 0.1;
     }
     // reset
-    if (keysPressed[GLFW_KEY_Q]) {
+    if (io.keysPressed[GLFW_KEY_Q]) {
         reset();
     }
 

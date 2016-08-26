@@ -1,11 +1,11 @@
 //
 // Created by mattw on 8/26/16.
 //
+// Implement IOHandler using a singleton pattern
 
 #ifndef TUBEWORLD_IOHANDLER_H
 #define TUBEWORLD_IOHANDLER_H
 
-#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 class IOHandler {
@@ -19,8 +19,6 @@ private:
 
     // prevent assignments
     void operator=(IOHandler const&) {};
-
-
 
 public:
 

@@ -12,11 +12,10 @@
 #include "../core/loaders/loadShaders.h"
 #include "../core/loaders/loadObj.h"
 
-CubeTube::CubeTube(GLint numCenters_,
-                   const bool *keysPressed_, const bool *keysToggled_) {
+CubeTube::CubeTube(GLint numCenters_, RingModelType ringModelType_)
+        :
+        io(IOHandler::getInstance()) {
 
-    keysPressed = keysPressed_;
-    keysToggled = keysToggled_;
     numCenters = numCenters_;
 
     spacing = 8.0f;     // distance between ring centers
@@ -39,7 +38,7 @@ CubeTube::CubeTube(GLint numCenters_,
     //                          Fill buffers
     // -------------------------------------------------------------------------
 
-    ringModelType = CIRCLE_OF_SQUARES;
+    ringModelType = ringModelType_;
     switch (ringModelType) {
         case SQUARE_OF_SQUARES: {
             // load cube model
@@ -270,11 +269,11 @@ CubeTube::CubeTube(GLint numCenters_,
 /*
  * update buffers with newly created path data
  */
-void CubeTube::update(const PathRandom &path, Player &player,
+void CubeTube::update(const PathGenerator *path, Player &player,
                       Camera &cam ) {
 
     // update render mode if tab key was just released
-    if (keysToggled[GLFW_KEY_SPACE] != playerModeTrigger) {
+    if (io.keysToggled[GLFW_KEY_SPACE] != playerModeTrigger) {
         playerModeTrigger = !playerModeTrigger;
         playerMode = (playerMode + 1) % MAX_PLAYER_MODES;
     }
@@ -289,10 +288,10 @@ void CubeTube::update(const PathRandom &path, Player &player,
             int counter = 0;
             for (int i = 0; i < numCenters; ++i) {
                 for (int j = 0; j < numModelsPerRing; ++j) {
-                    g_center_buffer_data[counter] = path.positions[i];
+                    g_center_buffer_data[counter] = path->positions[i];
                     g_rotation_buffer_data[counter] = glm::rotate(glm::rotate(
-                            glm::mat4(1.0f),-path.verticalAngles[i]+PI/2, path.rights[i]),
-                            path.horizontalAngles[i]-PI/2, glm::vec3(0.f, 0.f, 1.f));
+                            glm::mat4(1.0f),-path->verticalAngles[i]+PI/2, path->rights[i]),
+                            path->horizontalAngles[i]-PI/2, glm::vec3(0.f, 0.f, 1.f));
                     counter++;
                 }
             }

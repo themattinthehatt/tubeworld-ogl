@@ -12,14 +12,11 @@
  * Constructor method for CubeArray class
  */
 CubeArrayRing::CubeArrayRing(int numCubesHorizontal_, int numCubesVertical_,
-                             int numCubeRings_,
-                             const bool *keysPressed_, const bool *keysToggled_) {
+                             int numCubeRings_) : io(IOHandler::getInstance()){
 
     numCubesHorizontal = numCubesHorizontal_;
     numCubesVertical = numCubesVertical_;
     numCubeRings = numCubeRings_;
-    keysPressed = keysPressed_;
-    keysToggled = keysToggled_;
 
     // create and compile our GLSL program from the shaders
     shaderID = loadShaders("cube-array-ring/SolidShader.vert",
@@ -228,7 +225,7 @@ CubeArrayRing::~CubeArrayRing() {}
 void CubeArrayRing::update(Camera &cam, Player &player) {
 
     // update render mode if tab key was just released
-    if (keysToggled[GLFW_KEY_SPACE] != playerModeTrigger) {
+    if (io.keysToggled[GLFW_KEY_SPACE] != playerModeTrigger) {
         playerModeTrigger = !playerModeTrigger;
         playerMode = (playerMode + 1) % MAX_PLAYER_MODES;
     }
@@ -250,55 +247,55 @@ void CubeArrayRing::update(Camera &cam, Player &player) {
             player.moveTheta(player.getDeltaTime() * player.getRotationSpeed(),
                              glm::vec3(0.f, 0.f, 0.f));
             // move forward or up
-            if (keysPressed[GLFW_KEY_UP]) {
-                if (keysPressed[GLFW_KEY_LEFT_SHIFT])
+            if (io.keysPressed[GLFW_KEY_UP]) {
+                if (io.keysPressed[GLFW_KEY_LEFT_SHIFT])
                     player.moveUp(player.getDeltaTime() * player.getSpeed());
                 else
                     player.moveTheta(player.getDeltaTime() * player.getRotationSpeed(),
                                      glm::vec3(0.f, 0.f, 0.f));
             }
             // move backward or down
-            if (keysPressed[GLFW_KEY_DOWN]) {
-                if (keysPressed[GLFW_KEY_LEFT_SHIFT])
+            if (io.keysPressed[GLFW_KEY_DOWN]) {
+                if (io.keysPressed[GLFW_KEY_LEFT_SHIFT])
                     player.moveDown(player.getDeltaTime() * player.getSpeed());
                 else
                     player.moveTheta(-player.getDeltaTime() * player.getRotationSpeed(),
                                      glm::vec3(0.f, 0.f, 0.f));
             }
             // strafe right
-            if (keysPressed[GLFW_KEY_RIGHT]) {
+            if (io.keysPressed[GLFW_KEY_RIGHT]) {
                 player.moveRight(player.getDeltaTime() * player.getSpeed());
             }
             // strafe left
-            if (keysPressed[GLFW_KEY_LEFT]) {
+            if (io.keysPressed[GLFW_KEY_LEFT]) {
                 player.moveLeft(player.getDeltaTime() * player.getSpeed());
             }
             // rotate up
-            if (keysPressed[GLFW_KEY_W]) {
+            if (io.keysPressed[GLFW_KEY_W]) {
                 player.rotateUp(player.getDeltaTime() * player.getRotationSpeed());
             }
             // rotate down
-            if (keysPressed[GLFW_KEY_S]) {
+            if (io.keysPressed[GLFW_KEY_S]) {
                 player.rotateDown(player.getDeltaTime() * player.getRotationSpeed());
             }
             // rotate right
-            if (keysPressed[GLFW_KEY_D]) {
+            if (io.keysPressed[GLFW_KEY_D]) {
                 player.rotateRight(player.getDeltaTime() * player.getRotationSpeed());
             }
             // rotate left
-            if (keysPressed[GLFW_KEY_A]) {
+            if (io.keysPressed[GLFW_KEY_A]) {
                 player.rotateLeft(player.getDeltaTime() * player.getRotationSpeed());
             }
             // decrease speed
-            if (keysPressed[GLFW_KEY_E]) {
+            if (io.keysPressed[GLFW_KEY_E]) {
                 player.incrementRotationSpeed(-0.001f);
             }
             // increase speed
-            if (keysPressed[GLFW_KEY_R]) {
+            if (io.keysPressed[GLFW_KEY_R]) {
                 player.incrementRotationSpeed(0.001f);
             }
             // reset
-            if (keysPressed[GLFW_KEY_Q]) {
+            if (io.keysPressed[GLFW_KEY_Q]) {
                 player.reset();
             }
 

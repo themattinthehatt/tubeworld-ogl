@@ -11,6 +11,7 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include "../core/Camera.h"
+#include "../core/IOHandler.h"
 
 class CubeArrayRing {
 private:
@@ -60,15 +61,13 @@ public:
     int numCubeRings;
     int numVerticesPerInstance;
 
-    const bool *keysPressed;    // pointer to keysPressed array
-    const bool *keysToggled;    // pointer to keysToggled array
+    IOHandler &io;
     bool playerModeTrigger = false; // returns true upon release of proper key
     GLuint playerMode = 0;
 
 
     // constructor
-    CubeArrayRing(int numCubesHorizontal, int numCubesVertical, int numCubeRings,
-                    const bool *keysPressed, const bool *keysToggled);
+    CubeArrayRing(int numCubesHorizontal, int numCubesVertical, int numCubeRings);
     // destructor
     ~CubeArrayRing();
     // update dynamics of cube array
@@ -77,11 +76,6 @@ public:
     void draw();
     // clean up VAOs, VBOs, etc.
     void clean();
-
-    // create initial position data for each vertex
-    static void createCubeTube(int numCubesX, int numCubesY, int numCubesZ,
-                                         glm::vec3 origin, float cubeSpacing,
-                                         glm::vec3 center_buffer_data[]);
 
 };
 

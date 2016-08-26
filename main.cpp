@@ -15,23 +15,137 @@
 // Include GLM - 3D mathematics
 #include <glm/glm.hpp>
 
-#include "core/Debug.h"
-
 // include tubeworld components
-#include "core/Camera.h"
+#include "core/Debug.h"
+//#include "core/Camera.h"
 #include "core/Skybox.h"
-#include "core/IOHandler.h"
 #include "cube-array-ring/CubeArrayRing.h"
 #include "tube-traveller/TubeTraveller.h"
 
+// forward declarations
+GLFWwindow* openGLInit();
+
 int main() {
+
+    GLFWwindow *window = openGLInit();
+    if (window == nullptr) { return -1; }
+
+    IOHandler &io(IOHandler::getInstance());
+
+    // -------------------------------------------------------------------------
+    // Set up scene
+    // -------------------------------------------------------------------------
+    // set up skybox; +x, -x, +y, -y, +z, -z
+    std::vector<const char*> files ={"textures/box3/right.bmp",
+                                     "textures/box3/right.bmp",
+                                     "textures/box3/right.bmp",
+                                     "textures/box3/right.bmp",
+                                     "textures/box3/right.bmp",
+                                     "textures/box3/right.bmp"};
+    Skybox skybox = Skybox(files, 1000.0f);
+
+    // set up tube
+    GLint numCenters = 100;
+//    CubeArrayRing cubearray = CubeArrayRing(5, 5, numCenters);
+    TubeTraveller cubearray = TubeTraveller(numCenters);
+
+    // initialize player
+    Player player = Player();
+    // initialize camera
+    Camera cam = Camera();
+
+    // determine render mode
+    bool polygonTrigger = false;
+    GLuint polygonMode = 0;
+    enum PolygonMode {
+        POLY_MODE_FILL,
+        POLY_MODE_POINT,
+        POLY_MODE_LINE,
+        MAX_NUM_POLY_MODES
+    };
+
+    // -------------------------------------------------------------------------
+    // Run draw loop
+    // -------------------------------------------------------------------------
+
+    // for printing FPS
+    bool printFPS = true;
+    int counter = 0;
+    GLfloat currentTime = glfwGetTime();
+    GLfloat lastTime;
+
+    do {
+
+        if (printFPS) {
+            counter++;
+            // output FPS
+            lastTime = currentTime;
+            currentTime = glfwGetTime();
+            if (counter % 100 == 0){
+                std::cout << 1.f / (currentTime - lastTime) << std::endl;
+            }
+        }
+
+        // check for mouse and keyboard events
+        glfwPollEvents();
+
+        // clear the screen
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // update render mode if tab key was just released
+        if (io.keysToggled[GLFW_KEY_CAPS_LOCK] != polygonTrigger) {
+            polygonTrigger = !polygonTrigger;
+            polygonMode = (polygonMode + 1) % MAX_NUM_POLY_MODES;
+        }
+        switch (polygonMode) {
+            case POLY_MODE_FILL:
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                break;
+            case POLY_MODE_LINE:
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                break;
+            case POLY_MODE_POINT:
+                glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+                break;
+            default:
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
+
+        // RENDER CUBES
+        cubearray.update(cam, player);
+        cubearray.draw();
+
+        // RENDER SKYBOX
+        skybox.update(cam);
+        skybox.draw();
+
+        // swap screen buffers - outputs the buffer we have been drawing to this
+        // iteration to the screen
+        glfwSwapBuffers(window);
+
+    } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
+             glfwWindowShouldClose(window) == 0);
+
+    // clean up VAO, VBO, shader program and textures
+    skybox.clean();
+    cubearray.clean();
+
+    // close OpenGL window and terminate GLFW
+    glfwTerminate();
+
+    return 0;
+}
+
+
+
+GLFWwindow* openGLInit() {
 
     // -------------------------------------------------------------------------
     // GLFW - Initialize window and an OpenGL context to render in
     // -------------------------------------------------------------------------
     if (!glfwInit()) {
         fprintf(stderr, "Failed to initialize GLFW\n");
-        return -1;
+        return nullptr;
     }
 
     // configure window
@@ -54,7 +168,6 @@ int main() {
     if (monitorID < count) {
         useMonitor = monitors[monitorID];
     } else useMonitor = monitors[0];
-    GLFWwindow *window;
 
     const GLFWvidmode *mode = glfwGetVideoMode(useMonitor);
     int xResolution = mode->width;
@@ -62,12 +175,14 @@ int main() {
 
     GLuint screenWidth = xResolution; //1200;
     GLuint screenHeight = yResolution; //900;
-    window = glfwCreateWindow(screenWidth, screenHeight, "tubeworld 2.0", nullptr, nullptr);
-//    window = glfwCreateWindow(screenWidth, screenHeight, "tubeworld 2.0", useMonitor, nullptr);
+    GLFWwindow *window = glfwCreateWindow(screenWidth, screenHeight,
+                                          "tubeworld 2.0", nullptr, nullptr);
+//  GLFWwindow * window = glfwCreateWindow(screenWidth, screenHeight,
+//                                         "tubeworld 2.0", useMonitor, nullptr);
     if (window == nullptr) {
         std::cout << "Failed to open GLFW window." << std::endl;
         glfwTerminate();
-        return -1;
+        return nullptr;
     }
     glfwMakeContextCurrent(window);
 
@@ -91,7 +206,7 @@ int main() {
     if (glewInit() != GLEW_OK) {
         std::cout << "Failed to initialize GLEW." << std::endl;
         glfwTerminate();
-        return -1;
+        return nullptr;
     }
 
     GL_CHECK(true);
@@ -111,102 +226,8 @@ int main() {
     glDepthFunc(GL_LESS);
     // cull triangles which normal is not towards the camera
     glEnable(GL_CULL_FACE);
-
-    IOHandler &io(IOHandler::getInstance());
-    // -------------------------------------------------------------------------
-    // Set up scene
-    // -------------------------------------------------------------------------
-    // set up skybox; +x, -x, +y, -y, +z, -z
-    std::vector<const char*> files ={"textures/box3/right.bmp",
-                                     "textures/box3/right.bmp",
-                                     "textures/box3/right.bmp",
-                                     "textures/box3/right.bmp",
-                                     "textures/box3/right.bmp",
-                                     "textures/box3/right.bmp"};
-    Skybox skybox = Skybox(files, 1000.0f);
-
-    // set up cubes
-//    CubeArrayRing cubearray = CubeArrayRing(5, 5, 100, keysPressed, keysToggled);
-//    TubeTraveller cubearray = TubeTraveller(100, io);
-
-    // initialize player
-//    Player player = Player(io);
-    // initialize camera
-    Camera cam = Camera();
-
-    // determine render mode
-    bool polygonTrigger = false;
-    GLuint polygonMode = 0;
-    enum PolygonMode {
-        FILL,
-        POINT,
-        LINE,
-        MAX_POLYGON_MODES
-    };
-
-    // -------------------------------------------------------------------------
-    // Run draw loop
-    // -------------------------------------------------------------------------
-    int counter = 0;
-    GLfloat currentTime = glfwGetTime();
-    GLfloat lastTime;
+    // size of points in POINT mode
     glPointSize(3.f);
-    do {
 
-        counter++;
-        // output FPS
-//        lastTime = currentTime;
-//        currentTime = glfwGetTime();
-//        if (counter % 100 == 0){
-//            std::cout << 1.f / (currentTime - lastTime) << std::endl;
-//        }
-
-        // check for mouse and keyboard events
-        glfwPollEvents();
-
-        // clear the screen
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // update render mode if tab key was just released
-        if (io.keysToggled[GLFW_KEY_CAPS_LOCK] != polygonTrigger) {
-            polygonTrigger = !polygonTrigger;
-            polygonMode = (polygonMode + 1) % MAX_POLYGON_MODES;
-        }
-        switch (polygonMode) {
-            case FILL:
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-                break;
-            case LINE:
-                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                break;
-            case POINT:
-                glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-                break;
-            default:
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        }
-
-        // RENDER CUBES
-//        cubearray.update(cam, player);
-//        cubearray.draw();
-
-        // RENDER SKYBOX
-        skybox.update(cam);
-        skybox.draw();
-
-        // swap screen buffers - outputs the buffer we have been drawing to this
-        // iteration to the screen
-        glfwSwapBuffers(window);
-
-    } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
-             glfwWindowShouldClose(window) == 0);
-
-    // clean up VAO, VBO, shader program and textures
-    skybox.clean();
-//    cubearray.clean();
-
-    // close OpenGL window and terminate GLFW
-    glfwTerminate();
-
-    return 0;
+    return window;
 }

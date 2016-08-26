@@ -7,6 +7,7 @@
 
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include "IOHandler.h"
 
 const float PI = 3.141592653589f;
 
@@ -34,13 +35,11 @@ private:
     GLfloat currentTime;                    // time at current update
     GLfloat deltaTime;                      // time between current and previous
 
-    const bool *keysPressed;                // pointer to keysPressed array
-    const bool *keysToggled;                // pointer to keysToggled array
+    IOHandler &io;
 
 public:
 
-    Player(bool *keysPressed,
-           bool *keysToggled);              // constructor
+    Player();              // constructor
     ~Player();                              // destructor
     void handleInput();                     // interface with keyboard
     void update();                          // move camera

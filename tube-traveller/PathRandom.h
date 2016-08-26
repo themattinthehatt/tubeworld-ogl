@@ -11,14 +11,11 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include "../core/Player.h"
+#include "PathGenerator.h"
 
-class PathRandom {
+class PathRandom : public PathGenerator {
 private:
 public:
-
-    // info for tube slices
-    GLint numCenters;
-    GLfloat spacing;
 
     // for random walk generation
     std::mt19937::result_type seed;
@@ -33,14 +30,6 @@ public:
     GLfloat distanceToTravel;
     GLfloat propOfPathTraveled;
     GLint segsToAdd;
-
-    // actual tube info
-    std::vector<GLfloat> horizontalAngles;
-    std::vector<GLfloat> verticalAngles;
-    std::vector<glm::vec3> positions;
-    std::vector<glm::vec3> headings;
-    std::vector<glm::vec3> ups;
-    std::vector<glm::vec3> rights;
 
     // indices for manipulating tube info vectors above
     GLint currElement;
@@ -59,13 +48,10 @@ public:
     GLfloat minVertAngleUpdateRange;
     GLfloat maxVertAngleUpdateRange;
 
-    const bool *keysPressed;    // pointer to keysPressed array
-    const bool *keysToggled;    // pointer to keysToggled array
+    IOHandler &io;
 
     // constructor
-    PathRandom(GLint numCenters,
-               const bool *keysPressed,
-               const bool *keysToggled);
+    PathRandom(GLint numCenters);
     // update dynamics of tube positions
     void update(Player &player);
     // clean up dynamically allocated memory

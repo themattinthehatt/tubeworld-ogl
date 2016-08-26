@@ -8,20 +8,12 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include "../core/Player.h"
+#include "PathGenerator.h"
 
-class PathUserInput {
+class PathUserInput : public PathGenerator {
 private:
 public:
 
-    GLint numCenters;
-    GLfloat spacing;
-
-    GLfloat *horizontalAngles;
-    GLfloat *verticalAngles;
-    glm::vec3 *positions;
-    glm::vec3 *headings;
-    glm::vec3 *ups;
-    glm::vec3 *rights;
     GLfloat speed = 10.f;
     GLfloat deltaHorzAngle = 0.0f;
     GLfloat deltaVertAngle = 0.0f;
@@ -34,13 +26,10 @@ public:
     GLfloat growthUpVertAngle = 0.0f;
     GLfloat growthDownVertAngle = 0.0f;
 
-    const bool *keysPressed;    // pointer to keysPressed array
-    const bool *keysToggled;    // pointer to keysToggled array
+    IOHandler &io;
 
     // constructor
-    PathUserInput(GLint numCenters,
-                  const bool *keysPressed,
-                  const bool *keysToggled);
+    PathUserInput(GLint numCenters);
     // update dynamics of tube positions
     void update(Player &player);
     // clean up dynamically allocated memory

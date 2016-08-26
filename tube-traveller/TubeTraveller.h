@@ -20,12 +20,11 @@ private:
 
 public:
 
-    PathRandom path;
-    CubeTube cubearray;
+    PathGenerator *path;
+    CubeTube *tube;
 
     // constructor
-    TubeTraveller(GLint numCenters,
-                  const bool *keysPressed_, const bool *keysToggled_);
+    TubeTraveller(GLint numCenters);
     // update dynamics of cube array
     void update(Camera &cam, Player &player);
     // draw cube array
