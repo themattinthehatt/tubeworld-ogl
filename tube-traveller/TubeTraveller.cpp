@@ -3,12 +3,16 @@
 //
 
 #include "TubeTraveller.h"
+#include "PathCircle.h"
+#include "PathUserInput.h"
+#include "PathRandom.h"
 
-TubeTraveller::TubeTraveller(GLint numCenters) {
+TubeTraveller::TubeTraveller(GLint numCenters) : io(IOHandler::getInstance()){
 
     enum PathGeneratorType {
-        PATH_RANDOM,
+        PATH_CIRCLE,
         PATH_USER,
+        PATH_RANDOM,
         MAX_NUM_PATHS
     };
     enum TubeType {
@@ -22,11 +26,14 @@ TubeTraveller::TubeTraveller(GLint numCenters) {
 
     // select path type
     switch (pathType) {
-        case PATH_RANDOM:
-            path = new PathRandom(numCenters);
+        case PATH_CIRCLE:
+            path = new PathCircle(numCenters);
             break;
         case PATH_USER:
             path = new PathUserInput(numCenters);
+            break;
+        case PATH_RANDOM:
+            path = new PathRandom(numCenters);
             break;
         default:
             path = new PathRandom(numCenters);
@@ -46,8 +53,32 @@ TubeTraveller::TubeTraveller(GLint numCenters) {
 }
 
 void TubeTraveller::update(Camera &cam, Player &player) {
-    path->update(player);
-    tube->update(path, player, cam);
+
+    // toggle camera mode
+    if (io.keysToggled[GLFW_KEY_SPACE] != playerModeTrigger) {
+        playerModeTrigger = !playerModeTrigger;
+        playerMode = (playerMode + 1) % MAX_PLAYER_MODES;
+    }
+    switch (playerMode) {
+        case PLAYER_BOUND:
+        {
+            // path class updates player
+            path->update(player);
+            break;
+        }
+        case PLAYER_FREE:
+            // user input updates player
+            player.update();
+            break;
+        default:
+            player.update();
+    }
+
+    // compute view and projection matrices from player info
+    cam.update(player);
+
+    // update tube
+    tube->update(path, cam);
 }
 
 void TubeTraveller::draw() {

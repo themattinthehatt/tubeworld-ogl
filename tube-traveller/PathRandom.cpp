@@ -1,6 +1,11 @@
 //
 // Created by mattw on 8/24/16.
 //
+// TODO
+// - rotate around third axis, mainly so that it feels like you're banking into
+//   turns
+// - allow more freedom to change viewing angle when moving through tube, like
+//   pivoting u/d/l/r
 
 #include <iostream>
 #include <random>

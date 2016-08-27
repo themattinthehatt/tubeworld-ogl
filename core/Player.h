@@ -7,12 +7,10 @@
 
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include "Global.h"
 #include "IOHandler.h"
 
-const float PI = 3.141592653589f;
-
-class Player
-{
+class Player {
 private:
 
     glm::vec3 position0;                    // initial position vector

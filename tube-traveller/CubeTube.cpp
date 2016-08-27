@@ -18,10 +18,10 @@ CubeTube::CubeTube(GLint numCenters_, RingModelType ringModelType_)
 
     numCenters = numCenters_;
 
-    spacing = 8.0f;     // distance between ring centers
+    spacing = 200.0f;     // distance between ring centers
 
     // create and compile our GLSL program from the shaders
-    shaderID = loadShaders("tube-traveller/SolidShader.vert",
+    shaderID = loadShaders("tube-traveller/SolidRingShader.vert",
                            "tube-traveller/SolidShader.frag");
 
     // give the MVP matrix to GLSL; get a handle on our uniforms
@@ -269,39 +269,21 @@ CubeTube::CubeTube(GLint numCenters_, RingModelType ringModelType_)
 /*
  * update buffers with newly created path data
  */
-void CubeTube::update(const PathGenerator *path, Player &player,
-                      Camera &cam ) {
+void CubeTube::update(const PathGenerator *path, Camera &cam ) {
 
-    // update render mode if tab key was just released
-    if (io.keysToggled[GLFW_KEY_SPACE] != playerModeTrigger) {
-        playerModeTrigger = !playerModeTrigger;
-        playerMode = (playerMode + 1) % MAX_PLAYER_MODES;
-    }
-    switch (playerMode) {
-        case PLAYER_FREE:
-            // let player update like normal
-            //player.update();
-            break;
-        case PLAYER_BOUND:
-        {
-            // get all vertices
-            int counter = 0;
-            for (int i = 0; i < numCenters; ++i) {
-                for (int j = 0; j < numModelsPerRing; ++j) {
-                    g_center_buffer_data[counter] = path->positions[i];
-                    g_rotation_buffer_data[counter] = glm::rotate(glm::rotate(
-                            glm::mat4(1.0f),-path->verticalAngles[i]+PI/2, path->rights[i]),
-                            path->horizontalAngles[i]-PI/2, glm::vec3(0.f, 0.f, 1.f));
-                    counter++;
-                }
-            }
-            break;
+    // update all vertices
+    int counter = 0;
+    for (int i = 0; i < numCenters; ++i) {
+        for (int j = 0; j < numModelsPerRing; ++j) {
+            g_center_buffer_data[counter] = path->positions[i];
+            g_rotation_buffer_data[counter] = glm::rotate(glm::rotate(
+                    glm::mat4(1.0f),-path->verticalAngles[i]+PI/2,
+                                    path->rights[i]),
+                                    path->horizontalAngles[i]-PI/2,
+                                    glm::vec3(0.f, 0.f, 1.f));
+            counter++;
         }
-        default:
-            player.update();
     }
-    // compute view and projection matrices from player info
-    cam.update(player);
 
     time = glfwGetTime();
     mMatrix = glm::mat4(1.0);

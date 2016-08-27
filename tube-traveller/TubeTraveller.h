@@ -10,9 +10,8 @@
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
-#include "../core/Camera.h"
 #include "CubeTube.h"
-#include "PathRandom.h"
+#include "PathGenerator.h"
 
 class TubeTraveller {
 private:
@@ -22,6 +21,17 @@ public:
 
     PathGenerator *path;
     CubeTube *tube;
+
+    IOHandler &io;
+
+    enum PlayerMode {
+        PLAYER_BOUND,
+        PLAYER_FREE,
+        MAX_PLAYER_MODES
+    };
+    bool playerModeTrigger = false; // returns true upon release of proper key
+    GLuint playerMode = 0;
+
 
     // constructor
     TubeTraveller(GLint numCenters);

@@ -17,9 +17,8 @@
 
 // include tubeworld components
 #include "core/Debug.h"
-//#include "core/Camera.h"
+#include "core/Camera.h"
 #include "core/Skybox.h"
-#include "cube-array-ring/CubeArrayRing.h"
 #include "tube-traveller/TubeTraveller.h"
 
 // forward declarations
@@ -45,7 +44,7 @@ int main() {
     Skybox skybox = Skybox(files, 1000.0f);
 
     // set up tube
-    GLint numCenters = 100;
+    GLint numCenters = 1000;
 //    CubeArrayRing cubearray = CubeArrayRing(5, 5, numCenters);
     TubeTraveller cubearray = TubeTraveller(numCenters);
 

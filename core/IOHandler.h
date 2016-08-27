@@ -36,12 +36,14 @@ public:
     // fucky shit
     bool first_release = true;
 
-    static void baseKeyCallback(GLFWwindow *window, int key, int scancode, int action, int mode) {
+    static void baseKeyCallback(GLFWwindow *window, int key, int scancode,
+                                int action, int mode) {
         getInstance().keyCallback(window, key, scancode, action, mode);
     }
 
     // Is called whenever a key is pressed/released via GLFW
-    void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode)
+    void keyCallback(GLFWwindow* window, int key, int scancode,
+                                int action, int mode)
     {
         if (action == GLFW_PRESS) {
             keysPressed[key] = true;

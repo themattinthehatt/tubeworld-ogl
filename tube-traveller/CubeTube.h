@@ -8,15 +8,13 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <vector>
-#include "PathUserInput.h"
-#include "PathGenerator.h"
+#include "../core/Global.h"
 #include "../core/Camera.h"
+#include "PathGenerator.h"
 
 class CubeTube {
 private:
 public:
-
-    const GLfloat PI = 3.14159f;
 
     std::vector<glm::vec3> cubeModelCoordinates;
     std::vector<glm::vec2> uvs;
@@ -54,14 +52,6 @@ public:
 
     IOHandler &io;
 
-    enum PlayerMode {
-        PLAYER_FREE,
-        PLAYER_BOUND,
-        MAX_PLAYER_MODES
-    };
-    bool playerModeTrigger = false; // returns true upon release of proper key
-    GLuint playerMode = 0;
-
     enum RingModelType {
         SQUARE_OF_SQUARES,
         CIRCLE_OF_SQUARES,
@@ -71,7 +61,7 @@ public:
     // constructor
     CubeTube(GLint numCenters, RingModelType ringModelType);
     // update positions/angles of tube elements
-    void update(const PathGenerator *path, Player &player, Camera &cam);
+    void update(const PathGenerator *path, Camera &cam);
     // draw tube elements
     void draw();
     // clean up VAOs, VBOs, etc.
