@@ -20,6 +20,7 @@
 #include "core/Camera.h"
 #include "core/Skybox.h"
 #include "tube-traveller/TubeTraveller.h"
+#include "physic-spheres/PhysicSpheres.h"
 
 // forward declarations
 GLFWwindow* openGLInit();
@@ -44,9 +45,10 @@ int main() {
     Skybox skybox = Skybox(files, 1000.0f);
 
     // set up tube
-    GLint numCenters = 1000;
-//    CubeArrayRing cubearray = CubeArrayRing(5, 5, numCenters);
-    TubeTraveller cubearray = TubeTraveller(numCenters);
+//    GLint numCenters = 100;
+//    TubeTraveller cubearray = TubeTraveller(numCenters);
+
+    PhysicSpheres cubearray = PhysicSpheres();
 
     // initialize player
     Player player = Player();

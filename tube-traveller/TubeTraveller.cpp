@@ -21,7 +21,7 @@ TubeTraveller::TubeTraveller(GLint numCenters) : io(IOHandler::getInstance()){
         MAX_NUM_TUBES
     };
 
-    PathGeneratorType pathType = PATH_RANDOM;
+    PathGeneratorType pathType = PATH_CIRCLE;
     TubeType tubeType = TUBE_CUBES_CIRC;
 
     // select path type

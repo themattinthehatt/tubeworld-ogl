@@ -1,5 +1,5 @@
 //
-// Created by mattw on 8/21/16.
+// Created by mattw on 9/4/16.
 //
 
 #include <GL/glew.h>
@@ -8,21 +8,20 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
-#include "CubeTube.h"
+#include "PhysicSpheres.h"
 #include "../core/loaders/loadShaders.h"
 #include "../core/loaders/loadObj.h"
+#include "../core/loaders/loadObjIndexed.h"
 
-CubeTube::CubeTube(GLint numCenters_, RingModelType ringModelType_)
+PhysicSpheres::PhysicSpheres()
         :
         io(IOHandler::getInstance()) {
 
-    numCenters = numCenters_;
-
-    spacing = 8.0f;     // distance between ring centers
+    numCenters = 1000; // 10000@~30 fps, 1000@~225 fps
 
     // create and compile our GLSL program from the shaders
-    shaderID = loadShaders("tube-traveller/SolidRingShader.vert",
-                           "tube-traveller/SolidShader.frag");
+    shaderID = loadShaders("physic-spheres/SolidShader.vert",
+                           "physic-spheres/SolidShader.frag");
 
     // give the MVP matrix to GLSL; get a handle on our uniforms
     mMatrix = glm::mat4(1.0);
@@ -33,118 +32,24 @@ CubeTube::CubeTube(GLint numCenters_, RingModelType ringModelType_)
     mvpMatrixID = glGetUniformLocation(shaderID, "mvpMatrix");
     timeParamID = glGetUniformLocation(shaderID, "time");
 
-
-    // -------------------------------------------------------------------------
-    //                          Fill buffers
-    // -------------------------------------------------------------------------
-
-    ringModelType = ringModelType_;
-    switch (ringModelType) {
-        case SQUARE_OF_SQUARES: {
-            // load cube model
-            bool res = loadObj("tube-traveller/cube.obj", cubeModelCoordinates,
-                               uvs, normals);
-            numVertices = static_cast<GLuint>(cubeModelCoordinates.size());
-            GLint numCubesHorizontal = 5;
-            GLint numCubesVertical = 5;
-            numModelsPerRing = 2*numCubesHorizontal + 2*(numCubesVertical-2);
-            numVerticesPerInstance = numVertices;
-
-            sideLength = 2.0f;
-
-            modelOffsets = new glm::vec3[numModelsPerRing];
-            // get radial offsets
-            int counter = 0;
-            for (int i = 0; i < numCubesHorizontal; ++i) {
-                for (int j = 0; j < numCubesVertical; ++j) {
-                    if (i == 0 || i == numCubesHorizontal - 1 ||
-                        j == 0 || j == numCubesVertical - 1) {
-                        modelOffsets[counter] = glm::vec3(
-                                spacing *
-                                static_cast<float>(-numCubesHorizontal/2 + i),
-                                0,
-                                spacing *
-                                static_cast<float>(-numCubesVertical/2 + j));
-                        counter++;
-                    }
-                }
-            }
-            break;
-        }
-        case CIRCLE_OF_SQUARES: {
-            // load cube model
-            std::vector<glm::vec3> cubeModelCoordinates0;
-            bool res = loadObj("tube-traveller/cube.obj", cubeModelCoordinates0,
-                               uvs, normals);
-            numVertices = static_cast<GLuint>(cubeModelCoordinates0.size());
-
-            // number of cubes arranged radially
-            numModelsPerRing = 16;
-
-            // make a ring of cubes a single instance
-            sideLength = 10.f;
-
-            GLfloat angle;
-            for (int i = 0; i < numModelsPerRing; ++i) {
-
-                glm::mat4 modelMat;
-
-                angle = static_cast<float>(i) / numModelsPerRing * 2.f * PI;
-
-                // rotate model cube
-                modelMat = glm::rotate(modelMat, angle, glm::vec3(0.f, 1.f, 0.f));
-
-                // translate model cube
-                modelMat = glm::translate(modelMat,
-                                          glm::vec3(sideLength, 0, 0));
-
-                // transform model cube coordinates
-                for (int j = 0; j < numVertices; ++j) {
-                    cubeModelCoordinates.push_back(glm::vec3(
-                            modelMat * glm::vec4(cubeModelCoordinates0[j], 1.f)));
-                }
-            }
-
-            // make the above a single instance
-            numVerticesPerInstance = numVertices * numModelsPerRing;
-            numModelsPerRing = 1;
-
-            // with only a single instance, model offsets are set to (0,0,0)
-            modelOffsets = new glm::vec3[numModelsPerRing];
-            modelOffsets[0] = glm::vec3(0.f);
-
-            break;
-        }
-        default:
-            std::cerr << "Incorrect model type specified." << std::endl;
-            break;
-    }
-
-    ringCenters = new glm::vec3[numCenters];
-    rotationMatrix = new glm::mat4[numCenters];
-
-    // get centers
-    for (int i = 0; i < numCenters; ++i) {
-        ringCenters[i] = glm::vec3(0.f, 0.f, 0.f);
-        rotationMatrix[i] = glm::rotate(glm::mat4(1.0f),
-                                        0.f,
-                                        glm::vec3(0.0f, 0.0f, 1.f));
-    }
+    // load sphere model
+//    bool res = loadObj("physic-spheres/sphere.obj", sphereModelCoordinates, uvs, normals);
+    bool res = loadObjIndexed("physic-spheres/ico_sphere_4.obj", sphereModelCoordinates, uvs, normals);
+    numVertices = static_cast<GLuint>(sphereModelCoordinates.size());
+    numVerticesPerInstance = numVertices;
 
     // populate buffer_data
-    g_center_buffer_data = new glm::vec3[numCenters * numModelsPerRing];
-    g_radial_buffer_data = new glm::vec3[numCenters * numModelsPerRing];
-    g_rotation_buffer_data = new glm::mat4[numCenters * numModelsPerRing];
+    g_center_buffer_data = new glm::vec3[numCenters];
+    g_radial_buffer_data = new glm::vec3[numCenters];
+    g_rotation_buffer_data = new glm::mat4[numCenters];
 
     // get all vertices
     int counter = 0;
     for (int i = 0; i < numCenters; ++i) {
-        for (int j = 0; j < numModelsPerRing; ++j) {
-            g_center_buffer_data[counter] = ringCenters[i];
-            g_radial_buffer_data[counter] = modelOffsets[j];
-            g_rotation_buffer_data[counter] = rotationMatrix[i];
-            counter++;
-        }
+        g_center_buffer_data[counter] = glm::vec3(5.f, static_cast<GLfloat>(i)*5.f, 0.f);
+        g_radial_buffer_data[counter] = glm::vec3(0.f);
+        g_rotation_buffer_data[counter] = glm::mat4(1.f);
+        counter++;
     }
 
     // -------------------------------------------------------------------------
@@ -160,14 +65,14 @@ CubeTube::CubeTube(GLint numCenters_, RingModelType ringModelType_)
     // from here we bind/config corresponding VBO(s) and attribute pointers
 
 
-    // CUBE MODEL COORDINATES
+    // SPHERE MODEL COORDINATES
     // generate 1 buffer, put the resulting identifier in VertexBufferID
     glGenBuffers(1, &vertexBufferID);
     // bind newly created buffer to GL_ARRAY_BUFFER target
     glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
     // copy data into buffer's memory
     glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * numVerticesPerInstance,
-                 &cubeModelCoordinates[0], GL_STATIC_DRAW);
+                 &sphereModelCoordinates[0], GL_STATIC_DRAW);
 
     // set vertex attribute pointers
     glEnableVertexAttribArray(0);
@@ -183,14 +88,14 @@ CubeTube::CubeTube(GLint numCenters_, RingModelType ringModelType_)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
-    // RING CENTER COORDINATES
+    //
     // generate 1 buffer, put the resulting identifier in centerBufferID
     glGenBuffers(1, &centerBufferID);
     // bind newly created buffer to GL_ARRAY_BUFFER target
     glBindBuffer(GL_ARRAY_BUFFER, centerBufferID);
     // copy data into buffer's memory
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * numCenters * numModelsPerRing,
-                 g_center_buffer_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * numCenters,
+                 g_center_buffer_data, GL_DYNAMIC_DRAW);
 
     // set vertex attribute pointers
     glEnableVertexAttribArray(1);
@@ -214,8 +119,8 @@ CubeTube::CubeTube(GLint numCenters_, RingModelType ringModelType_)
     // bind newly created buffer to GL_ARRAY_BUFFER target
     glBindBuffer(GL_ARRAY_BUFFER, radialBufferID);
     // copy data into buffer's memory
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * numCenters * numModelsPerRing,
-                 g_radial_buffer_data, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * numCenters,
+                 g_radial_buffer_data, GL_STATIC_DRAW);
 
     // set vertex attribute pointers
     glEnableVertexAttribArray(2);
@@ -239,7 +144,7 @@ CubeTube::CubeTube(GLint numCenters_, RingModelType ringModelType_)
     // bind newly created buffer to GL_ARRAY_BUFFER target
     glBindBuffer(GL_ARRAY_BUFFER, rotationBufferID);
     // copy data into buffer's memory
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * numCenters * numModelsPerRing,
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * numCenters,
                  g_rotation_buffer_data, GL_DYNAMIC_DRAW);
 
     // set vertex attribute pointers
@@ -269,21 +174,10 @@ CubeTube::CubeTube(GLint numCenters_, RingModelType ringModelType_)
 /*
  * update buffers with newly created path data
  */
-void CubeTube::update(const PathGenerator *path, Camera &cam ) {
+void PhysicSpheres::update(Camera &cam, Player &player) {
 
-    // update all vertices
-    int counter = 0;
-    for (int i = 0; i < numCenters; ++i) {
-        for (int j = 0; j < numModelsPerRing; ++j) {
-            g_center_buffer_data[counter] = path->positions[i];
-            g_rotation_buffer_data[counter] = glm::rotate(glm::rotate(
-                    glm::mat4(1.0f),-path->verticalAngles[i]+PI/2,
-                                    path->rights[i]),
-                                    path->horizontalAngles[i]-PI/2,
-                                    glm::vec3(0.f, 0.f, 1.f));
-            counter++;
-        }
-    }
+    player.update();
+    cam.update(player);
 
     time = glfwGetTime();
     mMatrix = glm::mat4(1.0);
@@ -292,7 +186,7 @@ void CubeTube::update(const PathGenerator *path, Camera &cam ) {
 
 }
 
-void CubeTube::draw() {
+void PhysicSpheres::draw() {
 
     // use our shader (makes programID "currently bound" shader?)
     glUseProgram(shaderID);
@@ -310,26 +204,26 @@ void CubeTube::draw() {
     // send g_center_buffer_data to GPU
     glBindBuffer(GL_ARRAY_BUFFER, centerBufferID);
     // copy data into buffer's memory
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * numCenters * numModelsPerRing,
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * numCenters,
                  g_center_buffer_data, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     // send rotation matrices to GPU
     glBindBuffer(GL_ARRAY_BUFFER, rotationBufferID);
     // copy data into buffer's memory
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * numCenters * numModelsPerRing,
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * numCenters,
                  g_rotation_buffer_data, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     // draw arrays using currently active shaders
     glDrawArraysInstanced(GL_TRIANGLES, 0, numVerticesPerInstance,
-                          numCenters * numModelsPerRing);
+                          numCenters);
     // break vertex array object binding
     glBindVertexArray(0);
 
 }
 
-void CubeTube::clean() {
+void PhysicSpheres::clean() {
 
     glDeleteVertexArrays(1, &vertexArrayID);
     glDeleteBuffers(1, &vertexBufferID);

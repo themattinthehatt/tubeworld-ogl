@@ -15,13 +15,14 @@ set(SOURCE_FILES
         core/loaders/loadTextures.cpp
         core/loaders/loadCubemap.cpp
         core/loaders/loadObj.cpp
+        core/loaders/loadObjIndexed.cpp
         tube-traveller/TubeTraveller.cpp
         tube-traveller/CubeTube.cpp
         tube-traveller/PathGenerator.h
         tube-traveller/PathCircle.cpp
         tube-traveller/PathUserInput.cpp
         tube-traveller/PathRandom.cpp
-)
+        physic-spheres/PhysicSpheres.cpp)
 
 
 add_executable(tubeworld ${SOURCE_FILES})

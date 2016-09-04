@@ -9,7 +9,7 @@
 
 #include <glm/glm.hpp>
 
-#include "loadObj.h"
+#include "loadObjIndexed.h"
 
 // Very, VERY simple OBJ loader.
 // Here is a short list of features a real function would provide :
@@ -21,7 +21,7 @@
 // - More secure. Change another line and you can inject code.
 // - Loading from memory, stream, etc
 
-bool loadObj(
+bool loadObjIndexed(
         const char *path,
         std::vector<glm::vec3> &out_vertices,
         std::vector<glm::vec2> &out_uvs,
@@ -67,15 +67,28 @@ bool loadObj(
             temp_normals.push_back(normal);
         }else if ( strcmp( lineHeader, "f" ) == 0 ){
             unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
-            int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n",
-                                 &vertexIndex[0], &uvIndex[0], &normalIndex[0],
-                                 &vertexIndex[1], &uvIndex[1], &normalIndex[1],
-                                 &vertexIndex[2], &uvIndex[2], &normalIndex[2] );
-            if (matches != 9){
+//            int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n",
+//                                 &vertexIndex[0], &uvIndex[0], &normalIndex[0],
+//                                 &vertexIndex[1], &uvIndex[1], &normalIndex[1],
+//                                 &vertexIndex[2], &uvIndex[2], &normalIndex[2] );
+//            if (matches != 9){
+
+                // Try to handle the no-uv case
+                int matches = fscanf(file, "%d//%d %d//%d %d//%d\n",
+                                     &vertexIndex[0], &normalIndex[0],
+                                     &vertexIndex[1], &normalIndex[1],
+                                     &vertexIndex[2], &normalIndex[2] );
+
+                uvIndex[0] = 1;
+                uvIndex[1] = 1;
+                uvIndex[2] = 1;
+
+                if (matches != 6) {
                     printf("File can't be read by our simple parser :-( Try exporting with other options\n");
                     return false;
-            }
+                }
 
+//            }
             vertexIndices.push_back(vertexIndex[0]);
             vertexIndices.push_back(vertexIndex[1]);
             vertexIndices.push_back(vertexIndex[2]);
@@ -103,7 +116,7 @@ bool loadObj(
 
         // Get the attributes thanks to the index
         glm::vec3 vertex = temp_vertices[ vertexIndex-1 ];
-        glm::vec2 uv = temp_uvs[ uvIndex-1 ];
+        glm::vec2 uv = glm::vec2(0.f, 0.f); //temp_uvs[ uvIndex-1 ];
         glm::vec3 normal = temp_normals[ normalIndex-1 ];
 
         // Put the attributes in buffers
