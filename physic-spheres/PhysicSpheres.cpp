@@ -33,7 +33,6 @@ PhysicSpheres::PhysicSpheres()
     timeParamID = glGetUniformLocation(shaderID, "time");
 
     // load sphere model
-//    bool res = loadObj("physic-spheres/sphere.obj", sphereModelCoordinates, uvs, normals);
     bool res = loadObjIndexed("physic-spheres/ico_sphere_4.obj", sphereModelCoordinates, uvs, normals);
     numVertices = static_cast<GLuint>(sphereModelCoordinates.size());
     numVerticesPerInstance = numVertices;
