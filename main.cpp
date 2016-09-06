@@ -112,13 +112,14 @@ int main() {
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         }
 
+        // RENDER SKYBOX
+        skybox.update(cam);
+        skybox.draw();
+
         // RENDER CUBES
         cubearray.update(cam, player);
         cubearray.draw();
 
-        // RENDER SKYBOX
-        skybox.update(cam);
-        skybox.draw();
 
         // swap screen buffers - outputs the buffer we have been drawing to this
         // iteration to the screen

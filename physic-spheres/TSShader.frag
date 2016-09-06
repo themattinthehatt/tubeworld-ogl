@@ -4,18 +4,16 @@
 in vec3 normal;
 in vec3 fragmentColor;
 in vec3 fragmentPosition;
-in float sinTime;
 
 // output data
-out vec4 color;
+out vec3 color;
 
 // values that stay constant for the whole mesh
 uniform vec3 lampColor;
 uniform vec3 lampPosition;
 uniform vec3 cameraPosition;
 uniform float ambientStrength = 0.1f;
-uniform float specularStrength = 0.6f;
-uniform float alpha;
+uniform float specularStrength = 0.5f;
 
 // forward declaration
 vec3 hsvToRgb(vec3 hsv);
@@ -38,7 +36,7 @@ void main() {
     vec3 specular = specularStrength * spec * lampColor;
 
     // output color
-    color = vec4((ambient + diffuse + specular) * hsvToRgb(fragmentColor), alpha);
+    color = (ambient + diffuse + specular) * hsvToRgb(fragmentColor);
 
 }
 

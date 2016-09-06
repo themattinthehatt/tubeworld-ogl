@@ -11,6 +11,7 @@ set(SOURCE_FILES
         core/Player.cpp
         core/Camera.cpp
         core/Skybox.cpp
+        core/vboIndexer.cpp
         core/loaders/loadShaders.cpp
         core/loaders/loadTextures.cpp
         core/loaders/loadCubemap.cpp
