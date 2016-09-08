@@ -47,18 +47,40 @@ public:
     glm::mat4 mvpMatrix;
     GLfloat time;
     glm::vec3 cameraPosition;
+
     glm::vec3 color;
+    glm::vec3 ambientColor;
+    glm::vec3 diffuseColor;
+    glm::vec3 specularColor;
     GLfloat alpha;
+
+    glm::vec3 ambientStrength;
+    glm::vec3 diffuseStrength;
+    glm::vec3 specularStrength;
+    GLfloat shininess;
+
 
     GLint mMatrixID;
     GLint vpMatrixID;
     GLint mvpMatrixID;
     GLint timeParamID;
-    GLint lampColorID;
-    GLint lampPositionID;
     GLint cameraPositionID;
-    GLint colorID;
+
+    GLint ambientColorID;
+    GLint diffuseColorID;
+    GLint specularColorID;
     GLint alphaID;
+    GLint shininessID;
+
+    GLint lightPositionID;
+    GLint lightDirectionID;
+    GLint innerThetaID;
+    GLint outerThetaID;
+    GLint ambientStrengthID;
+    GLint diffuseStrengthID;
+    GLint specularStrengthID;
+    GLint linID;
+    GLint quadID;
 
     // lamp
     std::vector<GLushort> Lindxs;
@@ -82,6 +104,7 @@ public:
     glm::mat4 LmvpMatrix;
     GLfloat Ltime;
     glm::vec3 lampColor;
+    glm::vec3 lampDirection;
 
     GLint LmMatrixID;
     GLint LvpMatrixID;
@@ -110,6 +133,13 @@ public:
 
     glm::vec3 TScolor;
     GLfloat TSalpha;
+
+    glm::vec3 TSambientStrength;
+    glm::vec3 TSdiffuseStrength;
+    glm::vec3 TSspecularStrength;
+
+    glm::vec3 white = glm::vec3(1.f, 0.f, 1.f);
+    glm::vec3 black = glm::vec3(1.f, 0.f, 0.f);
 
     IOHandler &io;
 

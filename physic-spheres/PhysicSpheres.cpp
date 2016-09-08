@@ -22,13 +22,13 @@ PhysicSpheres::PhysicSpheres()
     //                        Create Spheres info
     // -------------------------------------------------------------------------
 
-    numCenters = 10;
-    color = glm::vec3(0.f, 1.f, 1.f);
+    numCenters = 40;
+    color = glm::vec3(0.4f, 1.f, 1.f);
     alpha = 1.0f;
 
     // create and compile our GLSL program from the shaders
     shaderID = loadShaders("physic-spheres/SolidShader.vert",
-                           "physic-spheres/SolidShader.frag");
+                           "physic-spheres/PointLight.frag");
 
     // give the MVP matrix to GLSL; get a handle on our uniforms
     mMatrix = glm::mat4(1.0);
@@ -38,11 +38,25 @@ PhysicSpheres::PhysicSpheres()
     vpMatrixID = glGetUniformLocation(shaderID, "vpMatrix");
     mvpMatrixID = glGetUniformLocation(shaderID, "mvpMatrix");
     timeParamID = glGetUniformLocation(shaderID, "time");
-    lampColorID = glGetUniformLocation(shaderID, "lampColor");
-    lampPositionID = glGetUniformLocation(shaderID, "lampPosition");
+
     cameraPositionID = glGetUniformLocation(shaderID, "cameraPosition");
-    colorID = glGetUniformLocation(shaderID, "color");
-    alphaID = glGetUniformLocation(shaderID, "alpha");
+
+    ambientColorID = glGetUniformLocation(shaderID, "material.ambient");
+    diffuseColorID = glGetUniformLocation(shaderID, "material.diffuse");
+    specularColorID = glGetUniformLocation(shaderID, "material.specular");
+    alphaID = glGetUniformLocation(shaderID, "material.alpha");
+    shininessID = glGetUniformLocation(shaderID, "material.shininess");
+
+    lightPositionID = glGetUniformLocation(shaderID, "light.position");
+    lightDirectionID = glGetUniformLocation(shaderID, "light.direction");
+    innerThetaID = glGetUniformLocation(shaderID, "light.innerTheta");
+    outerThetaID = glGetUniformLocation(shaderID, "light.outerTheta");
+    ambientStrengthID = glGetUniformLocation(shaderID, "light.ambient");
+    diffuseStrengthID = glGetUniformLocation(shaderID, "light.diffuse");
+    specularStrengthID = glGetUniformLocation(shaderID, "light.specular");
+    linID = glGetUniformLocation(shaderID, "light.lin");
+    quadID = glGetUniformLocation(shaderID, "light.quad");
+
 
     // load sphere model
     std::vector<glm::vec3> vertices;
@@ -77,7 +91,7 @@ PhysicSpheres::PhysicSpheres()
     // get all vertices
     int counter = 0;
     for (int i = 0; i < numCenters; ++i) {
-        g_center_buffer_data[counter] = glm::vec3(5.f, static_cast<GLfloat>(i)*5.f, 0.f);
+        g_center_buffer_data[counter] = glm::vec3(5.f, static_cast<GLfloat>(i)*4.f, 0.f);
         g_radial_buffer_data[counter] = glm::vec3(0.f);
         g_rotation_buffer_data[counter] = glm::mat4(1.f);
         counter++;
@@ -571,11 +585,27 @@ void PhysicSpheres::draw() {
     glUniformMatrix4fv(vpMatrixID, 1, GL_FALSE, &vpMatrix[0][0]);
     glUniformMatrix4fv(mvpMatrixID, 1, GL_FALSE, &mvpMatrix[0][0]);
     glUniform1f(timeParamID, time);
-    glUniform3fv(lampColorID, 1, &lampColor[0]);
-    glUniform3fv(lampPositionID, 1, &lampCentersBufferData[0]);
     glUniform3fv(cameraPositionID, 1, &cameraPosition[0]);
-    glUniform3fv(colorID, 1, &color[0]);
+
+    glUniform3fv(ambientColorID, 1, &color[0]);
+    glUniform3fv(diffuseColorID, 1, &color[0]);
+    glUniform3fv(specularColorID, 1, &color[0]);
     glUniform1f(alphaID, alpha);
+    glUniform1f(shininessID, 4);
+
+    lampDirection = glm::vec3(1.0f, 0.f, 0.f);
+    ambientStrength = glm::vec3(0.1f);
+    diffuseStrength = glm::vec3(0.6f);
+    specularStrength = glm::vec3(0.4f);
+    glUniform3fv(lightPositionID, 1, &lampCentersBufferData[0]);
+    glUniform3fv(lightDirectionID, 1, &lampDirection[0]);
+    glUniform1f(innerThetaID, glm::cos(glm::radians(45.f)));
+    glUniform1f(outerThetaID, glm::cos(glm::radians(55.f)));
+    glUniform3fv(ambientStrengthID, 1, &ambientStrength[0]);
+    glUniform3fv(diffuseStrengthID, 1, &diffuseStrength[0]);
+    glUniform3fv(specularStrengthID, 1, &specularStrength[0]);
+    glUniform1f(linID, 0.022);
+    glUniform1f(quadID, 0.0019);
 
     // bind vertex array
     glBindVertexArray(vertexArrayID);
@@ -656,11 +686,27 @@ void PhysicSpheres::draw() {
     glUniformMatrix4fv(vpMatrixID, 1, GL_FALSE, &vpMatrix[0][0]);
     glUniformMatrix4fv(mvpMatrixID, 1, GL_FALSE, &mvpMatrix[0][0]);
     glUniform1f(timeParamID, time);
-    glUniform3fv(lampColorID, 1, &lampColor[0]);
-    glUniform3fv(lampPositionID, 1, &lampCentersBufferData[0]);
     glUniform3fv(cameraPositionID, 1, &cameraPosition[0]);
-    glUniform3fv(colorID, 1, &TScolor[0]);
+
+    glUniform3fv(ambientColorID, 1, &TScolor[0]);
+    glUniform3fv(diffuseColorID, 1, &TScolor[0]);
+    glUniform3fv(specularColorID, 1, &white[0]);
     glUniform1f(alphaID, TSalpha);
+    glUniform1f(shininessID, 4);
+
+    TSambientStrength = glm::vec3(0.1f);
+    TSdiffuseStrength = glm::vec3(0.6f);
+    TSspecularStrength = glm::vec3(0.4f);
+    glUniform3fv(lightPositionID, 1, &lampCentersBufferData[0]);
+    glUniform3fv(lightDirectionID, 1, &lampDirection[0]);
+    glUniform1f(innerThetaID, glm::cos(glm::radians(45.f)));
+    glUniform1f(outerThetaID, glm::cos(glm::radians(55.f)));
+    glUniform3fv(ambientStrengthID, 1, &TSambientStrength[0]);
+    glUniform3fv(diffuseStrengthID, 1, &TSdiffuseStrength[0]);
+    glUniform3fv(specularStrengthID, 1, &TSspecularStrength[0]);
+    glUniform1f(linID, 0.022);
+    glUniform1f(quadID, 0.0019);
+
 
     // bind vertex array
     glBindVertexArray(TSvertexArrayID);

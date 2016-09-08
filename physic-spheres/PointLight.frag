@@ -1,18 +1,25 @@
 #version 330 core
 
 struct Material {
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
-    float alpha;
-    float shininess;
+    vec3 ambient;       // ambient light color of material (HSV)
+    vec3 diffuse;       // diffuse light color of material (HSV)
+    vec3 specular;      // specular light color of material (HSV)
+    float alpha;        // alpha value
+    float shininess;    // defines radius of specular highlight
 };
 
 struct Light {
-    vec3 position;
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
+    vec3 position;      // position of light in world-space coordinates
+    vec3 direction;     // direction pointing away from the light
+    float innerTheta;   // specifies a spotlight's inner radius (cos of angle)
+    float outerTheta;   // specifies a spotlight's outer radius (cos of angle)
+
+    vec3 ambient;       // ambient light color (RGB)
+    vec3 diffuse;       // diffuse light color (RGB)
+    vec3 specular;      // specular light color (RGB)
+
+    float lin;          // linear coefficient in attenuation calculation
+    float quad;         // quadratic coefficient in attenuation calculation
 };
 
 // interpolated values from the vertex shaders
@@ -47,8 +54,16 @@ void main() {
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     vec3 specular = light.specular * spec * hsvToRgb(material.specular);
 
+    // calculate attenuation
+    float distance = length(light.position - fragmentPosition);
+    float attenuation = 1.0f / (1.0f + light.lin * distance +
+                                light.quad * distance * distance);
+
     // output color
-    color = vec4(ambient + diffuse + specular, material.alpha);
+    color = vec4(ambient  * attenuation
+               + diffuse  * attenuation
+               + specular * attenuation,
+               material.alpha);
 
 }
 
