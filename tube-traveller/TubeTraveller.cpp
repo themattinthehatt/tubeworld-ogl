@@ -6,6 +6,7 @@
 #include "PathCircle.h"
 #include "PathUserInput.h"
 #include "PathRandom.h"
+#include "TubeCylinder.h"
 
 TubeTraveller::TubeTraveller(GLint numCenters) : io(IOHandler::getInstance()){
 
@@ -18,11 +19,12 @@ TubeTraveller::TubeTraveller(GLint numCenters) : io(IOHandler::getInstance()){
     enum TubeType {
         TUBE_CUBES_SQ,
         TUBE_CUBES_CIRC,
+        TUBE_CYLINDER,
         MAX_NUM_TUBES
     };
 
     PathGeneratorType pathType = PATH_RANDOM;
-    TubeType tubeType = TUBE_CUBES_SQ;
+    TubeType tubeType = TUBE_CYLINDER;
 
     // select path type
     switch (pathType) {
@@ -46,6 +48,9 @@ TubeTraveller::TubeTraveller(GLint numCenters) : io(IOHandler::getInstance()){
             break;
         case TUBE_CUBES_CIRC:
             tube = new CubeTube(numCenters, CubeTube::CIRCLE_OF_SQUARES);
+            break;
+        case TUBE_CYLINDER:
+            tube = new CubeTube(numCenters, CubeTube::CYLINDER);
             break;
         default:
             tube = new CubeTube(numCenters, CubeTube::CIRCLE_OF_SQUARES);

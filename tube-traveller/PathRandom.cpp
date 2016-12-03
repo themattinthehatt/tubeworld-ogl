@@ -21,7 +21,7 @@ PathRandom::PathRandom(GLint numCenters_) : io(IOHandler::getInstance()){
     numCenters = numCenters_;
 
     // distance between slice centers
-    spacing = 20.0f;
+    spacing = 1.9f; //20.0f;
 
     // initial changes to changes in horizontal and vertical angles
     deltaHorzAngleUpdate = 0.f;

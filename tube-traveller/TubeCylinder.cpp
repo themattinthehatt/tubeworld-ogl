@@ -1,25 +1,26 @@
 //
-// Created by mattw on 8/21/16.
+// Created by mattw on 12/3/16.
 //
-
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <GLFW/glfw3.h>
 #include <iostream>
 
-#include "CubeTube.h"
+#include "TubeCylinder.h"
 #include "../core/loaders/loadShaders.h"
 #include "../core/loaders/loadObj.h"
 
-CubeTube::CubeTube(GLint numCenters_, RingModelType ringModelType_)
+TubeCylinder::TubeCylinder(GLint numCenters_, RingModelType ringModelType_)
         :
         io(IOHandler::getInstance()) {
 
     numCenters = numCenters_;
 
+    spacing = 8.0f;     // distance between ring centers
+
     // create and compile our GLSL program from the shaders
-    shaderID = loadShaders("tube-traveller/SolidShader.vert",
+    shaderID = loadShaders("tube-traveller/SolidRingShader.vert",
                            "tube-traveller/SolidShader.frag");
 
     // give the MVP matrix to GLSL; get a handle on our uniforms
@@ -39,13 +40,12 @@ CubeTube::CubeTube(GLint numCenters_, RingModelType ringModelType_)
     ringModelType = ringModelType_;
     switch (ringModelType) {
         case SQUARE_OF_SQUARES: {
-            // load cube model
-            bool res = loadObj("tube-traveller/cube.obj", cubeModelCoordinates,
+            // load cylinder model
+            bool res = loadObj("tube-traveller/cube.obj", cylinderModelCoordinates,
                                uvs, normals);
-            numVertices = static_cast<GLuint>(cubeModelCoordinates.size());
+            numVertices = static_cast<GLuint>(cylinderModelCoordinates.size());
             GLint numCubesHorizontal = 5;
             GLint numCubesVertical = 5;
-            spacing = 8.0f;     // distance between cube centers
             numModelsPerRing = 2*numCubesHorizontal + 2*(numCubesVertical-2);
             numVerticesPerInstance = numVertices;
 
@@ -71,16 +71,16 @@ CubeTube::CubeTube(GLint numCenters_, RingModelType ringModelType_)
             break;
         }
         case CIRCLE_OF_SQUARES: {
-            // load cube model
-            std::vector<glm::vec3> cubeModelCoordinates0;
-            bool res = loadObj("tube-traveller/cube.obj", cubeModelCoordinates0,
+            // load cylinder model
+            std::vector<glm::vec3> cylinderModelCoordinates0;
+            bool res = loadObj("tube-traveller/cube.obj", cylinderModelCoordinates0,
                                uvs, normals);
-            numVertices = static_cast<GLuint>(cubeModelCoordinates0.size());
+            numVertices = static_cast<GLuint>(cylinderModelCoordinates0.size());
 
-            // number of cubes arranged radially
+            // number of cylinders arranged radially
             numModelsPerRing = 16;
 
-            // make a ring of cubes a single instance
+            // make a ring of cylinders a single instance
             sideLength = 10.f;
 
             GLfloat angle;
@@ -90,63 +90,17 @@ CubeTube::CubeTube(GLint numCenters_, RingModelType ringModelType_)
 
                 angle = static_cast<float>(i) / numModelsPerRing * 2.f * PI;
 
-                // rotate model cube
-                modelMat = glm::rotate(modelMat, angle,
-                                       glm::vec3(0.f, 1.f, 0.f));
-
-                // translate model cube
-                modelMat = glm::translate(modelMat,
-                                          glm::vec3(sideLength, 0, 0));
-
-                // transform model cube coordinates
-                for (int j = 0; j < numVertices; ++j) {
-                    cubeModelCoordinates.push_back(glm::vec3(
-                            modelMat *
-                            glm::vec4(cubeModelCoordinates0[j], 1.f)));
-                }
-            }
-
-            // make the above a single instance
-            numVerticesPerInstance = numVertices * numModelsPerRing;
-            numModelsPerRing = 1;
-
-            // with only a single instance, model offsets are set to (0,0,0)
-            modelOffsets = new glm::vec3[numModelsPerRing];
-            modelOffsets[0] = glm::vec3(0.f);
-
-            break;
-        }
-        case CYLINDER: {
-            // load cube model
-            std::vector<glm::vec3> cubeModelCoordinates0;
-            bool res = loadObj("tube-traveller/cylinder_long.obj", cubeModelCoordinates0,
-                               uvs, normals);
-            numVertices = static_cast<GLuint>(cubeModelCoordinates0.size());
-
-            // number of cubes arranged radially
-            numModelsPerRing = 1;
-
-            // make a ring of cubes a single instance
-            sideLength = 0.f;
-
-            GLfloat angle;
-            for (int i = 0; i < numModelsPerRing; ++i) {
-
-                glm::mat4 modelMat;
-
-                angle = static_cast<float>(i) / numModelsPerRing * 2.f * PI;
-
-                // rotate model cube
+                // rotate model cylinder
                 modelMat = glm::rotate(modelMat, angle, glm::vec3(0.f, 1.f, 0.f));
 
-                // translate model cube
+                // translate model cylinder
                 modelMat = glm::translate(modelMat,
                                           glm::vec3(sideLength, 0, 0));
 
-                // transform model cube coordinates
+                // transform model cylinder coordinates
                 for (int j = 0; j < numVertices; ++j) {
-                    cubeModelCoordinates.push_back(glm::vec3(
-                            modelMat * glm::vec4(cubeModelCoordinates0[j], 1.f)));
+                    cylinderModelCoordinates.push_back(glm::vec3(
+                            modelMat * glm::vec4(cylinderModelCoordinates0[j], 1.f)));
                 }
             }
 
@@ -212,7 +166,7 @@ CubeTube::CubeTube(GLint numCenters_, RingModelType ringModelType_)
     glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
     // copy data into buffer's memory
     glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * numVerticesPerInstance,
-                 &cubeModelCoordinates[0], GL_STATIC_DRAW);
+                 &cylinderModelCoordinates[0], GL_STATIC_DRAW);
 
     // set vertex attribute pointers
     glEnableVertexAttribArray(0);
@@ -314,7 +268,7 @@ CubeTube::CubeTube(GLint numCenters_, RingModelType ringModelType_)
 /*
  * update buffers with newly created path data
  */
-void CubeTube::update(const PathGenerator *path, Camera &cam ) {
+void TubeCylinder::update(const PathGenerator *path, Camera &cam ) {
 
     // update all vertices
     int counter = 0;
@@ -323,9 +277,9 @@ void CubeTube::update(const PathGenerator *path, Camera &cam ) {
             g_center_buffer_data[counter] = path->positions[i];
             g_rotation_buffer_data[counter] = glm::rotate(glm::rotate(
                     glm::mat4(1.0f),-path->verticalAngles[i]+PI/2,
-                                    path->rights[i]),
-                                    path->horizontalAngles[i]-PI/2,
-                                    glm::vec3(0.f, 0.f, 1.f));
+                    path->rights[i]),
+                                                          path->horizontalAngles[i]-PI/2,
+                                                          glm::vec3(0.f, 0.f, 1.f));
             counter++;
         }
     }
@@ -337,7 +291,7 @@ void CubeTube::update(const PathGenerator *path, Camera &cam ) {
 
 }
 
-void CubeTube::draw() {
+void TubeCylinder::draw() {
 
     // use our shader (makes programID "currently bound" shader?)
     glUseProgram(shaderID);
@@ -374,7 +328,7 @@ void CubeTube::draw() {
 
 }
 
-void CubeTube::clean() {
+void TubeCylinder::clean() {
 
     glDeleteVertexArrays(1, &vertexArrayID);
     glDeleteBuffers(1, &vertexBufferID);

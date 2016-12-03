@@ -1,9 +1,9 @@
 //
-// Created by mattw on 8/21/16.
+// Created by mattw on 12/3/16.
 //
 
-#ifndef TUBEWORLD_CUBETUBE_H
-#define TUBEWORLD_CUBETUBE_H
+#ifndef TUBEWORLD_TUBECYLINDER_H
+#define TUBEWORLD_TUBECYLINDER_H
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
@@ -12,11 +12,11 @@
 #include "../core/Camera.h"
 #include "PathGenerator.h"
 
-class CubeTube {
+class TubeCylinder {
 private:
 public:
 
-    std::vector<glm::vec3> cubeModelCoordinates;
+    std::vector<glm::vec3> cylinderModelCoordinates;
     std::vector<glm::vec2> uvs;
     std::vector<glm::vec3> normals;
     GLint numVertices;
@@ -55,12 +55,11 @@ public:
     enum RingModelType {
         SQUARE_OF_SQUARES,
         CIRCLE_OF_SQUARES,
-        CYLINDER,
     };
     RingModelType ringModelType;
 
     // constructor
-    CubeTube(GLint numCenters, RingModelType ringModelType);
+    TubeCylinder(GLint numCenters, RingModelType ringModelType);
     // update positions/angles of tube elements
     void update(const PathGenerator *path, Camera &cam);
     // draw tube elements
@@ -70,5 +69,4 @@ public:
 
 };
 
-
-#endif //TUBEWORLD_CUBETUBE_H
+#endif //TUBEWORLD_TUBECYLINDER_H
