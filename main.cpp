@@ -36,19 +36,25 @@ int main() {
     // Set up scene
     // -------------------------------------------------------------------------
     // set up skybox; +x, -x, +y, -y, +z, -z
-    std::vector<const char*> files ={"textures/box3/right.bmp",
+//    std::vector<const char*> files ={"textures/box3/right.bmp",
+//                                     "textures/box3/right.bmp",
+//                                     "textures/box3/right.bmp",
+//                                     "textures/box3/right.bmp",
+//                                     "textures/box3/right.bmp",
+//                                     "textures/box3/right.bmp"};
+    std::vector<const char*> files ={"textures/box3/front.bmp",
+                                     "textures/box3/back.bmp",
+                                     "textures/box3/left.bmp",
                                      "textures/box3/right.bmp",
-                                     "textures/box3/right.bmp",
-                                     "textures/box3/right.bmp",
-                                     "textures/box3/right.bmp",
-                                     "textures/box3/right.bmp"};
+                                     "textures/box3/up.bmp",
+                                     "textures/box3/down.bmp"};
     Skybox skybox = Skybox(files, 1000.0f);
 
     // set up tube
-//    GLint numCenters = 100;
-//    TubeTraveller cubearray = TubeTraveller(numCenters);
+    GLint numCenters = 100;
+    TubeTraveller cubearray = TubeTraveller(numCenters);
 
-    PhysicSpheres cubearray = PhysicSpheres();
+//    PhysicSpheres cubearray = PhysicSpheres();
 
     // initialize player
     Player player = Player();
@@ -70,7 +76,7 @@ int main() {
     // -------------------------------------------------------------------------
 
     // for printing FPS
-    bool printFPS = true;
+    bool printFPS = false;
     int counter = 0;
     GLfloat currentTime = glfwGetTime();
     GLfloat lastTime;

@@ -1,0 +1,59 @@
+Free Mode (SPACE to toggle to Bound Mode)
+A - rotate left
+D - rotate right
+W - rotate up
+S - rotate down
+Up arrow - move forward
+Down arrow - move back
+Left arrow - move left
+Right arrow - move right
+Shift + Up arrow - move up
+Shift + Down arrow - move down
+E - decrease speed
+R - increase speed
+Q - reset to initial position
+
+Bound Mode (SPACE to toggle to Free Mode)
+PathCircle
+    A - rotate left
+    D - rotate right
+    W - rotate up
+    S - rotate down
+    Up arrow - move forward
+    Down arrow - move back
+    Left arrow - move left
+    Right arrow - move right
+    Shift + Up arrow - move up
+    Shift + Down arrow - move down
+    E - decrease speed
+    R - increase speed
+    Q - reset to initial position
+
+PathRandom
+    A - decrease horizontal angle curvature
+    D - increase horizontal angle curvature
+    W - increase vertical angle curvature
+    S - decrease vertical angle curvature
+    Up arrow - increase speed linearly
+    Down arrow - decrease speed linearly
+    Shift + Up arrow - increase speed multiplicatively
+    Shift + Down arrow - decrease speed multiplicatively
+
+PathUser
+    A - turn tube left
+    D - turn tube right
+    W - turn tube up
+    S - turn tube down
+    Up arrow - move forward in tube
+    Down arrow - move backward in tube
+    Left arrow - move tube left
+    Right arrow - move tube right
+    Shift + Up arrow - move tube upwards
+    Shift + Down arrow - move tube downwards
+    E - decrease speed
+    R - increase speed
+    Q - reset to initial position
+
+General
+Tab - toggle between render modes
+Caps - toggle between skybox modes

@@ -1,6 +1,15 @@
 //
 // Created by mattw on 9/4/16.
 //
+/*
+ * TODO
+ * Put lighting functionality in its own class (core/lighting)
+ * Use multiple lighting types
+ * Play with 3 spheres bouncing around inside the "glass" sphere
+ * separate logic from rendering (?)
+ * Play with multiple "glass" spheres orbiting a central mass
+ * Put it all together!
+ */
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
