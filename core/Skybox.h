@@ -27,8 +27,8 @@ private:
 public:
     GLuint vertexArrayID;       // ID of VAO
     GLuint vertexBufferID;      // ID of VBO
-    GLuint texture;             // ID of texture (for binding)
-    GLuint textureID;           // ID of texture (for cube sampler)
+    GLuint textureID;           // ID of texture (for binding)
+    GLuint samplerID;           // ID of texture (for cube sampler)
     GLuint shaderID;            // ID of shader program
     glm::mat4 viewMatrix;       // view matrix
     GLuint viewMatrixID;        // ID of view matrix for shaders

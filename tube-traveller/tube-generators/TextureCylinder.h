@@ -19,28 +19,21 @@ public:
     std::vector<glm::vec3> cylinderModelCoordinates;
     std::vector<glm::vec2> uvs;
     std::vector<glm::vec3> normals;
-    GLint numVertices;
 
     GLint numCenters;
     GLint numVerticesPerInstance;
-    GLint numModelsPerRing;
 
-    glm::vec3 *ringCenters;
     glm::vec3 *g_center_buffer_data;
-    glm::vec3 *modelOffsets;
-    glm::vec3 *g_radial_buffer_data;
-    glm::mat4 *rotationMatrix;
     glm::mat4 *g_rotation_buffer_data;
-
-    GLfloat sideLength;
-    GLfloat spacing;
 
     GLuint vertexArrayID;
     GLuint vertexBufferID;
     GLuint centerBufferID;
-    GLuint radialBufferID;
+    GLuint uvBufferID;
     GLuint rotationBufferID;
     GLuint shaderID;
+    GLuint textureID;
+    GLuint samplerID;
     glm::mat4 mMatrix;
     glm::mat4 vpMatrix;
     glm::mat4 mvpMatrix;
@@ -52,15 +45,8 @@ public:
 
     IOHandler &io;
 
-    enum RingModelType {
-        SQUARE_OF_SQUARES,
-        CIRCLE_OF_SQUARES,
-        CYLINDER,
-    };
-    RingModelType ringModelType;
-
     // constructor
-    TextureCylinder(GLint numCenters, RingModelType ringModelType);
+    TextureCylinder(GLint numCenters);
     // update positions/angles of tube elements
     void update(const PathGenerator *path, Camera &cam);
     // draw tube elements

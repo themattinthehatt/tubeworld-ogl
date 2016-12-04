@@ -29,14 +29,14 @@ Skybox::Skybox(std::vector<const GLchar*> files_, GLfloat multiplier_) :
     multiplier = multiplier_;
 
     // load images that will serve as skybox textures
-    texture = Skybox::loadCubemap(files_);
+    textureID = Skybox::loadCubemap(files_);
 
     // create and compile shader programs for skybox
     shaderID = loadShaders("core/SkyboxTextureShader.vert",
                            "core/SkyboxTextureShader.frag");
 
     // get a handle for our "skyboxSampler" uniform
-    textureID = glGetUniformLocation(shaderID, "skyboxSampler");
+    samplerID = glGetUniformLocation(shaderID, "skyboxSampler");
 
     // view matrix will keep skybox centered
     viewMatrixID = glGetUniformLocation(shaderID, "viewMatrix");
@@ -128,9 +128,9 @@ void Skybox::draw() {
             // Activate the texture unit first before binding texture
             glActiveTexture(GL_TEXTURE0);
             // binds texture to the currently active texture unit
-            glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
             // puts the texture in texture unit 0
-            glUniform1i(textureID, 0);
+            glUniform1i(samplerID, 0);
 
             // bind vertex array
             glBindVertexArray(vertexArrayID);
@@ -201,7 +201,6 @@ GLuint Skybox::loadCubemap(std::vector<const GLchar*> files) {
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
     // unbind the texture object
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);

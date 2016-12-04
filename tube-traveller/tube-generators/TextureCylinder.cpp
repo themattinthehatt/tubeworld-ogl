@@ -12,16 +12,15 @@
 #include "TextureCylinder.h"
 #include "../../core/loaders/loadShaders.h"
 #include "../../core/loaders/loadObj.h"
+#include "../../core/loaders/loadTextures.h"
 
-TextureCylinder::TextureCylinder(GLint numCenters_, RingModelType ringModelType_)
-        :
-        io(IOHandler::getInstance()) {
+TextureCylinder::TextureCylinder(GLint numCenters_) : io(IOHandler::getInstance()) {
 
     numCenters = numCenters_;
 
     // create and compile our GLSL program from the shaders
-    shaderID = loadShaders("tube-traveller/shaders/SolidShader.vert",
-                           "tube-traveller/shaders/SolidShader.frag");
+    shaderID = loadShaders("tube-traveller/shaders/SingleTexture.vert",
+                           "tube-traveller/shaders/SingleTexture.frag");
 
     // give the MVP matrix to GLSL; get a handle on our uniforms
     mMatrix = glm::mat4(1.0);
@@ -37,160 +36,21 @@ TextureCylinder::TextureCylinder(GLint numCenters_, RingModelType ringModelType_
     //                          Fill buffers
     // -------------------------------------------------------------------------
 
-    ringModelType = ringModelType_;
-    switch (ringModelType) {
-        case SQUARE_OF_SQUARES: {
-            // load cube model
-            bool res = loadObj("data/obj/cube.obj", cylinderModelCoordinates,
-                               uvs, normals);
-            numVertices = static_cast<GLuint>(cylinderModelCoordinates.size());
-            GLint numCubesHorizontal = 5;
-            GLint numCubesVertical = 5;
-            spacing = 8.0f;     // distance between cube centers
-            numModelsPerRing = 2*numCubesHorizontal + 2*(numCubesVertical-2);
-            numVerticesPerInstance = numVertices;
-
-            sideLength = 2.0f;
-
-            modelOffsets = new glm::vec3[numModelsPerRing];
-            // get radial offsets
-            int counter = 0;
-            for (int i = 0; i < numCubesHorizontal; ++i) {
-                for (int j = 0; j < numCubesVertical; ++j) {
-                    if (i == 0 || i == numCubesHorizontal - 1 ||
-                        j == 0 || j == numCubesVertical - 1) {
-                        modelOffsets[counter] = glm::vec3(
-                                spacing *
-                                static_cast<float>(-numCubesHorizontal/2 + i),
-                                0,
-                                spacing *
-                                static_cast<float>(-numCubesVertical/2 + j));
-                        counter++;
-                    }
-                }
-            }
-            break;
-        }
-        case CIRCLE_OF_SQUARES: {
-            // load cube model
-            std::vector<glm::vec3> cubeModelCoordinates0;
-            bool res = loadObj("data/obj/cube.obj", cubeModelCoordinates0,
-                               uvs, normals);
-            numVertices = static_cast<GLuint>(cubeModelCoordinates0.size());
-
-            // number of cubes arranged radially
-            numModelsPerRing = 16;
-
-            // make a ring of cubes a single instance
-            sideLength = 10.f;
-
-            GLfloat angle;
-            for (int i = 0; i < numModelsPerRing; ++i) {
-
-                glm::mat4 modelMat;
-
-                angle = static_cast<float>(i) / numModelsPerRing * 2.f * PI;
-
-                // rotate model cube
-                modelMat = glm::rotate(modelMat, angle,
-                                       glm::vec3(0.f, 1.f, 0.f));
-
-                // translate model cube
-                modelMat = glm::translate(modelMat,
-                                          glm::vec3(sideLength, 0, 0));
-
-                // transform model cube coordinates
-                for (int j = 0; j < numVertices; ++j) {
-                    cylinderModelCoordinates.push_back(glm::vec3(
-                            modelMat *
-                            glm::vec4(cubeModelCoordinates0[j], 1.f)));
-                }
-            }
-
-            // make the above a single instance
-            numVerticesPerInstance = numVertices * numModelsPerRing;
-            numModelsPerRing = 1;
-
-            // with only a single instance, model offsets are set to (0,0,0)
-            modelOffsets = new glm::vec3[numModelsPerRing];
-            modelOffsets[0] = glm::vec3(0.f);
-
-            break;
-        }
-        case CYLINDER: {
-            // load cube model
-            std::vector<glm::vec3> cubeModelCoordinates0;
-            bool res = loadObj("data/obj/cylinder_long.obj", cubeModelCoordinates0,
-                               uvs, normals);
-            numVertices = static_cast<GLuint>(cubeModelCoordinates0.size());
-
-            // number of cubes arranged radially
-            numModelsPerRing = 1;
-
-            // make a ring of cubes a single instance
-            sideLength = 0.f;
-
-            GLfloat angle;
-            for (int i = 0; i < numModelsPerRing; ++i) {
-
-                glm::mat4 modelMat;
-
-                angle = static_cast<float>(i) / numModelsPerRing * 2.f * PI;
-
-                // rotate model cube
-                modelMat = glm::rotate(modelMat, angle, glm::vec3(0.f, 1.f, 0.f));
-
-                // translate model cube
-                modelMat = glm::translate(modelMat,
-                                          glm::vec3(sideLength, 0, 0));
-
-                // transform model cube coordinates
-                for (int j = 0; j < numVertices; ++j) {
-                    cylinderModelCoordinates.push_back(glm::vec3(
-                            modelMat * glm::vec4(cubeModelCoordinates0[j], 1.f)));
-                }
-            }
-
-            // make the above a single instance
-            numVerticesPerInstance = numVertices * numModelsPerRing;
-            numModelsPerRing = 1;
-
-            // with only a single instance, model offsets are set to (0,0,0)
-            modelOffsets = new glm::vec3[numModelsPerRing];
-            modelOffsets[0] = glm::vec3(0.f);
-
-            break;
-        }
-        default:
-            std::cerr << "Incorrect model type specified." << std::endl;
-            break;
-    }
-
-    ringCenters = new glm::vec3[numCenters];
-    rotationMatrix = new glm::mat4[numCenters];
-
-    // get centers
-    for (int i = 0; i < numCenters; ++i) {
-        ringCenters[i] = glm::vec3(0.f, 0.f, 0.f);
-        rotationMatrix[i] = glm::rotate(glm::mat4(1.0f),
-                                        0.f,
-                                        glm::vec3(0.0f, 0.0f, 1.f));
-    }
+    // load cylinder model
+    bool res = loadObj("data/obj/cube.obj", cylinderModelCoordinates,
+                       uvs, normals);
+    numVerticesPerInstance = static_cast<GLuint>(cylinderModelCoordinates.size());
 
     // populate buffer_data
-    g_center_buffer_data = new glm::vec3[numCenters * numModelsPerRing];
-    g_radial_buffer_data = new glm::vec3[numCenters * numModelsPerRing];
-    g_rotation_buffer_data = new glm::mat4[numCenters * numModelsPerRing];
+    g_center_buffer_data = new glm::vec3[numCenters];
+    g_rotation_buffer_data = new glm::mat4[numCenters];
 
-    // get all vertices
-    int counter = 0;
+    // get vertices
     for (int i = 0; i < numCenters; ++i) {
-        for (int j = 0; j < numModelsPerRing; ++j) {
-            g_center_buffer_data[counter] = ringCenters[i];
-            g_radial_buffer_data[counter] = modelOffsets[j];
-            g_rotation_buffer_data[counter] = rotationMatrix[i];
-            counter++;
-        }
+        g_center_buffer_data[i] = glm::vec3(0.f, 0.f, 0.f);
+        g_rotation_buffer_data[i] = glm::rotate(glm::mat4(1.0f),
+                                        0.f,
+                                        glm::vec3(0.0f, 0.0f, 1.f));
     }
 
     // -------------------------------------------------------------------------
@@ -206,8 +66,8 @@ TextureCylinder::TextureCylinder(GLint numCenters_, RingModelType ringModelType_
     // from here we bind/config corresponding VBO(s) and attribute pointers
 
 
-    // CUBE MODEL COORDINATES
-    // generate 1 buffer, put the resulting identifier in VertexBufferID
+    // CYLINDER MODEL COORDINATES
+    // generate 1 buffer, put the resulting identifier in vertexBufferID
     glGenBuffers(1, &vertexBufferID);
     // bind newly created buffer to GL_ARRAY_BUFFER target
     glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
@@ -229,14 +89,14 @@ TextureCylinder::TextureCylinder(GLint numCenters_, RingModelType ringModelType_
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
-    // RING CENTER COORDINATES
+    // CENTER COORDINATES
     // generate 1 buffer, put the resulting identifier in centerBufferID
     glGenBuffers(1, &centerBufferID);
     // bind newly created buffer to GL_ARRAY_BUFFER target
     glBindBuffer(GL_ARRAY_BUFFER, centerBufferID);
     // copy data into buffer's memory
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * numCenters * numModelsPerRing,
-                 g_center_buffer_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * numCenters,
+                 g_center_buffer_data, GL_DYNAMIC_DRAW);
 
     // set vertex attribute pointers
     glEnableVertexAttribArray(1);
@@ -253,31 +113,29 @@ TextureCylinder::TextureCylinder(GLint numCenters_, RingModelType ringModelType_
     // break buffer binding
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-
-    // RING OFFSET COORDINATES
-    // generate 1 buffer, put the resulting identifier in centerBufferID
-    glGenBuffers(1, &radialBufferID);
+    // CYLINDER TEXTURE COORDINATES
+    // generate 1 buffer, put the resulting identifier in uvBufferID
+    glGenBuffers(1, &uvBufferID);
     // bind newly created buffer to GL_ARRAY_BUFFER target
-    glBindBuffer(GL_ARRAY_BUFFER, radialBufferID);
+    glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
     // copy data into buffer's memory
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * numCenters * numModelsPerRing,
-                 g_radial_buffer_data, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * numVerticesPerInstance,
+                 &uvs[0], GL_STATIC_DRAW);
 
     // set vertex attribute pointers
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(
-            2,         // attribute 1; must match "layout" in shader
-            3,         // size (# vertices)
+            2,         // attribute 2; must match "layout" in shader
+            2,         // size (# vertices)
             GL_FLOAT,  // type
             GL_FALSE,  // normalized?
             0,         // stride
-            (GLvoid*)0   // array buffer offset
+            (GLvoid*)0 // array buffer offset
     );
     // tell OpenGL when to update content of this attribute to next element
-    glVertexAttribDivisor(2, 1);
+//    glVertexAttribDivisor(2, 0);
     // break buffer binding
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-
 
     // MODEL ROTATIONS
     // generate 1 buffer, put the resulting identifier in centerBufferID
@@ -285,7 +143,7 @@ TextureCylinder::TextureCylinder(GLint numCenters_, RingModelType ringModelType_
     // bind newly created buffer to GL_ARRAY_BUFFER target
     glBindBuffer(GL_ARRAY_BUFFER, rotationBufferID);
     // copy data into buffer's memory
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * numCenters * numModelsPerRing,
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * numCenters,
                  g_rotation_buffer_data, GL_DYNAMIC_DRAW);
 
     // set vertex attribute pointers
@@ -310,6 +168,51 @@ TextureCylinder::TextureCylinder(GLint numCenters_, RingModelType ringModelType_
     // unbind the VAO
     glBindVertexArray(0);
 
+    // -------------------------------------------------------------------------
+    //                          Load Textures
+    // -------------------------------------------------------------------------
+    int width, height;
+    char *file_loc = "data/textures/temp.bmp";
+    unsigned char *image = loadBMP(file_loc, &width, &height);
+
+    // generate 1 texture ID, put the resutling identifier in textureID
+    glGenTextures(1, &textureID);
+    glActiveTexture(GL_TEXTURE0);
+
+    // get an ID for our texture uniform
+    samplerID = glGetUniformLocation(shaderID, "loadedTexture");
+
+    // bind newly created texture to GL_TEXTURE_2D target; subsequent texture
+    // commands will configure the currently bound texture
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    // Set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    // Set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // generate the texture by using the previously loaded image data
+    glTexImage2D(
+            GL_TEXTURE_2D,     // texture target; will gen texture on textureID
+            0,                 // mipmap level; use base of 0
+            GL_RGB,            // type of format we want to store the texture
+            width,
+            height,
+            0,                 // legacy bs
+            GL_RGB,            // format of source image
+            GL_UNSIGNED_BYTE,  // format of source image
+            image              // source image
+    );
+    // textureID now has texture image attached to it
+    // glGenerateMipmap here if desired
+
+    // free image memory
+    delete[] image;
+
+    // unbind the texture object
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 /*
@@ -318,17 +221,13 @@ TextureCylinder::TextureCylinder(GLint numCenters_, RingModelType ringModelType_
 void TextureCylinder::update(const PathGenerator *path, Camera &cam ) {
 
     // update all vertices
-    int counter = 0;
     for (int i = 0; i < numCenters; ++i) {
-        for (int j = 0; j < numModelsPerRing; ++j) {
-            g_center_buffer_data[counter] = path->positions[i];
-            g_rotation_buffer_data[counter] = glm::rotate(glm::rotate(
+            g_center_buffer_data[i] = path->positions[i];
+            g_rotation_buffer_data[i] = glm::rotate(glm::rotate(
                     glm::mat4(1.0f),-path->verticalAngles[i]+PI/2,
                     path->rights[i]),
-                                                          path->horizontalAngles[i]-PI/2,
-                                                          glm::vec3(0.f, 0.f, 1.f));
-            counter++;
-        }
+                    path->horizontalAngles[i]-PI/2,
+                    glm::vec3(0.f, 0.f, 1.f));
     }
 
     time = glfwGetTime();
@@ -344,11 +243,17 @@ void TextureCylinder::draw() {
     glUseProgram(shaderID);
 
     // send our transformation to the currently bound shader, in the "MVP" uniform
-    // This is done in the main loop since each model will have a different MVP matrix
     glUniformMatrix4fv(mMatrixID, 1, GL_FALSE, &mMatrix[0][0]);
     glUniformMatrix4fv(vpMatrixID, 1, GL_FALSE, &vpMatrix[0][0]);
     glUniformMatrix4fv(mvpMatrixID, 1, GL_FALSE, &mvpMatrix[0][0]);
     glUniform1f(timeParamID, time);
+
+    // Activate the texture unit first before binding texture
+    glActiveTexture(GL_TEXTURE0);
+    // bind texture to the currently active texture unit
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    // puts the texture in texture unit 0
+    glUniform1i(samplerID, 0);
 
     // bind vertex array
     glBindVertexArray(vertexArrayID);
@@ -356,20 +261,19 @@ void TextureCylinder::draw() {
     // send g_center_buffer_data to GPU
     glBindBuffer(GL_ARRAY_BUFFER, centerBufferID);
     // copy data into buffer's memory
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * numCenters * numModelsPerRing,
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * numCenters,
                  g_center_buffer_data, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     // send rotation matrices to GPU
     glBindBuffer(GL_ARRAY_BUFFER, rotationBufferID);
     // copy data into buffer's memory
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * numCenters * numModelsPerRing,
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * numCenters,
                  g_rotation_buffer_data, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     // draw arrays using currently active shaders
-    glDrawArraysInstanced(GL_TRIANGLES, 0, numVerticesPerInstance,
-                          numCenters * numModelsPerRing);
+    glDrawArraysInstanced(GL_TRIANGLES, 0, numVerticesPerInstance, numCenters);
     // break vertex array object binding
     glBindVertexArray(0);
 
@@ -380,15 +284,10 @@ void TextureCylinder::clean() {
     glDeleteVertexArrays(1, &vertexArrayID);
     glDeleteBuffers(1, &vertexBufferID);
     glDeleteBuffers(1, &centerBufferID);
-    glDeleteBuffers(1, &radialBufferID);
     glDeleteBuffers(1, &rotationBufferID);
     glDeleteProgram(shaderID);
 
-    delete[] ringCenters;
     delete[] g_center_buffer_data;
-    delete[] modelOffsets;
-    delete[] g_radial_buffer_data;
-    delete[] rotationMatrix;
     delete[] g_rotation_buffer_data;
 
 }

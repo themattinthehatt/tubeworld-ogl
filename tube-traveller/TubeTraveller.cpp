@@ -61,7 +61,7 @@ TubeTraveller::TubeTraveller(GLint numCenters) : io(IOHandler::getInstance()){
             tube = new SimpleShapes(numCenters, SimpleShapes::CYLINDER);
             break;
         case TUBE_TEXTURE_CYLINDER:
-            tube = new TextureCylinder(numCenters, TextureCylinder::CYLINDER);
+            tube = new TextureCylinder(numCenters);
             break;
         default:
             tube = new SimpleShapes(numCenters, SimpleShapes::CIRCLE_OF_SQUARES);
@@ -78,11 +78,9 @@ void TubeTraveller::update(Camera &cam, Player &player) {
     }
     switch (playerMode) {
         case PLAYER_BOUND:
-        {
             // path class updates player
             path->update(player);
             break;
-        }
         case PLAYER_FREE:
             // user input updates player
             player.update();
