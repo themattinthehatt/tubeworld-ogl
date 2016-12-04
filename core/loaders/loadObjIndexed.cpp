@@ -59,7 +59,7 @@ bool loadObjIndexed(
         }else if ( strcmp( lineHeader, "vt" ) == 0 ){
             glm::vec2 uv;
             fscanf(file, "%f %f\n", &uv.x, &uv.y );
-            uv.y = -uv.y; // Invert V coordinate since we will only use DDS texture, which are inverted. Remove if you want to use TGA or BMP loaders.
+            //uv.y = -uv.y; // Invert V coordinate since we will only use DDS texture, which are inverted. Remove if you want to use TGA or BMP loaders.
             temp_uvs.push_back(uv);
         }else if ( strcmp( lineHeader, "vn" ) == 0 ){
             glm::vec3 normal;
@@ -67,27 +67,27 @@ bool loadObjIndexed(
             temp_normals.push_back(normal);
         }else if ( strcmp( lineHeader, "f" ) == 0 ){
             unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
-//            int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n",
-//                                 &vertexIndex[0], &uvIndex[0], &normalIndex[0],
-//                                 &vertexIndex[1], &uvIndex[1], &normalIndex[1],
-//                                 &vertexIndex[2], &uvIndex[2], &normalIndex[2] );
+            int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n",
+                                 &vertexIndex[0], &uvIndex[0], &normalIndex[0],
+                                 &vertexIndex[1], &uvIndex[1], &normalIndex[1],
+                                 &vertexIndex[2], &uvIndex[2], &normalIndex[2] );
 //            if (matches != 9){
+//
+//                // Try to handle the no-uv case
+//                int matches = fscanf(file, "%d//%d %d//%d %d//%d\n",
+//                                     &vertexIndex[0], &normalIndex[0],
+//                                     &vertexIndex[1], &normalIndex[1],
+//                                     &vertexIndex[2], &normalIndex[2] );
+//
+//                uvIndex[0] = 1;
+//                uvIndex[1] = 1;
+//                uvIndex[2] = 1;
 
-                // Try to handle the no-uv case
-                int matches = fscanf(file, "%d//%d %d//%d %d//%d\n",
-                                     &vertexIndex[0], &normalIndex[0],
-                                     &vertexIndex[1], &normalIndex[1],
-                                     &vertexIndex[2], &normalIndex[2] );
-
-                uvIndex[0] = 1;
-                uvIndex[1] = 1;
-                uvIndex[2] = 1;
-
-                if (matches != 6) {
+                if (matches != 9) {
                     printf("File can't be read by our simple parser :-( Try exporting with other options\n");
                     return false;
                 }
-
+//
 //            }
             vertexIndices.push_back(vertexIndex[0]);
             vertexIndices.push_back(vertexIndex[1]);
@@ -116,7 +116,7 @@ bool loadObjIndexed(
 
         // Get the attributes thanks to the index
         glm::vec3 vertex = temp_vertices[ vertexIndex-1 ];
-        glm::vec2 uv = glm::vec2(0.f, 0.f); //temp_uvs[ uvIndex-1 ];
+        glm::vec2 uv = temp_uvs[ uvIndex-1 ];
         glm::vec3 normal = temp_normals[ normalIndex-1 ];
 
         // Put the attributes in buffers

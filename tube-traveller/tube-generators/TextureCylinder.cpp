@@ -11,8 +11,8 @@
 #include "TubeGenerator.h"
 #include "TextureCylinder.h"
 #include "../../core/loaders/loadShaders.h"
-#include "../../core/loaders/loadObj.h"
 #include "../../core/loaders/loadTextures.h"
+#include "../../core/loaders/loadObjIndexed.h"
 
 TextureCylinder::TextureCylinder(GLint numCenters_) : io(IOHandler::getInstance()) {
 
@@ -37,7 +37,7 @@ TextureCylinder::TextureCylinder(GLint numCenters_) : io(IOHandler::getInstance(
     // -------------------------------------------------------------------------
 
     // load cylinder model
-    bool res = loadObj("data/obj/cube.obj", cylinderModelCoordinates,
+    bool res = loadObjIndexed("data/obj/cylinder_long.obj", cylinderModelCoordinates,
                        uvs, normals);
     numVerticesPerInstance = static_cast<GLuint>(cylinderModelCoordinates.size());
 
@@ -186,13 +186,6 @@ TextureCylinder::TextureCylinder(GLint numCenters_) : io(IOHandler::getInstance(
     // commands will configure the currently bound texture
     glBindTexture(GL_TEXTURE_2D, textureID);
 
-    // Set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    // Set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
     // generate the texture by using the previously loaded image data
     glTexImage2D(
             GL_TEXTURE_2D,     // texture target; will gen texture on textureID
@@ -210,6 +203,13 @@ TextureCylinder::TextureCylinder(GLint numCenters_) : io(IOHandler::getInstance(
 
     // free image memory
     delete[] image;
+
+    // Set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    // Set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     // unbind the texture object
     glBindTexture(GL_TEXTURE_2D, 0);

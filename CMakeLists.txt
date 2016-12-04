@@ -23,7 +23,7 @@ set(SOURCE_FILES
         tube-traveller/path-generators/PathRandom.cpp
         tube-traveller/tube-generators/SimpleShapes.cpp
         tube-traveller/tube-generators/TextureCylinder.cpp
-        physic-spheres/PhysicSpheres.cpp )
+        physic-spheres/PhysicSpheres.cpp)
 
 
 add_executable(tubeworld ${SOURCE_FILES})

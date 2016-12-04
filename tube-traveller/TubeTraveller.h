@@ -6,7 +6,7 @@
 
 // TODO
 // TextureGenerator class
-//      single image repeated init example
+//      (DONE!) single image repeated init example
 //      ROYGBIV init example for variable number of textures
 //      1/f noise?
 // figure out how to incorporate lighting into the TubeGenerator class (perhaps

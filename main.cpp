@@ -45,10 +45,10 @@ int main() {
     Skybox skybox = Skybox(files, 1000.0f);
 
     // set up tube
-//    GLint numCenters = 100;
-//    TubeTraveller cubearray = TubeTraveller(numCenters);
+    GLint numCenters = 100;
+    TubeTraveller cubearray = TubeTraveller(numCenters);
 
-    PhysicSpheres cubearray = PhysicSpheres();
+//    PhysicSpheres2 cubearray = PhysicSpheres2();
 
     // initialize player
     Player player = Player();

@@ -32,7 +32,7 @@ TubeTraveller::TubeTraveller(GLint numCenters) : io(IOHandler::getInstance()){
 
     PathGeneratorType pathType = PATH_RANDOM;
     TubeType tubeType = TUBE_TEXTURE_CYLINDER;
-    GLfloat centerSpacing = 20.f;
+    GLfloat centerSpacing = 2.f;
 
     // select path type
     switch (pathType) {
