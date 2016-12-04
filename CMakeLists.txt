@@ -18,12 +18,11 @@ set(SOURCE_FILES
         core/loaders/loadObj.cpp
         core/loaders/loadObjIndexed.cpp
         tube-traveller/TubeTraveller.cpp
-        tube-traveller/CubeTube.cpp
-        tube-traveller/TubeCylinder.cpp
-        tube-traveller/PathGenerator.h
-        tube-traveller/PathCircle.cpp
-        tube-traveller/PathUserInput.cpp
-        tube-traveller/PathRandom.cpp
+        tube-traveller/path-generators/PathCircle.cpp
+        tube-traveller/path-generators/PathUserInput.cpp
+        tube-traveller/path-generators/PathRandom.cpp
+        tube-traveller/tube-generators/SimpleShapes.cpp
+        tube-traveller/tube-generators/TextureCylinder.cpp
         physic-spheres/PhysicSpheres.cpp )
 
 

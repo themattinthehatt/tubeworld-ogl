@@ -10,7 +10,7 @@
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
-#include "../core/Player.h"
+#include "../../core/Player.h"
 #include "PathGenerator.h"
 
 class PathRandom : public PathGenerator {
@@ -51,7 +51,7 @@ public:
     IOHandler &io;
 
     // constructor
-    PathRandom(GLint numCenters);
+    PathRandom(GLint numCenters, GLfloat spacing);
     // update dynamics of tube positions
     void update(Player &player);
     // clean up dynamically allocated memory

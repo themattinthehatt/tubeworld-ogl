@@ -31,7 +31,7 @@
 *.idea*
 
 # textures
-textures/*
+data/textures/*
 
 # old code
 old_code/*

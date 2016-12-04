@@ -36,18 +36,12 @@ int main() {
     // Set up scene
     // -------------------------------------------------------------------------
     // set up skybox; +x, -x, +y, -y, +z, -z
-//    std::vector<const char*> files ={"textures/box3/right.bmp",
-//                                     "textures/box3/right.bmp",
-//                                     "textures/box3/right.bmp",
-//                                     "textures/box3/right.bmp",
-//                                     "textures/box3/right.bmp",
-//                                     "textures/box3/right.bmp"};
-    std::vector<const char*> files ={"textures/box3/front.bmp",
-                                     "textures/box3/back.bmp",
-                                     "textures/box3/left.bmp",
-                                     "textures/box3/right.bmp",
-                                     "textures/box3/up.bmp",
-                                     "textures/box3/down.bmp"};
+    std::vector<const char*> files ={"data/textures/box3/front.bmp",
+                                     "data/textures/box3/back.bmp",
+                                     "data/textures/box3/left.bmp",
+                                     "data/textures/box3/right.bmp",
+                                     "data/textures/box3/up.bmp",
+                                     "data/textures/box3/down.bmp"};
     Skybox skybox = Skybox(files, 1000.0f);
 
     // set up tube

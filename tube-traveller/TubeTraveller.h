@@ -4,14 +4,22 @@
 // use the standard vertex attributes for data per vertex and use the instanced
 // array for storing data that is unique per instance.
 
+// TODO
+// TextureGenerator class
+//      single image repeated init example
+//      ROYGBIV init example for variable number of textures
+//      1/f noise?
+// figure out how to incorporate lighting into the TubeGenerator class (perhaps
+//      leave out of TubeSimpleShape for simplicity - can always go back later)
+
 #ifndef TUBEWORLD_TUBETRAVELLER_H
 #define TUBEWORLD_TUBETRAVELLER_H
 
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
-#include "CubeTube.h"
-#include "PathGenerator.h"
+#include "path-generators/PathGenerator.h"
+#include "tube-generators/TubeGenerator.h"
 
 class TubeTraveller {
 private:
@@ -20,7 +28,7 @@ private:
 public:
 
     PathGenerator *path;
-    CubeTube *tube;
+    TubeGenerator *tube;
 
     IOHandler &io;
 
@@ -45,4 +53,4 @@ public:
 };
 
 
-#endif //TUBEWORLD_CUBEARRAYRING_H
+#endif //TUBEWORLD_TUBETRAVELLER_H

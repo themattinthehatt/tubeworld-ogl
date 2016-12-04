@@ -9,7 +9,7 @@
 
 #include <GL/glew.h>
 #include <vector>
-#include "../core/Player.h"
+#include "../../core/Player.h"
 
 class PathGenerator {
 public:

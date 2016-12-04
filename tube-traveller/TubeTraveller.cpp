@@ -3,10 +3,11 @@
 //
 
 #include "TubeTraveller.h"
-#include "PathCircle.h"
-#include "PathUserInput.h"
-#include "PathRandom.h"
-#include "TubeCylinder.h"
+#include "path-generators/PathCircle.h"
+#include "path-generators/PathUserInput.h"
+#include "path-generators/PathRandom.h"
+#include "tube-generators/SimpleShapes.h"
+#include "tube-generators/TextureCylinder.h"
 
 TubeTraveller::TubeTraveller(GLint numCenters) : io(IOHandler::getInstance()){
 
@@ -20,41 +21,52 @@ TubeTraveller::TubeTraveller(GLint numCenters) : io(IOHandler::getInstance()){
         TUBE_CUBES_SQ,
         TUBE_CUBES_CIRC,
         TUBE_CYLINDER,
+        TUBE_TEXTURE_CYLINDER,
         MAX_NUM_TUBES
+    };
+    enum TextureType {
+        TEXTURE_SOLID,
+        TEXTURE_RAINBOW,
+        MAX_NUM_TEXTURES
     };
 
     PathGeneratorType pathType = PATH_RANDOM;
-    TubeType tubeType = TUBE_CYLINDER;
+    TubeType tubeType = TUBE_TEXTURE_CYLINDER;
+    GLfloat centerSpacing = 20.f;
 
     // select path type
     switch (pathType) {
         case PATH_CIRCLE:
-            path = new PathCircle(numCenters);
+            path = new PathCircle(numCenters, centerSpacing);
             break;
         case PATH_USER:
-            path = new PathUserInput(numCenters);
+            path = new PathUserInput(numCenters, centerSpacing);
             break;
         case PATH_RANDOM:
-            path = new PathRandom(numCenters);
+            path = new PathRandom(numCenters, centerSpacing);
             break;
         default:
-            path = new PathRandom(numCenters);
+            path = new PathRandom(numCenters, centerSpacing);
     }
 
     // select tube type
     switch (tubeType) {
         case TUBE_CUBES_SQ:
-            tube = new CubeTube(numCenters, CubeTube::SQUARE_OF_SQUARES);
+            tube = new SimpleShapes(numCenters, SimpleShapes::SQUARE_OF_SQUARES);
             break;
         case TUBE_CUBES_CIRC:
-            tube = new CubeTube(numCenters, CubeTube::CIRCLE_OF_SQUARES);
+            tube = new SimpleShapes(numCenters, SimpleShapes::CIRCLE_OF_SQUARES);
             break;
         case TUBE_CYLINDER:
-            tube = new CubeTube(numCenters, CubeTube::CYLINDER);
+            tube = new SimpleShapes(numCenters, SimpleShapes::CYLINDER);
+            break;
+        case TUBE_TEXTURE_CYLINDER:
+            tube = new TextureCylinder(numCenters, TextureCylinder::CYLINDER);
             break;
         default:
-            tube = new CubeTube(numCenters, CubeTube::CIRCLE_OF_SQUARES);
+            tube = new SimpleShapes(numCenters, SimpleShapes::CIRCLE_OF_SQUARES);
     }
+
 }
 
 void TubeTraveller::update(Camera &cam, Player &player) {

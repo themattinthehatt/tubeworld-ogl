@@ -2,17 +2,17 @@
 // Created by mattw on 8/21/16.
 //
 
-#ifndef TUBEWORLD_CUBETUBE_H
-#define TUBEWORLD_CUBETUBE_H
+#ifndef TUBEWORLD_SIMPLESHAPES_H
+#define TUBEWORLD_SIMPLESHAPES_H
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <vector>
-#include "../core/Global.h"
-#include "../core/Camera.h"
-#include "PathGenerator.h"
+#include "../../core/Global.h"
+#include "../../core/Camera.h"
+#include "../path-generators/PathGenerator.h"
 
-class CubeTube {
+class SimpleShapes : public TubeGenerator {
 private:
 public:
 
@@ -60,7 +60,7 @@ public:
     RingModelType ringModelType;
 
     // constructor
-    CubeTube(GLint numCenters, RingModelType ringModelType);
+    SimpleShapes(GLint numCenters, RingModelType ringModelType);
     // update positions/angles of tube elements
     void update(const PathGenerator *path, Camera &cam);
     // draw tube elements
@@ -71,4 +71,4 @@ public:
 };
 
 
-#endif //TUBEWORLD_CUBETUBE_H
+#endif //TUBEWORLD_SIMPLESHAPES_H

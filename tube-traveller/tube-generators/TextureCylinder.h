@@ -2,17 +2,17 @@
 // Created by mattw on 12/3/16.
 //
 
-#ifndef TUBEWORLD_TUBECYLINDER_H
-#define TUBEWORLD_TUBECYLINDER_H
+#ifndef TUBEWORLD_TEXTURECYLINDER_H
+#define TUBEWORLD_TEXTURECYLINDER_H
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <vector>
-#include "../core/Global.h"
-#include "../core/Camera.h"
-#include "PathGenerator.h"
+#include "../../core/Global.h"
+#include "../../core/Camera.h"
+#include "../path-generators/PathGenerator.h"
 
-class TubeCylinder {
+class TextureCylinder : public TubeGenerator {
 private:
 public:
 
@@ -55,11 +55,12 @@ public:
     enum RingModelType {
         SQUARE_OF_SQUARES,
         CIRCLE_OF_SQUARES,
+        CYLINDER,
     };
     RingModelType ringModelType;
 
     // constructor
-    TubeCylinder(GLint numCenters, RingModelType ringModelType);
+    TextureCylinder(GLint numCenters, RingModelType ringModelType);
     // update positions/angles of tube elements
     void update(const PathGenerator *path, Camera &cam);
     // draw tube elements
@@ -69,4 +70,4 @@ public:
 
 };
 
-#endif //TUBEWORLD_TUBECYLINDER_H
+#endif //TUBEWORLD_TEXTURECYLINDER_H
