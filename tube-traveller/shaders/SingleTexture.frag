@@ -14,4 +14,5 @@ void main() {
     // output color = color specified in the vertex shader,
     // interpolated between all 3 surrounding vertices
     color = texture(loadedTexture, textureCoords);
+//    color = vec4(fragmentColor, 1.f);
 }

@@ -1,6 +1,6 @@
 % 12/03/16
 - (DONE) make cylinder tube option
-- map images to inside of cylinder
+- (DONE) map images to inside of cylinder
 - put lighting ball in tube
 - dynamically change origin in radial direction
     + user input
@@ -8,8 +8,8 @@
 - make grided cylinder tube option in prep for music (send in synthetic power
     spectra first?) - make an abstraction such that a 2D bitmap image can be
     used as a texture on the inside of the cylinder. Features to consider:
-    + maybe start w/ a single map that gets mapped to all cylinders (a nice 
-      pattern could look cool)
+    + (DONE) maybe start w/ a single map that gets mapped to all cylinders (a
+      nice pattern could look cool)
     + different textures get mapped to different cylinders. Start w/
       blank/solid/static textures on all but current cylinder -> play with 
       binary counting?
@@ -73,7 +73,7 @@ Once these are done I can fly through space infinitely!!!
     lattice. Then you can move around thet space and see all of them at one
     go. BUT - only the parameter combos nearest you are generated, and you
     are free to move around. THEN do the same as before, detach the camera
-    from the player. Perhaps use hte random walk script from before to 
+    from the player. Perhaps use the random walk script from before to 
     generate player movements, or have user do that while camera follows a 
     predefined track, which may or may not be tied to the movement of the user.
 - need to abstract the automatic player movement. Make some sort of interface

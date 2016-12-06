@@ -5,9 +5,18 @@
 // array for storing data that is unique per instance.
 
 // TODO
+// (DONE) single image repeated init example
+//     variable number of textures
+//          split numCenters into the number of textures (which may be periodic
+//              or only a single texture per center
+//          render each set of tubes that have the same texture at a time
+//          TextureGenerator class should also generate an array of indices for
+//              each tube that has the same texture (loop over number of elements
+//              in this index array, need to send center_buffer_data and model
+//              rotations
 // TextureGenerator class
-//      (DONE!) single image repeated init example
-//      ROYGBIV init example for variable number of textures
+//      double texture
+//      ROYGBIV
 //      1/f noise?
 // figure out how to incorporate lighting into the TubeGenerator class (perhaps
 //      leave out of TubeSimpleShape for simplicity - can always go back later)

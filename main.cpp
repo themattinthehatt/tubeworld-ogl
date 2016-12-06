@@ -1,4 +1,7 @@
-
+// TODO
+// - use SOIL rather than custom image loader so that I can store jpgs instead of
+//   bitmaps
+// - get serious about "models", and move away from custom code?
 
 // Include standard headers
 #include <cstdio>
@@ -36,19 +39,19 @@ int main() {
     // Set up scene
     // -------------------------------------------------------------------------
     // set up skybox; +x, -x, +y, -y, +z, -z
-    std::vector<const char*> files ={"data/textures/box3/front.bmp",
-                                     "data/textures/box3/back.bmp",
-                                     "data/textures/box3/left.bmp",
-                                     "data/textures/box3/right.bmp",
-                                     "data/textures/box3/up.bmp",
-                                     "data/textures/box3/down.bmp"};
+    std::vector<const char*> files = {"data/textures/box3/front.bmp",
+                                      "data/textures/box3/back.bmp",
+                                      "data/textures/box3/left.bmp",
+                                      "data/textures/box3/right.bmp",
+                                      "data/textures/box3/up.bmp",
+                                      "data/textures/box3/down.bmp"};
     Skybox skybox = Skybox(files, 1000.0f);
 
     // set up tube
     GLint numCenters = 100;
     TubeTraveller cubearray = TubeTraveller(numCenters);
 
-//    PhysicSpheres2 cubearray = PhysicSpheres2();
+//    PhysicSpheres cubearray = PhysicSpheres2();
 
     // initialize player
     Player player = Player();

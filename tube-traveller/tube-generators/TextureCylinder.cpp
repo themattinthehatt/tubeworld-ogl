@@ -16,7 +16,9 @@
 
 TextureCylinder::TextureCylinder(GLint numCenters_) : io(IOHandler::getInstance()) {
 
-    numCenters = numCenters_;
+    // location of textures
+    std::vector<const char*> file_loc = {"data/textures/temp2.bmp",
+                                         "data/textures/temp3.bmp"};
 
     // create and compile our GLSL program from the shaders
     shaderID = loadShaders("tube-traveller/shaders/SingleTexture.vert",
@@ -31,9 +33,72 @@ TextureCylinder::TextureCylinder(GLint numCenters_) : io(IOHandler::getInstance(
     mvpMatrixID = glGetUniformLocation(shaderID, "mvpMatrix");
     timeParamID = glGetUniformLocation(shaderID, "time");
 
+    // -------------------------------------------------------------------------
+    //                          Load Textures
+    // -------------------------------------------------------------------------
+
+    // get an ID for our texture uniform
+    samplerID = glGetUniformLocation(shaderID, "loadedTexture");
+
+    numTextures = static_cast<GLint>(file_loc.size());
+
+    textureIDs = new GLuint[numTextures];
+
+    for (int i = 0; i < numTextures; ++i) {
+
+        int width, height;
+        unsigned char *image = loadBMP(file_loc[i], &width, &height);
+
+        // generate 1 texture ID, put the resutling identifier in textureID
+        glGenTextures(1, &textureIDs[i]);
+        glActiveTexture(GL_TEXTURE0 + i);
+
+        // bind newly created texture to GL_TEXTURE_2D target; subsequent texture
+        // commands will configure the currently bound texture
+        glBindTexture(GL_TEXTURE_2D, textureIDs[i]);
+
+        // generate the texture by using the previously loaded image data
+        glTexImage2D(
+                GL_TEXTURE_2D,     // texture target; will gen texture on textureIDs[i]
+                0,                 // mipmap level; use base of 0
+                GL_RGB,            // type of format we want to store the texture
+                width,
+                height,
+                0,                 // legacy bs
+                GL_RGB,            // format of source image
+                GL_UNSIGNED_BYTE,  // format of source image
+                image              // source image
+        );
+        // textureIDs[i] now has texture image attached to it
+        // glGenerateMipmap here if desired
+
+        // free image memory
+        delete[] image;
+
+        // Set the texture wrapping parameters
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        // Set texture filtering parameters
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        // unbind the texture object
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+    }
+
+    // find number of centers per texture; this will be used to initialize
+    // the buffers that hold tube center vectors and rotation matrices
+    GLint remainder = numCenters_ % numTextures;
+    if (remainder == 0) {
+        numCenters = numCenters_;
+    } else {
+        numCenters = numCenters_ - remainder;
+    }
+    numCentersPerTexture = numCenters/numTextures;
 
     // -------------------------------------------------------------------------
-    //                          Fill buffers
+    //                          Initialize buffers
     // -------------------------------------------------------------------------
 
     // load cylinder model
@@ -42,16 +107,13 @@ TextureCylinder::TextureCylinder(GLint numCenters_) : io(IOHandler::getInstance(
     numVerticesPerInstance = static_cast<GLuint>(cylinderModelCoordinates.size());
 
     // populate buffer_data
-    g_center_buffer_data = new glm::vec3[numCenters];
-    g_rotation_buffer_data = new glm::mat4[numCenters];
-
-    // get vertices
-    for (int i = 0; i < numCenters; ++i) {
-        g_center_buffer_data[i] = glm::vec3(0.f, 0.f, 0.f);
-        g_rotation_buffer_data[i] = glm::rotate(glm::mat4(1.0f),
-                                        0.f,
-                                        glm::vec3(0.0f, 0.0f, 1.f));
+    g_center_buffer_data = new glm::vec3*[numTextures];
+    g_rotation_buffer_data = new glm::mat4*[numTextures];
+    for (int i = 0; i < numTextures; ++i) {
+        g_center_buffer_data[i] = new glm::vec3[numCentersPerTexture];
+        g_rotation_buffer_data[i] = new glm::mat4[numCentersPerTexture];
     }
+
 
     // -------------------------------------------------------------------------
     //                          Create VAO
@@ -89,30 +151,6 @@ TextureCylinder::TextureCylinder(GLint numCenters_) : io(IOHandler::getInstance(
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
-    // CENTER COORDINATES
-    // generate 1 buffer, put the resulting identifier in centerBufferID
-    glGenBuffers(1, &centerBufferID);
-    // bind newly created buffer to GL_ARRAY_BUFFER target
-    glBindBuffer(GL_ARRAY_BUFFER, centerBufferID);
-    // copy data into buffer's memory
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * numCenters,
-                 g_center_buffer_data, GL_DYNAMIC_DRAW);
-
-    // set vertex attribute pointers
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(
-            1,         // attribute 1; must match "layout" in shader
-            3,         // size (# vertices)
-            GL_FLOAT,  // type
-            GL_FALSE,  // normalized?
-            0,         // stride
-            (GLvoid*)0   // array buffer offset
-    );
-    // tell OpenGL when to update content of this attribute to next element
-    glVertexAttribDivisor(1, 1);
-    // break buffer binding
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
     // CYLINDER TEXTURE COORDINATES
     // generate 1 buffer, put the resulting identifier in uvBufferID
     glGenBuffers(1, &uvBufferID);
@@ -132,10 +170,34 @@ TextureCylinder::TextureCylinder(GLint numCenters_) : io(IOHandler::getInstance(
             0,         // stride
             (GLvoid*)0 // array buffer offset
     );
-    // tell OpenGL when to update content of this attribute to next element
-//    glVertexAttribDivisor(2, 0);
     // break buffer binding
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
+    // CENTER COORDINATES
+    // generate 1 buffer, put the resulting identifier in centerBufferID
+    glGenBuffers(1, &centerBufferID);
+    // bind newly created buffer to GL_ARRAY_BUFFER target
+    glBindBuffer(GL_ARRAY_BUFFER, centerBufferID);
+    // copy data into buffer's memory
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * numCentersPerTexture,
+                 g_center_buffer_data[0], GL_DYNAMIC_DRAW);
+
+    // set vertex attribute pointers
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(
+            1,         // attribute 1; must match "layout" in shader
+            3,         // size (# vertices)
+            GL_FLOAT,  // type
+            GL_FALSE,  // normalized?
+            0,         // stride
+            (GLvoid*)0   // array buffer offset
+    );
+    // tell OpenGL when to update content of this attribute to next element
+    glVertexAttribDivisor(1, 1);
+    // break buffer binding
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 
     // MODEL ROTATIONS
     // generate 1 buffer, put the resulting identifier in centerBufferID
@@ -143,8 +205,8 @@ TextureCylinder::TextureCylinder(GLint numCenters_) : io(IOHandler::getInstance(
     // bind newly created buffer to GL_ARRAY_BUFFER target
     glBindBuffer(GL_ARRAY_BUFFER, rotationBufferID);
     // copy data into buffer's memory
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * numCenters,
-                 g_rotation_buffer_data, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * numCentersPerTexture,
+                 g_rotation_buffer_data[0], GL_DYNAMIC_DRAW);
 
     // set vertex attribute pointers
     GLsizei vec4size = sizeof(glm::vec4);
@@ -168,51 +230,6 @@ TextureCylinder::TextureCylinder(GLint numCenters_) : io(IOHandler::getInstance(
     // unbind the VAO
     glBindVertexArray(0);
 
-    // -------------------------------------------------------------------------
-    //                          Load Textures
-    // -------------------------------------------------------------------------
-    int width, height;
-    char *file_loc = "data/textures/temp.bmp";
-    unsigned char *image = loadBMP(file_loc, &width, &height);
-
-    // generate 1 texture ID, put the resutling identifier in textureID
-    glGenTextures(1, &textureID);
-    glActiveTexture(GL_TEXTURE0);
-
-    // get an ID for our texture uniform
-    samplerID = glGetUniformLocation(shaderID, "loadedTexture");
-
-    // bind newly created texture to GL_TEXTURE_2D target; subsequent texture
-    // commands will configure the currently bound texture
-    glBindTexture(GL_TEXTURE_2D, textureID);
-
-    // generate the texture by using the previously loaded image data
-    glTexImage2D(
-            GL_TEXTURE_2D,     // texture target; will gen texture on textureID
-            0,                 // mipmap level; use base of 0
-            GL_RGB,            // type of format we want to store the texture
-            width,
-            height,
-            0,                 // legacy bs
-            GL_RGB,            // format of source image
-            GL_UNSIGNED_BYTE,  // format of source image
-            image              // source image
-    );
-    // textureID now has texture image attached to it
-    // glGenerateMipmap here if desired
-
-    // free image memory
-    delete[] image;
-
-    // Set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    // Set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    // unbind the texture object
-    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 /*
@@ -221,13 +238,17 @@ TextureCylinder::TextureCylinder(GLint numCenters_) : io(IOHandler::getInstance(
 void TextureCylinder::update(const PathGenerator *path, Camera &cam ) {
 
     // update all vertices
-    for (int i = 0; i < numCenters; ++i) {
-            g_center_buffer_data[i] = path->positions[i];
-            g_rotation_buffer_data[i] = glm::rotate(glm::rotate(
-                    glm::mat4(1.0f),-path->verticalAngles[i]+PI/2,
-                    path->rights[i]),
-                    path->horizontalAngles[i]-PI/2,
+    int count = 0;
+    for (int i = 0; i < numCentersPerTexture; ++i) {
+        for (int j = 0; j < numTextures; ++j) {
+            g_center_buffer_data[j][i] = path->positions[count];
+            g_rotation_buffer_data[j][i] = glm::rotate(glm::rotate(
+                    glm::mat4(1.0f),-path->verticalAngles[count]+PI/2,
+                    path->rights[count]),
+                    path->horizontalAngles[count]-PI/2,
                     glm::vec3(0.f, 0.f, 1.f));
+            ++count;
+        }
     }
 
     time = glfwGetTime();
@@ -248,34 +269,38 @@ void TextureCylinder::draw() {
     glUniformMatrix4fv(mvpMatrixID, 1, GL_FALSE, &mvpMatrix[0][0]);
     glUniform1f(timeParamID, time);
 
-    // Activate the texture unit first before binding texture
-    glActiveTexture(GL_TEXTURE0);
-    // bind texture to the currently active texture unit
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    // puts the texture in texture unit 0
-    glUniform1i(samplerID, 0);
+    for (int i = 0; i < numTextures; ++i) {
 
-    // bind vertex array
-    glBindVertexArray(vertexArrayID);
+        // Activate the texture unit first before binding texture
+        glActiveTexture(GL_TEXTURE0);
+        // bind texture to the currently active texture unit
+        glBindTexture(GL_TEXTURE_2D, textureIDs[i]);
+        // puts the texture in texture unit 0
+        glUniform1i(samplerID, 0);
 
-    // send g_center_buffer_data to GPU
-    glBindBuffer(GL_ARRAY_BUFFER, centerBufferID);
-    // copy data into buffer's memory
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * numCenters,
-                 g_center_buffer_data, GL_DYNAMIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+        // bind vertex array
+        glBindVertexArray(vertexArrayID);
 
-    // send rotation matrices to GPU
-    glBindBuffer(GL_ARRAY_BUFFER, rotationBufferID);
-    // copy data into buffer's memory
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * numCenters,
-                 g_rotation_buffer_data, GL_DYNAMIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+        // send g_center_buffer_data to GPU
+        glBindBuffer(GL_ARRAY_BUFFER, centerBufferID);
+        // copy data into buffer's memory
+        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * numCentersPerTexture,
+                     g_center_buffer_data[i], GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    // draw arrays using currently active shaders
-    glDrawArraysInstanced(GL_TRIANGLES, 0, numVerticesPerInstance, numCenters);
-    // break vertex array object binding
-    glBindVertexArray(0);
+        // send rotation matrices to GPU
+        glBindBuffer(GL_ARRAY_BUFFER, rotationBufferID);
+        // copy data into buffer's memory
+        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * numCentersPerTexture,
+                     g_rotation_buffer_data[i], GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        // draw arrays using currently active shaders
+        glDrawArraysInstanced(GL_TRIANGLES, 0, numVerticesPerInstance,
+                              numCentersPerTexture);
+        // break vertex array object binding
+        glBindVertexArray(0);
+    }
 
 }
 
@@ -283,10 +308,16 @@ void TextureCylinder::clean() {
 
     glDeleteVertexArrays(1, &vertexArrayID);
     glDeleteBuffers(1, &vertexBufferID);
+    glDeleteBuffers(1, &uvBufferID);
     glDeleteBuffers(1, &centerBufferID);
     glDeleteBuffers(1, &rotationBufferID);
     glDeleteProgram(shaderID);
+//    glDeleteSamplers(1, samplerID);
 
+    for (int i = 0; i < numTextures; ++i) {
+        delete[] g_center_buffer_data[i];
+        delete[] g_rotation_buffer_data[i];
+    }
     delete[] g_center_buffer_data;
     delete[] g_rotation_buffer_data;
 

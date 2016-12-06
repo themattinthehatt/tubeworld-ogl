@@ -22,26 +22,28 @@ public:
 
     GLint numCenters;
     GLint numVerticesPerInstance;
+    GLint numTextures;
+    GLint numCentersPerTexture;
 
-    glm::vec3 *g_center_buffer_data;
-    glm::mat4 *g_rotation_buffer_data;
+    glm::vec3 **g_center_buffer_data;
+    glm::mat4 **g_rotation_buffer_data;
 
     GLuint vertexArrayID;
     GLuint vertexBufferID;
-    GLuint centerBufferID;
     GLuint uvBufferID;
+    GLuint centerBufferID;
     GLuint rotationBufferID;
+    GLuint *textureIDs;
+    GLint samplerID;
     GLuint shaderID;
-    GLuint textureID;
-    GLuint samplerID;
     glm::mat4 mMatrix;
     glm::mat4 vpMatrix;
     glm::mat4 mvpMatrix;
-    GLuint mMatrixID;
-    GLuint vpMatrixID;
-    GLuint mvpMatrixID;
+    GLint mMatrixID;
+    GLint vpMatrixID;
+    GLint mvpMatrixID;
     GLfloat time;
-    GLuint timeParamID;
+    GLint timeParamID;
 
     IOHandler &io;
 
