@@ -11,27 +11,30 @@
 
 TubeTraveller::TubeTraveller(GLint numCenters) : io(IOHandler::getInstance()){
 
-    enum PathGeneratorType {
-        PATH_CIRCLE,
-        PATH_USER,
-        PATH_RANDOM,
-        MAX_NUM_PATHS
-    };
-    enum TubeType {
-        TUBE_CUBES_SQ,
-        TUBE_CUBES_CIRC,
-        TUBE_CYLINDER,
-        TUBE_TEXTURE_CYLINDER,
-        MAX_NUM_TUBES
-    };
-    enum TextureType {
-        TEXTURE_SOLID,
-        TEXTURE_RAINBOW,
-        MAX_NUM_TEXTURES
-    };
+// Copy of what is defined in header file
+//    enum PathGeneratorType {
+//        PATH_CIRCLE,
+//        PATH_USER,
+//        PATH_RANDOM,
+//        MAX_NUM_PATHS
+//    };
+//    enum TubeType {
+//        TUBE_CUBES_SQ,
+//        TUBE_CUBES_CIRC,
+//        TUBE_CYLINDER,
+//        TUBE_TEXTURE_CYLINDER,
+//        MAX_NUM_TUBES
+//    };
+//    enum TextureType {
+//        TEXTURE_FILES_STATIC,
+//        TEXTURE_RAINBOW,
+//        MAX_NUM_TEXTURES
+//    };
 
     PathGeneratorType pathType = PATH_RANDOM;
     TubeType tubeType = TUBE_TEXTURE_CYLINDER;
+    TextureType textureType = TEXTURE_FILES_STATIC;
+
     GLfloat centerSpacing = 2.f;
 
     // select path type
@@ -61,7 +64,7 @@ TubeTraveller::TubeTraveller(GLint numCenters) : io(IOHandler::getInstance()){
             tube = new SimpleShapes(numCenters, SimpleShapes::CYLINDER);
             break;
         case TUBE_TEXTURE_CYLINDER:
-            tube = new TextureCylinder(numCenters);
+            tube = new TextureCylinder(numCenters, textureType);
             break;
         default:
             tube = new SimpleShapes(numCenters, SimpleShapes::CIRCLE_OF_SQUARES);

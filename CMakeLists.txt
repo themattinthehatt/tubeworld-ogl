@@ -23,6 +23,7 @@ set(SOURCE_FILES
         tube-traveller/path-generators/PathRandom.cpp
         tube-traveller/tube-generators/SimpleShapes.cpp
         tube-traveller/tube-generators/TextureCylinder.cpp
+        tube-traveller/texture-generators/StaticFiles.cpp
         physic-spheres/PhysicSpheres.cpp)
 
 

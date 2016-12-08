@@ -11,6 +11,7 @@
 #include "../../core/Global.h"
 #include "../../core/Camera.h"
 #include "../path-generators/PathGenerator.h"
+#include "../TubeTraveller.h"
 
 class TextureCylinder : public TubeGenerator {
 private:
@@ -20,9 +21,10 @@ public:
     std::vector<glm::vec2> uvs;
     std::vector<glm::vec3> normals;
 
+    TextureGenerator *texture;
+
     GLint numCenters;
     GLint numVerticesPerInstance;
-    GLint numTextures;
     GLint numCentersPerTexture;
 
     glm::vec3 **g_center_buffer_data;
@@ -33,8 +35,6 @@ public:
     GLuint uvBufferID;
     GLuint centerBufferID;
     GLuint rotationBufferID;
-    GLuint *textureIDs;
-    GLint samplerID;
     GLuint shaderID;
     glm::mat4 mMatrix;
     glm::mat4 vpMatrix;
@@ -48,7 +48,7 @@ public:
     IOHandler &io;
 
     // constructor
-    TextureCylinder(GLint numCenters);
+    TextureCylinder(GLint numCenters, TubeTraveller::TextureType);
     // update positions/angles of tube elements
     void update(const PathGenerator *path, Camera &cam);
     // draw tube elements

@@ -29,6 +29,7 @@
 #include <glm/glm.hpp>
 #include "path-generators/PathGenerator.h"
 #include "tube-generators/TubeGenerator.h"
+#include "texture-generators/TextureGenerator.h"
 
 class TubeTraveller {
 private:
@@ -40,6 +41,25 @@ public:
     TubeGenerator *tube;
 
     IOHandler &io;
+
+    enum PathGeneratorType {
+        PATH_CIRCLE,
+        PATH_USER,
+        PATH_RANDOM,
+        MAX_NUM_PATHS
+    };
+    enum TubeType {
+        TUBE_CUBES_SQ,
+        TUBE_CUBES_CIRC,
+        TUBE_CYLINDER,
+        TUBE_TEXTURE_CYLINDER,
+        MAX_NUM_TUBES
+    };
+    enum TextureType {
+        TEXTURE_FILES_STATIC,
+        TEXTURE_RAINBOW,
+        MAX_NUM_TEXTURES
+    };
 
     enum PlayerMode {
         PLAYER_BOUND,
