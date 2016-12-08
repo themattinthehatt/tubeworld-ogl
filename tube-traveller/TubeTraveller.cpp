@@ -28,12 +28,15 @@ TubeTraveller::TubeTraveller(GLint numCenters) : io(IOHandler::getInstance()){
 //    enum TextureType {
 //        TEXTURE_FILES_STATIC,
 //        TEXTURE_RAINBOW,
+//        TEXTURE_BINARY,
+//        TEXTURE_NOISE,
 //        MAX_NUM_TEXTURES
 //    };
 
     PathGeneratorType pathType = PATH_RANDOM;
     TubeType tubeType = TUBE_TEXTURE_CYLINDER;
-    TextureType textureType = TEXTURE_FILES_STATIC;
+//    TextureType textureType = TEXTURE_FILES_STATIC;
+    TextureType textureType = TEXTURE_RAINBOW;
 
     GLfloat centerSpacing = 2.f;
 

@@ -11,9 +11,9 @@
 #include "../TubeTraveller.h"
 #include "TextureCylinder.h"
 #include "../../core/loaders/loadShaders.h"
-#include "../../core/loaders/loadTextures.h"
 #include "../../core/loaders/loadObjIndexed.h"
 #include "../texture-generators/StaticFiles.h"
+#include "../texture-generators/Rainbow.h"
 
 TextureCylinder::TextureCylinder(GLint numCenters_, TubeTraveller::TextureType textureType_)
         :
@@ -40,9 +40,13 @@ TextureCylinder::TextureCylinder(GLint numCenters_, TubeTraveller::TextureType t
         case TubeTraveller::TEXTURE_FILES_STATIC:
             texture = new StaticFiles(shaderID);
             break;
-//        case TubeTraveller::TEXTURE_RAINBOW:
-//            texture = new Rainbow(shaderID);
-//            break;
+        case TubeTraveller::TEXTURE_RAINBOW:
+            texture = new Rainbow(shaderID);
+            break;
+        case TubeTraveller::TEXTURE_BINARY:
+            break;
+        case TubeTraveller::TEXTURE_NOISE:
+            break;
         default:
             texture = new StaticFiles(shaderID);
     }

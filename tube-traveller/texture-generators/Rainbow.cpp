@@ -1,32 +1,44 @@
 //
-// Created by mattw on 12/7/16.
+// Created by mattw on 12/8/16.
 //
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <iostream>
 #include <vector>
+#include <math.h>
 
-#include "StaticFiles.h"
-#include "../../core/loaders/loadTextures.h"
+#include "Rainbow.h"
 
-StaticFiles::StaticFiles(GLuint shaderID) {
-
-    // location of textures
-    std::vector<const char*> file_loc = {"data/textures/temp2.bmp",
-                                         "data/textures/temp3.bmp"};
+Rainbow::Rainbow(GLuint shaderID) {
 
     // get an ID for our texture uniform
     samplerID = glGetUniformLocation(shaderID, "loadedTexture");
 
-    numTextures = static_cast<GLint>(file_loc.size());
+    numTextures = 10;
 
     textureIDs = new GLuint[numTextures];
 
     for (int i = 0; i < numTextures; ++i) {
 
-        int width, height;
-        unsigned char *image = loadBMP(file_loc[i], &width, &height);
+        int width = 1;
+        int height = 1;
+        GLubyte image[height][width][4];
+
+        float hue = static_cast<float>(i)/numTextures;
+        float sat = 1;
+        float val = 1;
+        float r, g, b;
+
+        for (int j = 0; j < height; ++j) {
+            for (int k = 0; k < width; ++k) {
+                hsvToRgb(hue, sat, val, &r, &g, &b);
+                image[j][k][0] = (GLubyte) (r*255);
+                image[j][k][1] = (GLubyte) (g*255);
+                image[j][k][2] = (GLubyte) (b*255);
+                image[j][k][3] = (GLubyte) 255;
+            }
+        }
 
         // generate 1 texture ID, put the resutling identifier in textureID
         glGenTextures(1, &textureIDs[i]);
@@ -51,9 +63,6 @@ StaticFiles::StaticFiles(GLuint shaderID) {
         // textureIDs[i] now has texture image attached to it
         // glGenerateMipmap here if desired
 
-        // free image memory
-        delete[] image;
-
         // Set the texture wrapping parameters
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
@@ -68,12 +77,12 @@ StaticFiles::StaticFiles(GLuint shaderID) {
 
 }
 
-void StaticFiles::update(){};
+void Rainbow::update(){};
 
-void StaticFiles::draw(int index) {
+void Rainbow::draw(int index) {
 
     // Activate the texture unit first before binding texture
-    glActiveTexture(GL_TEXTURE0); // GL_TEXTURE0+index to render both textures
+    glActiveTexture(GL_TEXTURE0 + 2*index);
     // bind texture to the currently active texture unit
     glBindTexture(GL_TEXTURE_2D, textureIDs[index]);
     // puts the texture in texture unit 0
@@ -81,7 +90,27 @@ void StaticFiles::draw(int index) {
 
 }
 
-void StaticFiles::clean() {
+void Rainbow::clean() {
     delete[] textureIDs;
 }
 
+// adapted from http://stackoverflow.com/a/8208967
+void Rainbow::hsvToRgb(float h, float s, float v,
+                       float* r, float* g, float *b) {
+
+    int i = static_cast<int>(floor(h * 6));
+    float f = h * 6 - i;
+    float p = v * (1 - s);
+    float q = v * (1 - f * s);
+    float t = v * (1 - (1 - f) * s);
+
+    switch (i % 6) {
+        case 0: *r = v, *g = t, *b = p; break;
+        case 1: *r = q, *g = v, *b = p; break;
+        case 2: *r = p, *g = v, *b = t; break;
+        case 3: *r = p, *g = q, *b = v; break;
+        case 4: *r = t, *g = p, *b = v; break;
+        case 5: *r = v, *g = p, *b = q; break;
+    }
+
+}
