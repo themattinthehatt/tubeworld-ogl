@@ -20,6 +20,10 @@ TextureCylinder::TextureCylinder(GLint numCenters_, TubeTraveller::TextureType t
         :
         io(IOHandler::getInstance()) {
 
+    // tube properties
+    tubeRadius = 10.f;
+    tubeLength = 1.f;
+
     // create and compile our GLSL program from the shaders
     shaderID = loadShaders("tube-traveller/shaders/SingleTexture.vert",
                            "tube-traveller/shaders/SingleTexture.frag");
@@ -218,7 +222,10 @@ void TextureCylinder::update(const PathGenerator *path, Camera &cam ) {
     }
 
     time = glfwGetTime();
-    mMatrix = glm::mat4(1.0);
+    mMatrix[0] = glm::vec4(tubeRadius, 0.0, 0.0, 0.0);
+    mMatrix[1] = glm::vec4(0.0, tubeLength, 0.0, 0.0);
+    mMatrix[2] = glm::vec4(0.0, 0.0, tubeRadius, 0.0);
+    mMatrix[3] = glm::vec4(0.0, 0.0, 0.0, 1.0);
     vpMatrix = cam.getProjection() * cam.getView();
     mvpMatrix = vpMatrix * mMatrix;
 

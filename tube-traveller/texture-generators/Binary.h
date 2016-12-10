@@ -15,13 +15,16 @@ class Binary : public TextureGenerator {
 private:
 public:
 
-    int numBits;
-    GLuint currNum;
-    int maxVal;
+    int numBits;    // number of bits for binary number texture
+    GLuint currNum; // current number in the counting
+    int maxVal;     // max value; 2^numBits
 
     // for indexing textureIDs array
     GLint currIndex;
-//    GLint
+
+    // texture properties
+    bool interpLinear; // 1 for yes, 0 for nearest neighbor
+
 
     // constructor
     Binary(GLuint shaderID);

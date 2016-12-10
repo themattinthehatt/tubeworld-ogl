@@ -26,6 +26,8 @@ public:
     GLint numCenters;
     GLint numVerticesPerInstance;
     GLint numCentersPerTexture;
+    GLfloat tubeRadius;
+    GLfloat tubeLength;
 
     glm::vec3 **g_center_buffer_data;
     glm::mat4 **g_rotation_buffer_data;

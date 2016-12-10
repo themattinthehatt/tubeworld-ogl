@@ -15,6 +15,8 @@ Binary::Binary(GLuint shaderID) {
     // get an ID for our texture uniform
     samplerID = glGetUniformLocation(shaderID, "loadedTexture");
 
+    // texture properties
+    interpLinear = false; // false = nearest neighbor
     numTextures = 20;
 
     textureIDs = new GLuint[numTextures];
@@ -28,7 +30,7 @@ Binary::Binary(GLuint shaderID) {
     for (int i = 0; i < numTextures; ++i) {
 
         int width = numBits;
-        int height = 10;
+        int height = 1;
         GLubyte image[width][height][3];
 
         for (int j = 0; j < width; ++j) {
@@ -77,8 +79,14 @@ Binary::Binary(GLuint shaderID) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
         // Set texture filtering parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        if (interpLinear) {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        } else {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        }
+
 
         // unbind the texture object
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -145,8 +153,13 @@ void Binary::update(const PathGenerator *path) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
         // Set texture filtering parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        if (interpLinear) {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        } else {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        }
 
         // unbind the texture object
         glBindTexture(GL_TEXTURE_2D, 0);

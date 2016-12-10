@@ -31,7 +31,7 @@ void main() // main function
 
     gl_Position = vpMatrix * vec4(center +
                                   vec3(rotationMatrix *
-                                  vec4(vertexPos, 1)), 1);
+                                  mMatrix * vec4(vertexPos, 1)), 1);
 
     // the color of each vertex will depend on its distance from the origin
     fragmentColor.r = 1.0f; //sinDist;
