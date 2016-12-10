@@ -243,6 +243,7 @@ void PathRandom::update(Player &player) {
         lastElement = firstElement;
         firstElement = (firstElement + 1) % numCenters;
     }
+
 }
 
 void PathRandom::clean() { }

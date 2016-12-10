@@ -24,7 +24,9 @@ set(SOURCE_FILES
         tube-traveller/tube-generators/SimpleShapes.cpp
         tube-traveller/tube-generators/TextureCylinder.cpp
         tube-traveller/texture-generators/StaticFiles.cpp
-        physic-spheres/PhysicSpheres.cpp tube-traveller/texture-generators/Rainbow.cpp tube-traveller/texture-generators/Rainbow.h)
+        tube-traveller/texture-generators/Rainbow.cpp
+        tube-traveller/texture-generators/Binary.cpp
+        physic-spheres/PhysicSpheres.cpp)
 
 
 add_executable(tubeworld ${SOURCE_FILES})

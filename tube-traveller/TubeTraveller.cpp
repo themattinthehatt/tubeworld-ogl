@@ -2,6 +2,7 @@
 // Created by mattw on 8/16/16.
 //
 
+#include <iostream>
 #include "TubeTraveller.h"
 #include "path-generators/PathCircle.h"
 #include "path-generators/PathUserInput.h"
@@ -35,8 +36,12 @@ TubeTraveller::TubeTraveller(GLint numCenters) : io(IOHandler::getInstance()){
 
     PathGeneratorType pathType = PATH_RANDOM;
     TubeType tubeType = TUBE_TEXTURE_CYLINDER;
-//    TextureType textureType = TEXTURE_FILES_STATIC;
-    TextureType textureType = TEXTURE_RAINBOW;
+
+    // Notes
+    // TextureType only applies to a TubeType of TUBE_TEXTURE_CYLINDER
+    // TEXTURE_BINARY and TEXTURE NOISE only work with PATH_RANDOM
+//    TextureType textureType = TEXTURE_RAINBOW;
+    TextureType textureType = TEXTURE_BINARY;
 
     GLfloat centerSpacing = 2.f;
 

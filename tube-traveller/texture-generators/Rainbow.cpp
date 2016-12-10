@@ -15,7 +15,7 @@ Rainbow::Rainbow(GLuint shaderID) {
     // get an ID for our texture uniform
     samplerID = glGetUniformLocation(shaderID, "loadedTexture");
 
-    numTextures = 10;
+    numTextures = 20;
 
     textureIDs = new GLuint[numTextures];
 
@@ -23,20 +23,19 @@ Rainbow::Rainbow(GLuint shaderID) {
 
         int width = 1;
         int height = 1;
-        GLubyte image[height][width][4];
+        GLubyte image[width][height][3];
 
         float hue = static_cast<float>(i)/numTextures;
         float sat = 1;
         float val = 1;
         float r, g, b;
 
-        for (int j = 0; j < height; ++j) {
-            for (int k = 0; k < width; ++k) {
+        for (int j = 0; j < width; ++j) {
+            for (int k = 0; k < height; ++k) {
                 hsvToRgb(hue, sat, val, &r, &g, &b);
                 image[j][k][0] = (GLubyte) (r*255);
                 image[j][k][1] = (GLubyte) (g*255);
                 image[j][k][2] = (GLubyte) (b*255);
-                image[j][k][3] = (GLubyte) 255;
             }
         }
 
@@ -77,7 +76,7 @@ Rainbow::Rainbow(GLuint shaderID) {
 
 }
 
-void Rainbow::update(){};
+void Rainbow::update(const PathGenerator *path){};
 
 void Rainbow::draw(int index) {
 

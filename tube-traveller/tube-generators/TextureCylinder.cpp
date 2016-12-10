@@ -14,6 +14,7 @@
 #include "../../core/loaders/loadObjIndexed.h"
 #include "../texture-generators/StaticFiles.h"
 #include "../texture-generators/Rainbow.h"
+#include "../texture-generators/Binary.h"
 
 TextureCylinder::TextureCylinder(GLint numCenters_, TubeTraveller::TextureType textureType_)
         :
@@ -44,6 +45,7 @@ TextureCylinder::TextureCylinder(GLint numCenters_, TubeTraveller::TextureType t
             texture = new Rainbow(shaderID);
             break;
         case TubeTraveller::TEXTURE_BINARY:
+            texture = new Binary(shaderID);
             break;
         case TubeTraveller::TEXTURE_NOISE:
             break;
@@ -220,7 +222,7 @@ void TextureCylinder::update(const PathGenerator *path, Camera &cam ) {
     vpMatrix = cam.getProjection() * cam.getView();
     mvpMatrix = vpMatrix * mMatrix;
 
-    texture->update();
+    texture->update(path);
 
 }
 

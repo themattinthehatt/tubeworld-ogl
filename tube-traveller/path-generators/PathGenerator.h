@@ -17,6 +17,8 @@ public:
     // info for tube slices
     GLint numCenters;
     GLfloat spacing;
+    GLint segsToAdd; // ugly hack to get some of the procedural texture
+                     // generation working
 
     // tube info
     std::vector<GLfloat> horizontalAngles;
@@ -30,6 +32,7 @@ public:
     virtual void update(Player &player) = 0;
     // clean up dynamically allocated memory
     virtual void clean() = 0;
+
 };
 
 

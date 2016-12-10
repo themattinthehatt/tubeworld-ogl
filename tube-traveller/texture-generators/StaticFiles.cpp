@@ -68,7 +68,7 @@ StaticFiles::StaticFiles(GLuint shaderID) {
 
 }
 
-void StaticFiles::update(){};
+void StaticFiles::update(const PathGenerator *path){};
 
 void StaticFiles::draw(int index) {
 

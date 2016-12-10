@@ -7,6 +7,7 @@
 
 #include <GL/glew.h>
 #include "TextureGenerator.h"
+#include "../path-generators/PathGenerator.h"
 
 class Rainbow : public TextureGenerator {
 private:
@@ -15,7 +16,7 @@ public:
     // constructor
     Rainbow(GLuint shaderID);
     // update texture samplers
-    void update();
+    void update(const PathGenerator *path);
     // bind textures
     void draw(int index);
     // clean up VAOs, VBOs, etc.
