@@ -9,17 +9,26 @@
 #include <GL/glew.h>
 #include "TextureGenerator.h"
 #include "../path-generators/PathGenerator.h"
+#include "../../lib/PerlinNoise.h"
 
 class Noise : public TextureGenerator {
 private:
 public:
 
-    int numLevels;  // number of noise levels
-
     // for indexing textureIDs array
     GLint currIndex;
 
+    // for moving through perlin noise space
+    unsigned int seed;
+    PerlinNoise pn;
+    double pnVal;
+
+    // texture properties
+    int width;
+    int height;
     bool interpLinear;
+    bool woodGrain;
+    bool mirrorTex;
 
     // constructor
     Noise(GLuint shaderID);

@@ -45,8 +45,8 @@ TubeTraveller::TubeTraveller(GLint numCenters) : io(IOHandler::getInstance()){
     // TEXTURE_BINARY and TEXTURE NOISE only work with PATH_RANDOM
 //    TextureType textureType = TEXTURE_FILES_STATIC;
 //    TextureType textureType = TEXTURE_BINARY;
-    TextureType textureType = TEXTURE_RAINBOW;
-//    TextureType textureType = TEXTURE_NOISE;
+//    TextureType textureType = TEXTURE_RAINBOW;
+    TextureType textureType = TEXTURE_NOISE;
 
 
     // select path type

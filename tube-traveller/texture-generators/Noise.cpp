@@ -7,6 +7,8 @@
 #include <iostream>
 #include <vector>
 #include <math.h>
+#include <random>
+#include <functional>
 
 #include "Noise.h"
 
@@ -16,27 +18,81 @@ Noise::Noise(GLuint shaderID) {
     samplerID = glGetUniformLocation(shaderID, "loadedTexture");
 
     // texture properties
-    numTextures = 20;
-    numLevels = 4; // number of noise levels
-    interpLinear = false;
+    numTextures = 100;
+    interpLinear = true;
+    woodGrain = false; // looks better at higher rez
+    mirrorTex = true;
+    width = 128;
+    height = 128;
+
+    // set up perlin noise
+    seed = 236;
+    pn = PerlinNoise(seed);
+    pnVal = 0.0;
 
     textureIDs = new GLuint[numTextures];
     currIndex = 0; // index offset for textureIDs for dynamic access
 
     for (int i = 0; i < numTextures; ++i) {
 
-        int width = (int) pow(2, numLevels);
-        int height = (int) pow(2, numLevels);
         GLubyte image[height][width][4];
 
-        for (int j = 0; j < height; ++j) {
-            for (int k = 0; k < width; ++k) {
-                image[j][k][0] = (GLubyte) (1.f * 255);
-                image[j][k][1] = (GLubyte) (1.f * 255);
-                image[j][k][2] = (GLubyte) (1.f * 255);
-                image[j][k][3] = (GLubyte) 255;
+        float hue = 1;
+        float sat = 1;
+        float val = 1;
+        float r, g, b;
+
+        if (mirrorTex) {
+
+            double y;
+            for (int j = 0; j < height; ++j) {
+                pnVal += 0.2f*(1.f/height);
+                for (int k = 0; k < width/2; ++k) {
+                    // get current image coordinates
+                    y = 5*((double)k+1)/((double)width);
+
+                    hue = static_cast<float>(pn.noise(pnVal,y,0.8));
+                    if (woodGrain) {
+                        hue = 10.f*hue - floor(10.f*hue); // wood grain
+                    }
+
+                    hsvToRgb(hue, sat, val, &r, &g, &b);
+
+                    image[j][k][0] = (GLubyte) floor(255 * r);
+                    image[j][k][1] = (GLubyte) floor(255 * g);
+                    image[j][k][2] = (GLubyte) floor(255 * b);
+                    image[j][k][3] = (GLubyte) 255;
+
+                    image[j][width-k-1][0] = (GLubyte) floor(255 * r);
+                    image[j][width-k-1][1] = (GLubyte) floor(255 * g);
+                    image[j][width-k-1][2] = (GLubyte) floor(255 * b);
+                    image[j][width-k-1][3] = (GLubyte) 255;
+                }
+            }
+        } else {
+
+            double y;
+            for (int j = 0; j < height; ++j) {
+                pnVal += 0.2f*(1.f/height);
+                for (int k = 0; k < width; ++k) {
+                    // get current image coordinates
+                    y = 5*((double)k+1)/((double)width);
+
+                    hue = static_cast<float>(pn.noise(pnVal,y,0.8));
+                    if (woodGrain) {
+                        hue = 10.f*hue - floor(10.f*hue); // wood grain
+                    }
+
+                    hsvToRgb(hue, sat, val, &r, &g, &b);
+
+                    image[j][k][0] = (GLubyte) floor(255 * r);
+                    image[j][k][1] = (GLubyte) floor(255 * g);
+                    image[j][k][2] = (GLubyte) floor(255 * b);
+                    image[j][k][3] = (GLubyte) 255;
+                }
             }
         }
+
 
         // generate 1 texture ID, put the resutling identifier in textureID
         glGenTextures(1, &textureIDs[i]);
@@ -62,8 +118,8 @@ Noise::Noise(GLuint shaderID) {
         // glGenerateMipmap here if desired
 
         // Set the texture wrapping parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
         // Set texture filtering parameters
         if (interpLinear) {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -87,17 +143,62 @@ void Noise::update(const PathGenerator *path) {
     for (int i = 0; i < path->segsToAdd; ++i) {
 
         // ------------------- generate new texture ----------------------------
-        int width = (int) pow(2, numLevels);
-        int height = (int) pow(2, numLevels);
+
         GLubyte image[height][width][4];
 
-        for (int j = 0; j < height; ++j) {
-            for (int k = 0; k < width; ++k) {
-                // mark a bit as absent with following color
-                image[j][k][0] = (GLubyte) (1.f * 255);
-                image[j][k][1] = (GLubyte) (1.f * 255);
-                image[j][k][2] = (GLubyte) (1.f * 255);
-                image[j][k][3] = (GLubyte) 255;
+        float hue = 1;
+        float sat = 1;
+        float val = 1;
+        float r, g, b;
+
+        if (mirrorTex) {
+
+            double y;
+            for (int j = 0; j < height; ++j) {
+                pnVal += 0.2f*(1.f/height);
+                for (int k = 0; k < width/2; ++k) {
+                    // get current image coordinates
+                    y = 5*((double)k+1)/((double)width);
+
+                    hue = static_cast<float>(pn.noise(pnVal,y,0.8));
+                    if (woodGrain) {
+                        hue = 10.f*hue - floor(10.f*hue); // wood grain
+                    }
+
+                    hsvToRgb(hue, sat, val, &r, &g, &b);
+
+                    image[j][k][0] = (GLubyte) floor(255 * r);
+                    image[j][k][1] = (GLubyte) floor(255 * g);
+                    image[j][k][2] = (GLubyte) floor(255 * b);
+                    image[j][k][3] = (GLubyte) 255;
+
+                    image[j][width-k-1][0] = (GLubyte) floor(255 * r);
+                    image[j][width-k-1][1] = (GLubyte) floor(255 * g);
+                    image[j][width-k-1][2] = (GLubyte) floor(255 * b);
+                    image[j][width-k-1][3] = (GLubyte) 255;
+                }
+            }
+        } else {
+
+            double y;
+            for (int j = 0; j < height; ++j) {
+                pnVal += 0.2f*(1.f/height);
+                for (int k = 0; k < width; ++k) {
+                    // get current image coordinates
+                    y = 5*((double)k+1)/((double)width);
+
+                    hue = static_cast<float>(pn.noise(pnVal,y,0.8));
+                    if (woodGrain) {
+                        hue = 10.f*hue - floor(10.f*hue); // wood grain
+                    }
+
+                    hsvToRgb(hue, sat, val, &r, &g, &b);
+
+                    image[j][k][0] = (GLubyte) floor(255 * r);
+                    image[j][k][1] = (GLubyte) floor(255 * g);
+                    image[j][k][2] = (GLubyte) floor(255 * b);
+                    image[j][k][3] = (GLubyte) 255;
+                }
             }
         }
 
@@ -127,8 +228,8 @@ void Noise::update(const PathGenerator *path) {
         // glGenerateMipmap here if desired
 
         // Set the texture wrapping parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
         // Set texture filtering parameters
         if (interpLinear) {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
