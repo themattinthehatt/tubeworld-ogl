@@ -1,7 +1,6 @@
 #version 330 core
 
 // interpolated values from the vertex shaders
-in vec3 fragmentColor;
 in vec2 textureCoords;
 
 // output data
@@ -14,5 +13,4 @@ void main() {
     // output color = color specified in the vertex shader,
     // interpolated between all 3 surrounding vertices
     color = texture(loadedTexture, textureCoords);
-//    color = vec4(fragmentColor, 1.f);
 }

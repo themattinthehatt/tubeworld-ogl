@@ -1,7 +1,8 @@
 // TODO
-// - use SOIL rather than custom image loader so that I can store jpgs instead of
-//   bitmaps
-// - get serious about "models", and move away from custom code?
+// - use SOIL rather than custom image loader so that I can store jpgs instead
+//   of bitmaps - update this next time I start using textures
+// - get serious about "models", and move away from custom code? Should be soon,
+//   as ideally I'll update all old code to reflect this (ASSIMP?)
 
 // Include standard headers
 #include <cstdio>

@@ -17,7 +17,8 @@ public:
 
     int numBits;    // number of bits for binary number texture
     GLuint currNum; // current number in the counting
-    int maxVal;     // max value; 2^numBits
+    int maxVal;     // max value; 2^numBits; width of texture in bits
+    int textHeight; // height of texture in bits
 
     // for indexing textureIDs array
     GLint currIndex;

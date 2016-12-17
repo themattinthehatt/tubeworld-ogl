@@ -22,20 +22,24 @@ Rainbow::Rainbow(GLuint shaderID) {
     for (int i = 0; i < numTextures; ++i) {
 
         int width = 1;
-        int height = 1;
-        GLubyte image[width][height][3];
+        int height = 14;
+        GLubyte image[height][width][4];
 
         float hue = static_cast<float>(i)/numTextures;
         float sat = 1;
         float val = 1;
         float r, g, b;
 
-        for (int j = 0; j < width; ++j) {
-            for (int k = 0; k < height; ++k) {
+        for (int j = 0; j < height; ++j) {
+            for (int k = 0; k < width; ++k) {
+                // get a color gradient within each tube depending on height
+                hue = static_cast<float>(i)/numTextures +
+                      (height-static_cast<float>(j)-1)/(height*numTextures);
                 hsvToRgb(hue, sat, val, &r, &g, &b);
-                image[j][k][0] = (GLubyte) (r*255);
-                image[j][k][1] = (GLubyte) (g*255);
-                image[j][k][2] = (GLubyte) (b*255);
+                image[j][k][0] = (GLubyte) (r * 255);
+                image[j][k][1] = (GLubyte) (g * 255);
+                image[j][k][2] = (GLubyte) (b * 255);
+                image[j][k][3] = (GLubyte) 255;
             }
         }
 
@@ -51,11 +55,11 @@ Rainbow::Rainbow(GLuint shaderID) {
         glTexImage2D(
                 GL_TEXTURE_2D,     // texture target; will gen texture on textureIDs[i]
                 0,                 // mipmap level; use base of 0
-                GL_RGB,            // type of format we want to store the texture
+                GL_RGBA,           // type of format we want to store the texture
                 width,
                 height,
                 0,                 // legacy bs
-                GL_RGB,            // format of source image
+                GL_RGBA,           // format of source image
                 GL_UNSIGNED_BYTE,  // format of source image
                 image              // source image
         );
@@ -66,8 +70,10 @@ Rainbow::Rainbow(GLuint shaderID) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
         // Set texture filtering parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+//        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         // unbind the texture object
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -81,7 +87,7 @@ void Rainbow::update(const PathGenerator *path){};
 void Rainbow::draw(int index) {
 
     // Activate the texture unit first before binding texture
-    glActiveTexture(GL_TEXTURE0 + 2*index);
+    glActiveTexture(GL_TEXTURE0 + index);
     // bind texture to the currently active texture unit
     glBindTexture(GL_TEXTURE_2D, textureIDs[index]);
     // puts the texture in texture unit 0

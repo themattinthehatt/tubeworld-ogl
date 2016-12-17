@@ -21,30 +21,34 @@ Binary::Binary(GLuint shaderID) {
 
     textureIDs = new GLuint[numTextures];
 
-    numBits = 12;                    // total number of bits we'll be counting
+    numBits = 12;                   // total number of bits we'll be counting
     maxVal = (int) pow(2,numBits);  // max number, for modular arithmetic
     currNum = 0;                    // current value to represent with bits
+    textHeight = 3;                 // height of texture in pixels (width is
+                                    // given by numBits)
 
     currIndex = 0; // index offset for textureIDs for dynamic access
 
     for (int i = 0; i < numTextures; ++i) {
 
         int width = numBits;
-        int height = 1;
-        GLubyte image[width][height][3];
+        int height = textHeight;
+        GLubyte image[height][width][4];
 
-        for (int j = 0; j < width; ++j) {
-            for (int k = 0; k < height; ++k) {
-                if (Binary::bitPresent(currNum, j)) {
+        for (int j = 0; j < height; ++j) {
+            for (int k = 0; k < width; ++k) {
+                if (Binary::bitPresent(currNum, k)) {
                     // mark a bit as present with following color
                     image[j][k][0] = (GLubyte) (1.f * 255);
                     image[j][k][1] = (GLubyte) (0.f * 255);
-                    image[j][k][2] = (GLubyte) (1.f * 255);
+                    image[j][k][2] = (GLubyte) (0.f * 255);
+                    image[j][k][3] = (GLubyte) 255;
                 } else {
                     // mark a bit as absent with following color
                     image[j][k][0] = (GLubyte) (1.f * 255);
                     image[j][k][1] = (GLubyte) (1.f * 255);
                     image[j][k][2] = (GLubyte) (1.f * 255);
+                    image[j][k][3] = (GLubyte) 255;
                 }
             }
         }
@@ -64,11 +68,11 @@ Binary::Binary(GLuint shaderID) {
         glTexImage2D(
                 GL_TEXTURE_2D,     // texture target; will gen texture on textureIDs[i]
                 0,                 // mipmap level; use base of 0
-                GL_RGB,            // type of format we want to store the texture
+                GL_RGBA,           // type of format we want to store the texture
                 width,
                 height,
                 0,                 // legacy bs
-                GL_RGB,            // format of source image
+                GL_RGBA,           // format of source image
                 GL_UNSIGNED_BYTE,  // format of source image
                 image              // source image
         );
@@ -102,21 +106,23 @@ void Binary::update(const PathGenerator *path) {
 
         // ------------------- generate new texture ----------------------------
         int width = numBits;
-        int height = 1;
-        GLubyte image[width][height][3];
+        int height = textHeight;
+        GLubyte image[height][width][4];
 
-        for (int j = 0; j < width; ++j) {
-            for (int k = 0; k < height; ++k) {
-                if (Binary::bitPresent(currNum, j)) {
+        for (int j = 0; j < height; ++j) {
+            for (int k = 0; k < width; ++k) {
+                if (Binary::bitPresent(currNum, k)) {
                     // mark a bit as present with following color
                     image[j][k][0] = (GLubyte) (1.f * 255);
                     image[j][k][1] = (GLubyte) (0.f * 255);
-                    image[j][k][2] = (GLubyte) (1.f * 255);
+                    image[j][k][2] = (GLubyte) (0.f * 255);
+                    image[j][k][3] = (GLubyte) 255;
                 } else {
                     // mark a bit as absent with following color
                     image[j][k][0] = (GLubyte) (1.f * 255);
                     image[j][k][1] = (GLubyte) (1.f * 255);
                     image[j][k][2] = (GLubyte) (1.f * 255);
+                    image[j][k][3] = (GLubyte) 255;
                 }
             }
         }
@@ -138,11 +144,11 @@ void Binary::update(const PathGenerator *path) {
         glTexImage2D(
                 GL_TEXTURE_2D,     // texture target; will gen texture on textureIDs[i]
                 0,                 // mipmap level; use base of 0
-                GL_RGB,            // type of format we want to store the texture
+                GL_RGBA,           // type of format we want to store the texture
                 width,
                 height,
                 0,                 // legacy bs
-                GL_RGB,            // format of source image
+                GL_RGBA,           // format of source image
                 GL_UNSIGNED_BYTE,  // format of source image
                 image              // source image
         );

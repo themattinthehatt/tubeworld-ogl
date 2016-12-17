@@ -40,8 +40,8 @@ TubeTraveller::TubeTraveller(GLint numCenters) : io(IOHandler::getInstance()){
     // Notes
     // TextureType only applies to a TubeType of TUBE_TEXTURE_CYLINDER
     // TEXTURE_BINARY and TEXTURE NOISE only work with PATH_RANDOM
-//    TextureType textureType = TEXTURE_FILES_STATIC;
-    TextureType textureType = TEXTURE_BINARY;
+//    TextureType textureType = TEXTURE_BINARY;
+    TextureType textureType = TEXTURE_RAINBOW;
 
     GLfloat centerSpacing = 2.f;
 

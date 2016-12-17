@@ -8,10 +8,11 @@
 // TextureGenerator class
 //      (DONE) double texture
 //      (DONE) ROYGBIV
-//      binary counting
+//      (DONE) binary counting
 //      1/f noise
+// smooth tubes
 // figure out how to incorporate lighting into the TubeGenerator class (perhaps
-//      leave out of TubeSimpleShape for simplicity - can always go back later)
+//      leave out of SimpleShapes for simplicity - can always go back later)
 //      rebuild ico_spheres w/ uvs in blender
 //      ideally make this work with all available tube options, not just
 //          TextureCylinder
