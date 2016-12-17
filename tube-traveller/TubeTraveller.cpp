@@ -37,27 +37,31 @@ TubeTraveller::TubeTraveller(GLint numCenters) : io(IOHandler::getInstance()){
     PathGeneratorType pathType = PATH_RANDOM;
     TubeType tubeType = TUBE_TEXTURE_CYLINDER;
 
+//    PathGeneratorType pathType = PATH_CIRCLE;
+//    TubeType tubeType = TUBE_CUBES_SQ;
+
     // Notes
     // TextureType only applies to a TubeType of TUBE_TEXTURE_CYLINDER
     // TEXTURE_BINARY and TEXTURE NOISE only work with PATH_RANDOM
+//    TextureType textureType = TEXTURE_FILES_STATIC;
 //    TextureType textureType = TEXTURE_BINARY;
     TextureType textureType = TEXTURE_RAINBOW;
+//    TextureType textureType = TEXTURE_NOISE;
 
-    GLfloat centerSpacing = 2.f;
 
     // select path type
     switch (pathType) {
         case PATH_CIRCLE:
-            path = new PathCircle(numCenters, centerSpacing);
+            path = new PathCircle(numCenters);
             break;
         case PATH_USER:
-            path = new PathUserInput(numCenters, centerSpacing);
+            path = new PathUserInput(numCenters);
             break;
         case PATH_RANDOM:
-            path = new PathRandom(numCenters, centerSpacing);
+            path = new PathRandom(numCenters);
             break;
         default:
-            path = new PathRandom(numCenters, centerSpacing);
+            path = new PathRandom(numCenters);
     }
 
     // select tube type
@@ -77,6 +81,7 @@ TubeTraveller::TubeTraveller(GLint numCenters) : io(IOHandler::getInstance()){
         default:
             tube = new SimpleShapes(numCenters, SimpleShapes::CIRCLE_OF_SQUARES);
     }
+
 
 }
 

@@ -31,12 +31,14 @@ public:
 
     glm::vec3 **g_center_buffer_data;
     glm::mat4 **g_rotation_buffer_data;
+    glm::mat4 **g_rotation2_buffer_data;
 
     GLuint vertexArrayID;
     GLuint vertexBufferID;
     GLuint uvBufferID;
     GLuint centerBufferID;
     GLuint rotationBufferID;
+    GLuint rotation2BufferID;
     GLuint shaderID;
     glm::mat4 mMatrix;
     glm::mat4 vpMatrix;

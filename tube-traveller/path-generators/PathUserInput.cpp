@@ -8,7 +8,7 @@
 
 #include "PathUserInput.h"
 
-PathUserInput::PathUserInput(GLint numCenters_, GLfloat spacing_)
+PathUserInput::PathUserInput(GLint numCenters_)
         :
         io(IOHandler::getInstance()){
 
@@ -16,7 +16,7 @@ PathUserInput::PathUserInput(GLint numCenters_, GLfloat spacing_)
     numCenters = numCenters_;
 
     // distance between slice centers
-    spacing = spacing_;
+    spacing = 20.f;
 
     // set up initial tube orientations
     for (int i = 0; i < numCenters; ++i) {

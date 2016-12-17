@@ -6,11 +6,7 @@
 
 // TODO
 // TextureGenerator class
-//      (DONE) double texture
-//      (DONE) ROYGBIV
-//      (DONE) binary counting
 //      1/f noise
-// smooth tubes
 // figure out how to incorporate lighting into the TubeGenerator class (perhaps
 //      leave out of SimpleShapes for simplicity - can always go back later)
 //      rebuild ico_spheres w/ uvs in blender

@@ -7,7 +7,6 @@
 
 #include <math.h>
 #include <GL/glew.h>
-#include <bitset>
 #include "TextureGenerator.h"
 #include "../path-generators/PathGenerator.h"
 

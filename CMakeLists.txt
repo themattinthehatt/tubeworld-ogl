@@ -26,6 +26,7 @@ set(SOURCE_FILES
         tube-traveller/texture-generators/StaticFiles.cpp
         tube-traveller/texture-generators/Rainbow.cpp
         tube-traveller/texture-generators/Binary.cpp
+        tube-traveller/texture-generators/Noise.cpp
         physic-spheres/PhysicSpheres.cpp)
 
 

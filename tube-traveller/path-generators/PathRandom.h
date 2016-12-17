@@ -34,8 +34,6 @@ public:
     // indices for manipulating tube info vectors above
     GLint currElement;
     GLint nextElement;
-    GLint firstElement;
-    GLint lastElement;
 
     // movement variables that can be manipulated by keyboard
     GLfloat speed = 10.f;
@@ -51,7 +49,7 @@ public:
     IOHandler &io;
 
     // constructor
-    PathRandom(GLint numCenters, GLfloat spacing);
+    PathRandom(GLint numCenters);
     // update dynamics of tube positions
     void update(Player &player);
     // clean up dynamically allocated memory

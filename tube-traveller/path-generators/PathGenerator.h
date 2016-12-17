@@ -17,8 +17,12 @@ public:
     // info for tube slices
     GLint numCenters;
     GLfloat spacing;
-    GLint segsToAdd; // ugly hack to get some of the procedural texture
-                     // generation working
+
+    // ugly hack to get some of the procedural texture
+    // generation working
+    GLint segsToAdd;
+    GLint firstElement;
+    GLint lastElement;
 
     // tube info
     std::vector<GLfloat> horizontalAngles;

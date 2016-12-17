@@ -15,7 +15,7 @@ Rainbow::Rainbow(GLuint shaderID) {
     // get an ID for our texture uniform
     samplerID = glGetUniformLocation(shaderID, "loadedTexture");
 
-    numTextures = 20;
+    numTextures = 50;
 
     textureIDs = new GLuint[numTextures];
 
@@ -25,7 +25,7 @@ Rainbow::Rainbow(GLuint shaderID) {
         int height = 14;
         GLubyte image[height][width][4];
 
-        float hue = static_cast<float>(i)/numTextures;
+        float hue = 1;
         float sat = 1;
         float val = 1;
         float r, g, b;
@@ -34,7 +34,7 @@ Rainbow::Rainbow(GLuint shaderID) {
             for (int k = 0; k < width; ++k) {
                 // get a color gradient within each tube depending on height
                 hue = static_cast<float>(i)/numTextures +
-                      (height-static_cast<float>(j)-1)/(height*numTextures);
+                      static_cast<float>(j)/(height*numTextures);
                 hsvToRgb(hue, sat, val, &r, &g, &b);
                 image[j][k][0] = (GLubyte) (r * 255);
                 image[j][k][1] = (GLubyte) (g * 255);
@@ -67,13 +67,11 @@ Rainbow::Rainbow(GLuint shaderID) {
         // glGenerateMipmap here if desired
 
         // Set the texture wrapping parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
         // Set texture filtering parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-//        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-//        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         // unbind the texture object
         glBindTexture(GL_TEXTURE_2D, 0);

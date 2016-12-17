@@ -15,6 +15,7 @@
 #include "../texture-generators/StaticFiles.h"
 #include "../texture-generators/Rainbow.h"
 #include "../texture-generators/Binary.h"
+#include "../texture-generators/Noise.h"
 
 TextureCylinder::TextureCylinder(GLint numCenters_, TubeTraveller::TextureType textureType_)
         :
@@ -22,10 +23,10 @@ TextureCylinder::TextureCylinder(GLint numCenters_, TubeTraveller::TextureType t
 
     // tube properties
     tubeRadius = 10.f;
-    tubeLength = 1.f;
+    tubeLength = 2.f;
 
     // create and compile our GLSL program from the shaders
-    shaderID = loadShaders("tube-traveller/shaders/SingleTexture.vert",
+    shaderID = loadShaders("tube-traveller/shaders/SingleTextureArt.vert",
                            "tube-traveller/shaders/SingleTexture.frag");
 
     // give the MVP matrix to GLSL; get a handle on our uniforms
@@ -52,9 +53,10 @@ TextureCylinder::TextureCylinder(GLint numCenters_, TubeTraveller::TextureType t
             texture = new Binary(shaderID);
             break;
         case TubeTraveller::TEXTURE_NOISE:
+            texture = new Noise(shaderID);
             break;
         default:
-            texture = new StaticFiles(shaderID);
+            texture = new Rainbow(shaderID);
     }
 
     // find number of centers per texture; this will be used to initialize
@@ -72,16 +74,18 @@ TextureCylinder::TextureCylinder(GLint numCenters_, TubeTraveller::TextureType t
     // -------------------------------------------------------------------------
 
     // load cylinder model
-    bool res = loadObjIndexed("data/obj/cylinder_long.obj",
+    bool res = loadObjIndexed("data/obj/cylinder_articulated.obj",
                               cylinderModelCoordinates, uvs, normals);
     numVerticesPerInstance = static_cast<GLuint>(cylinderModelCoordinates.size());
 
     // populate buffer_data
     g_center_buffer_data = new glm::vec3*[texture->numTextures];
     g_rotation_buffer_data = new glm::mat4*[texture->numTextures];
+    g_rotation2_buffer_data = new glm::mat4*[texture->numTextures];
     for (int i = 0; i < texture->numTextures; ++i) {
         g_center_buffer_data[i] = new glm::vec3[numCentersPerTexture];
         g_rotation_buffer_data[i] = new glm::mat4[numCentersPerTexture];
+        g_rotation2_buffer_data[i] = new glm::mat4[numCentersPerTexture];
     }
 
 
@@ -169,7 +173,8 @@ TextureCylinder::TextureCylinder(GLint numCenters_, TubeTraveller::TextureType t
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
-    // MODEL ROTATIONS
+    // MODEL ROTATIONS 1
+    // holds rotation matrix for first ring in current cylinder
     // generate 1 buffer, put the resulting identifier in centerBufferID
     glGenBuffers(1, &rotationBufferID);
     // bind newly created buffer to GL_ARRAY_BUFFER target
@@ -196,6 +201,33 @@ TextureCylinder::TextureCylinder(GLint numCenters_, TubeTraveller::TextureType t
     // break buffer binding
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+    // MODEL ROTATIONS 2
+    // holds rotation matrix for first ring in next cylinder
+    // generate 1 buffer, put the resulting identifier in centerBufferID
+    glGenBuffers(1, &rotation2BufferID);
+    // bind newly created buffer to GL_ARRAY_BUFFER target
+    glBindBuffer(GL_ARRAY_BUFFER, rotation2BufferID);
+    // copy data into buffer's memory
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * numCentersPerTexture,
+                 g_rotation2_buffer_data[0], GL_DYNAMIC_DRAW);
+
+    // set vertex attribute pointers
+    glEnableVertexAttribArray(7);
+    glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)0);
+    glEnableVertexAttribArray(8);
+    glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)(vec4size));
+    glEnableVertexAttribArray(9);
+    glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)(2 * vec4size));
+    glEnableVertexAttribArray(10);
+    glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)(3 * vec4size));
+    // tell OpenGL when to update content of this attribute to next element
+    glVertexAttribDivisor(7, 1);
+    glVertexAttribDivisor(8, 1);
+    glVertexAttribDivisor(9, 1);
+    glVertexAttribDivisor(10, 1);
+    // break buffer binding
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 
     // unbind the VAO
     glBindVertexArray(0);
@@ -217,6 +249,25 @@ void TextureCylinder::update(const PathGenerator *path, Camera &cam ) {
                     path->rights[count]),
                     path->horizontalAngles[count]-PI/2,
                     glm::vec3(0.f, 0.f, 1.f));
+            if (count == path->firstElement) {
+                g_rotation2_buffer_data[j][i] = glm::rotate(glm::rotate(
+                        glm::mat4(1.0f),-path->verticalAngles[count]+PI/2,
+                        path->rights[count]),
+                        path->horizontalAngles[count]-PI/2,
+                        glm::vec3(0.f, 0.f, 1.f));
+            } else if (count == 0) {
+                g_rotation2_buffer_data[j][i] = glm::rotate(glm::rotate(
+                        glm::mat4(1.0f),-path->verticalAngles[numCenters-1]+PI/2,
+                        path->rights[numCenters-1]),
+                        path->horizontalAngles[numCenters-1]-PI/2,
+                        glm::vec3(0.f, 0.f, 1.f));
+            } else {
+                g_rotation2_buffer_data[j][i] = glm::rotate(glm::rotate(
+                        glm::mat4(1.0f),-path->verticalAngles[count-1]+PI/2,
+                        path->rights[count-1]),
+                        path->horizontalAngles[count-1]-PI/2,
+                        glm::vec3(0.f, 0.f, 1.f));
+            }
             ++count;
         }
     }
@@ -263,6 +314,13 @@ void TextureCylinder::draw() {
         // copy data into buffer's memory
         glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * numCentersPerTexture,
                      g_rotation_buffer_data[i], GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        // send rotation matrices to GPU
+        glBindBuffer(GL_ARRAY_BUFFER, rotation2BufferID);
+        // copy data into buffer's memory
+        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * numCentersPerTexture,
+                     g_rotation2_buffer_data[i], GL_DYNAMIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         // draw arrays using currently active shaders
