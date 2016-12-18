@@ -5,8 +5,6 @@
 // array for storing data that is unique per instance.
 
 // TODO
-// TextureGenerator class
-//      1/f noise
 // figure out how to incorporate lighting into the TubeGenerator class (perhaps
 //      leave out of SimpleShapes for simplicity - can always go back later)
 //      rebuild ico_spheres w/ uvs in blender
@@ -45,6 +43,7 @@ public:
         TUBE_CUBES_CIRC,
         TUBE_CYLINDER,
         TUBE_TEXTURE_CYLINDER,
+        TUBE_TEXTURE_CYLINDER_LIGHT,
         MAX_NUM_TUBES
     };
     enum TextureType {
