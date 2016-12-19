@@ -29,7 +29,7 @@ set(SOURCE_FILES
         tube-traveller/texture-generators/Rainbow.cpp
         tube-traveller/texture-generators/Binary.cpp
         tube-traveller/texture-generators/Noise.cpp
-        physic-spheres/PhysicSpheres.cpp)
+        physic-spheres/PhysicSpheres.cpp tube-traveller/tube-generators/Light.cpp tube-traveller/tube-generators/Light.h)
 
 
 add_executable(tubeworld ${SOURCE_FILES})

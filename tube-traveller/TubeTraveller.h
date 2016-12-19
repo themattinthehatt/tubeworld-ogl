@@ -5,11 +5,8 @@
 // array for storing data that is unique per instance.
 
 // TODO
-// figure out how to incorporate lighting into the TubeGenerator class (perhaps
-//      leave out of SimpleShapes for simplicity - can always go back later)
-//      rebuild ico_spheres w/ uvs in blender
-//      ideally make this work with all available tube options, not just
-//          TextureCylinder
+// abstract a light class for texturecylinderlight
+//
 
 #ifndef TUBEWORLD_TUBETRAVELLER_H
 #define TUBEWORLD_TUBETRAVELLER_H

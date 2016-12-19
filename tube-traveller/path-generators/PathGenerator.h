@@ -23,6 +23,7 @@ public:
     GLint segsToAdd;
     GLint firstElement;
     GLint lastElement;
+    GLfloat propOfPathTraveled;
 
     // tube info
     std::vector<GLfloat> horizontalAngles;

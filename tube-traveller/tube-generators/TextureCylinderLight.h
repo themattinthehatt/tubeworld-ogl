@@ -13,6 +13,7 @@
 #include "../../core/Shader.h"
 #include "../path-generators/PathGenerator.h"
 #include "../TubeTraveller.h"
+#include "Light.h"
 
 class TextureCylinderLight : public TubeGenerator {
 private:
@@ -24,6 +25,7 @@ public:
 
     TextureGenerator *texture;
     Shader *shader;
+    Light *light;
 
     GLint numCenters;
     GLint numVerticesPerInstance;
@@ -50,15 +52,6 @@ public:
     GLint mvpMatrixID;
     GLfloat time;
     GLint timeParamID;
-
-    // lighting properties
-    glm::vec3 cameraPosition;
-    glm::vec3 lightPosition;
-    glm::vec3 lightAmbient;
-    glm::vec3 lightDiffuse;
-    glm::vec3 lightSpecular;
-    GLfloat lightAttLin;
-    GLfloat lightAttQuad;
 
     IOHandler &io;
 

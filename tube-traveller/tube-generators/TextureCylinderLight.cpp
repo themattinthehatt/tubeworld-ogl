@@ -28,6 +28,8 @@ TextureCylinderLight::TextureCylinderLight(GLint numCenters_, TubeTraveller::Tex
     shader = new Shader("tube-traveller/shaders/Lights.vert",
                         "tube-traveller/shaders/Lights.frag");
 
+    light = new Light(shader->programID);
+
     // -------------------------------------------------------------------------
     //                          Load Textures
     // -------------------------------------------------------------------------
@@ -259,15 +261,6 @@ TextureCylinderLight::TextureCylinderLight(GLint numCenters_, TubeTraveller::Tex
     mvpMatrixID = glGetUniformLocation(shader->programID, "mvpMatrix");
     timeParamID = glGetUniformLocation(shader->programID, "time");
 
-    // define light properties
-    cameraPosition = glm::vec3(1.f);
-    lightPosition = glm::vec3(1.f);
-    lightAmbient = glm::vec3(0.5);
-    lightDiffuse = glm::vec3(0.8);
-    lightSpecular = glm::vec3(1.0);
-    lightAttLin = 0.022f;  // vals from https://learnopengl.com/#!Lighting/Materials
-    lightAttQuad = 0.0019f;
-
 }
 
 /*
@@ -321,39 +314,26 @@ void TextureCylinderLight::update(const PathGenerator *path, Camera &cam ) {
     texture->update(path);
 
     // update light position
-    lightPosition = path->positions[(path->firstElement+50) % 100];
-    cameraPosition = cam.getPosition();
+    light->update(path, cam);
 
 }
 
 void TextureCylinderLight::draw() {
 
+    // draw lamp
+    light->draw();
+
     // use our shader (makes programID "currently bound" shader?)
     shader->use();
+
+    // send data to fragment shader
+    light->setUniforms();
 
     // send data to vertex shader
     glUniformMatrix4fv(mMatrixID, 1, GL_FALSE, &mMatrix[0][0]);
     glUniformMatrix4fv(vpMatrixID, 1, GL_FALSE, &vpMatrix[0][0]);
     glUniformMatrix4fv(mvpMatrixID, 1, GL_FALSE, &mvpMatrix[0][0]);
     glUniform1f(timeParamID, time);
-
-    // send data to fragment shader
-    // material properties loaded by TextureGenerator object
-    // light properites
-    glUniform3fv(glGetUniformLocation(shader->programID, "cameraPosition"),
-                 1, &cameraPosition[0]);
-    glUniform3fv(glGetUniformLocation(shader->programID, "pointLight.position"),
-                 1, &lightPosition[0]);
-    glUniform3fv(glGetUniformLocation(shader->programID, "pointLight.ambient"),
-                 1, &lightAmbient[0]);
-    glUniform3fv(glGetUniformLocation(shader->programID, "pointLight.diffuse"),
-                 1, &lightDiffuse[0]);
-    glUniform3fv(glGetUniformLocation(shader->programID, "pointLight.specular"),
-                 1, &lightSpecular[0]);
-    glUniform1f(glGetUniformLocation(shader->programID, "pointLight.lin"),
-                 lightAttLin);
-    glUniform1f(glGetUniformLocation(shader->programID, "pointLight.quad"),
-                 lightAttQuad);
 
     for (int i = 0; i < texture->numTextures; ++i) {
 
@@ -396,20 +376,26 @@ void TextureCylinderLight::clean() {
 
     glDeleteVertexArrays(1, &vertexArrayID);
     glDeleteBuffers(1, &vertexBufferID);
+    glDeleteBuffers(1, &normalBufferID);
     glDeleteBuffers(1, &uvBufferID);
     glDeleteBuffers(1, &centerBufferID);
     glDeleteBuffers(1, &rotationBufferID);
+    glDeleteBuffers(1, &rotation2BufferID);
 
     for (int i = 0; i < texture->numTextures; ++i) {
         delete[] g_center_buffer_data[i];
         delete[] g_rotation_buffer_data[i];
+        delete[] g_rotation2_buffer_data[i];
     }
     delete[] g_center_buffer_data;
     delete[] g_rotation_buffer_data;
+    delete[] g_rotation2_buffer_data;
 
     texture->clean();
     delete texture;
     shader->clean();
     delete shader;
+    light->clean();
+    delete light;
 
 }

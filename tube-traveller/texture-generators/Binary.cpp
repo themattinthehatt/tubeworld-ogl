@@ -113,7 +113,7 @@ void Binary::update(const PathGenerator *path) {
             for (int k = 0; k < width; ++k) {
                 if (Binary::bitPresent(currNum, k)) {
                     // mark a bit as present with following color
-                    image[j][k][0] = (GLubyte) (1.f * 255);
+                    image[j][k][0] = (GLubyte) (1.F * 255);
                     image[j][k][1] = (GLubyte) (0.f * 255);
                     image[j][k][2] = (GLubyte) (0.f * 255);
                     image[j][k][3] = (GLubyte) 255;

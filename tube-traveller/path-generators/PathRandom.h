@@ -28,7 +28,7 @@ public:
     GLfloat distanceTotal;
     GLfloat distanceRemaining;
     GLfloat distanceToTravel;
-    GLfloat propOfPathTraveled;
+//    GLfloat propOfPathTraveled;
 //    GLint segsToAdd;
 
     // indices for manipulating tube info vectors above
