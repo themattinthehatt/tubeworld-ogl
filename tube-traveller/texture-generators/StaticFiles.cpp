@@ -17,7 +17,7 @@ StaticFiles::StaticFiles(GLuint shaderID) {
                                          "data/textures/temp3.bmp"};
 
     // get an ID for our texture uniform
-    samplerID = glGetUniformLocation(shaderID, "loadedTexture");
+    samplerID = glGetUniformLocation(shaderID, "material.loadedTexture");
 
     numTextures = static_cast<GLint>(file_loc.size());
 

@@ -13,7 +13,7 @@
 Rainbow::Rainbow(GLuint shaderID) {
 
     // get an ID for our texture uniform
-    samplerID = glGetUniformLocation(shaderID, "loadedTexture");
+    samplerID = glGetUniformLocation(shaderID, "material.loadedTexture");
 
     numTextures = 50;
 

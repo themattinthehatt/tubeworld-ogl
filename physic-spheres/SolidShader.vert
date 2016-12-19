@@ -52,4 +52,6 @@ void main() // main function
 
     fragmentPosition = modelCenter + vec3(rotationMatrix * vec4(vertexPos, 1.f));
     normal = mat3(rotationMatrix) * vertexNormal;
+//    normal = mat3(transpose(inverse(model))) * normal;
+
 }

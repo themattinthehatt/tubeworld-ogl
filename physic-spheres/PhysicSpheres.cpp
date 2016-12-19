@@ -71,7 +71,7 @@ PhysicSpheres::PhysicSpheres()
     std::vector<glm::vec3> vertices;
     std::vector<glm::vec2> uvs;
     std::vector<glm::vec3> normals;
-    bool res = loadObjIndexed("physic-spheres/ico_sphere_4.obj",
+    bool res = loadObjIndexed("data/obj/ico_sphere_4.obj",
                               vertices, uvs, normals);
 
     if (indexVertices) {
@@ -287,7 +287,7 @@ PhysicSpheres::PhysicSpheres()
     std::vector<glm::vec3> Lvertices;
     std::vector<glm::vec2> Luvs;
     std::vector<glm::vec3> Lnormals;
-    bool Lres = loadObjIndexed("physic-spheres/ico_sphere_4.obj",
+    bool Lres = loadObjIndexed("data/obj/ico_sphere_4.obj",
                               Lvertices, Luvs, Lnormals);
     // switch to indexing
     indexVBO(Lvertices, Luvs, Lnormals,
@@ -394,7 +394,7 @@ PhysicSpheres::PhysicSpheres()
     std::vector<glm::vec3> TSvertices;
     std::vector<glm::vec2> TSuvs;
     std::vector<glm::vec3> TSnormals;
-    bool TSres = loadObjIndexed("physic-spheres/ico_sphere_4.obj",
+    bool TSres = loadObjIndexed("data/obj/ico_sphere_4.obj",
                                 TSvertices, TSuvs, TSnormals);
 
     if (indexVertices) {

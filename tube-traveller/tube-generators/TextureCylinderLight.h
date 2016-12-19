@@ -37,6 +37,7 @@ public:
 
     GLuint vertexArrayID;
     GLuint vertexBufferID;
+    GLuint normalBufferID;
     GLuint uvBufferID;
     GLuint centerBufferID;
     GLuint rotationBufferID;
@@ -49,6 +50,15 @@ public:
     GLint mvpMatrixID;
     GLfloat time;
     GLint timeParamID;
+
+    // lighting properties
+    glm::vec3 cameraPosition;
+    glm::vec3 lightPosition;
+    glm::vec3 lightAmbient;
+    glm::vec3 lightDiffuse;
+    glm::vec3 lightSpecular;
+    GLfloat lightAttLin;
+    GLfloat lightAttQuad;
 
     IOHandler &io;
 

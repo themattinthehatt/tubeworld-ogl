@@ -7,10 +7,13 @@ in vec2 textureCoords;
 out vec4 color;
 
 // values that stay constant for the whole mesh
-uniform sampler2D loadedTexture;
+struct Material {
+    sampler2D loadedTexture;
+};
+uniform Material material;
 
 void main() {
     // output color = color specified in the vertex shader,
     // interpolated between all 3 surrounding vertices
-    color = texture(loadedTexture, textureCoords);
+    color = texture(material.loadedTexture, textureCoords);
 }

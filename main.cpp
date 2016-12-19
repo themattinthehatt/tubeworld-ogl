@@ -52,7 +52,7 @@ int main() {
     GLint numCenters = 100;
     TubeTraveller cubearray = TubeTraveller(numCenters);
 
-//    PhysicSpheres cubearray = PhysicSpheres2();
+//    PhysicSpheres cubearray = PhysicSpheres();
 
     // initialize player
     Player player = Player();
@@ -74,7 +74,7 @@ int main() {
     // -------------------------------------------------------------------------
 
     // for printing FPS
-    bool printFPS = true;
+    bool printFPS = false;
     int counter = 0;
     GLfloat currentTime = glfwGetTime();
     GLfloat lastTime;

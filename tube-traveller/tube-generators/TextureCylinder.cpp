@@ -158,9 +158,9 @@ TextureCylinder::TextureCylinder(GLint numCenters_, TubeTraveller::TextureType t
                  g_center_buffer_data[0], GL_DYNAMIC_DRAW);
 
     // set vertex attribute pointers
-    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(3);
     glVertexAttribPointer(
-            1,         // attribute 1; must match "layout" in shader
+            3,         // attribute 1; must match "layout" in shader
             3,         // size (# vertices)
             GL_FLOAT,  // type
             GL_FALSE,  // normalized?
@@ -168,7 +168,7 @@ TextureCylinder::TextureCylinder(GLint numCenters_, TubeTraveller::TextureType t
             (GLvoid*)0 // array buffer offset
     );
     // tell OpenGL when to update content of this attribute to next element
-    glVertexAttribDivisor(1, 1);
+    glVertexAttribDivisor(3, 1);
     // break buffer binding
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -185,19 +185,19 @@ TextureCylinder::TextureCylinder(GLint numCenters_, TubeTraveller::TextureType t
 
     // set vertex attribute pointers
     GLsizei vec4size = sizeof(glm::vec4);
-    glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)0);
     glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)(vec4size));
+    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)0);
     glEnableVertexAttribArray(5);
-    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)(2 * vec4size));
+    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)(vec4size));
     glEnableVertexAttribArray(6);
-    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)(3 * vec4size));
+    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)(2 * vec4size));
+    glEnableVertexAttribArray(7);
+    glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)(3 * vec4size));
     // tell OpenGL when to update content of this attribute to next element
-    glVertexAttribDivisor(3, 1);
     glVertexAttribDivisor(4, 1);
     glVertexAttribDivisor(5, 1);
     glVertexAttribDivisor(6, 1);
+    glVertexAttribDivisor(7, 1);
     // break buffer binding
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -212,19 +212,19 @@ TextureCylinder::TextureCylinder(GLint numCenters_, TubeTraveller::TextureType t
                  g_rotation2_buffer_data[0], GL_DYNAMIC_DRAW);
 
     // set vertex attribute pointers
-    glEnableVertexAttribArray(7);
-    glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)0);
     glEnableVertexAttribArray(8);
-    glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)(vec4size));
+    glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)0);
     glEnableVertexAttribArray(9);
-    glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)(2 * vec4size));
+    glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)(vec4size));
     glEnableVertexAttribArray(10);
-    glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)(3 * vec4size));
+    glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)(2 * vec4size));
+    glEnableVertexAttribArray(11);
+    glVertexAttribPointer(11, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)(3 * vec4size));
     // tell OpenGL when to update content of this attribute to next element
-    glVertexAttribDivisor(7, 1);
     glVertexAttribDivisor(8, 1);
     glVertexAttribDivisor(9, 1);
     glVertexAttribDivisor(10, 1);
+    glVertexAttribDivisor(11, 1);
     // break buffer binding
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 

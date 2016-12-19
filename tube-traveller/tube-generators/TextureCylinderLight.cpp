@@ -25,17 +25,8 @@ TextureCylinderLight::TextureCylinderLight(GLint numCenters_, TubeTraveller::Tex
     tubeLength = 2.f;
 
     // create and compile our GLSL program from the shaders
-    shader = new Shader("tube-traveller/shaders/SingleTextureArt.vert",
-                        "tube-traveller/shaders/SingleTexture.frag");
-
-    // give the MVP matrix to GLSL; get a handle on our uniforms
-    mMatrix = glm::mat4(1.0);
-    vpMatrix = glm::mat4(1.0);
-    mvpMatrix = glm::mat4(1.0);
-    mMatrixID = glGetUniformLocation(shader->programID, "mMatrix");
-    vpMatrixID = glGetUniformLocation(shader->programID, "vpMatrix");
-    mvpMatrixID = glGetUniformLocation(shader->programID, "mvpMatrix");
-    timeParamID = glGetUniformLocation(shader->programID, "time");
+    shader = new Shader("tube-traveller/shaders/Lights.vert",
+                        "tube-traveller/shaders/Lights.frag");
 
     // -------------------------------------------------------------------------
     //                          Load Textures
@@ -124,6 +115,29 @@ TextureCylinderLight::TextureCylinderLight(GLint numCenters_, TubeTraveller::Tex
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
+    // CYLINDER NORMALS
+    // generate 1 buffer, put the resulting identifier in uvBufferID
+    glGenBuffers(1, &normalBufferID);
+    // bind newly created buffer to GL_ARRAY_BUFFER target
+    glBindBuffer(GL_ARRAY_BUFFER, normalBufferID);
+    // copy data into buffer's memory
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * numVerticesPerInstance,
+                 &normals[0], GL_STATIC_DRAW);
+
+    // set vertex attribute pointers
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(
+            1,         // attribute 2; must match "layout" in shader
+            3,         // size (# vertices)
+            GL_FLOAT,  // type
+            GL_FALSE,  // normalized?
+            0,         // stride
+            (GLvoid*)0 // array buffer offset
+    );
+    // break buffer binding
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
     // CYLINDER TEXTURE COORDINATES
     // generate 1 buffer, put the resulting identifier in uvBufferID
     glGenBuffers(1, &uvBufferID);
@@ -157,9 +171,9 @@ TextureCylinderLight::TextureCylinderLight(GLint numCenters_, TubeTraveller::Tex
                  g_center_buffer_data[0], GL_DYNAMIC_DRAW);
 
     // set vertex attribute pointers
-    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(3);
     glVertexAttribPointer(
-            1,         // attribute 1; must match "layout" in shader
+            3,         // attribute 1; must match "layout" in shader
             3,         // size (# vertices)
             GL_FLOAT,  // type
             GL_FALSE,  // normalized?
@@ -167,7 +181,7 @@ TextureCylinderLight::TextureCylinderLight(GLint numCenters_, TubeTraveller::Tex
             (GLvoid*)0 // array buffer offset
     );
     // tell OpenGL when to update content of this attribute to next element
-    glVertexAttribDivisor(1, 1);
+    glVertexAttribDivisor(3, 1);
     // break buffer binding
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -184,21 +198,22 @@ TextureCylinderLight::TextureCylinderLight(GLint numCenters_, TubeTraveller::Tex
 
     // set vertex attribute pointers
     GLsizei vec4size = sizeof(glm::vec4);
-    glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)0);
     glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)(vec4size));
+    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)0);
     glEnableVertexAttribArray(5);
-    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)(2 * vec4size));
+    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)(vec4size));
     glEnableVertexAttribArray(6);
-    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)(3 * vec4size));
+    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)(2 * vec4size));
+    glEnableVertexAttribArray(7);
+    glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)(3 * vec4size));
     // tell OpenGL when to update content of this attribute to next element
-    glVertexAttribDivisor(3, 1);
     glVertexAttribDivisor(4, 1);
     glVertexAttribDivisor(5, 1);
     glVertexAttribDivisor(6, 1);
+    glVertexAttribDivisor(7, 1);
     // break buffer binding
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 
     // MODEL ROTATIONS 2
     // holds rotation matrix for first ring in next cylinder
@@ -211,25 +226,47 @@ TextureCylinderLight::TextureCylinderLight(GLint numCenters_, TubeTraveller::Tex
                  g_rotation2_buffer_data[0], GL_DYNAMIC_DRAW);
 
     // set vertex attribute pointers
-    glEnableVertexAttribArray(7);
-    glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)0);
     glEnableVertexAttribArray(8);
-    glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)(vec4size));
+    glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)0);
     glEnableVertexAttribArray(9);
-    glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)(2 * vec4size));
+    glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)(vec4size));
     glEnableVertexAttribArray(10);
-    glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)(3 * vec4size));
+    glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)(2 * vec4size));
+    glEnableVertexAttribArray(11);
+    glVertexAttribPointer(11, 4, GL_FLOAT, GL_FALSE, 4 * vec4size, (GLvoid*)(3 * vec4size));
     // tell OpenGL when to update content of this attribute to next element
-    glVertexAttribDivisor(7, 1);
     glVertexAttribDivisor(8, 1);
     glVertexAttribDivisor(9, 1);
     glVertexAttribDivisor(10, 1);
+    glVertexAttribDivisor(11, 1);
     // break buffer binding
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
     // unbind the VAO
     glBindVertexArray(0);
+
+    // -------------------------------------------------------------------------
+    //                          Initialize uniforms
+    // -------------------------------------------------------------------------
+
+    // vertex shader uniforms
+    mMatrix = glm::mat4(1.0);
+    vpMatrix = glm::mat4(1.0);
+    mvpMatrix = glm::mat4(1.0);
+    mMatrixID = glGetUniformLocation(shader->programID, "mMatrix");
+    vpMatrixID = glGetUniformLocation(shader->programID, "vpMatrix");
+    mvpMatrixID = glGetUniformLocation(shader->programID, "mvpMatrix");
+    timeParamID = glGetUniformLocation(shader->programID, "time");
+
+    // define light properties
+    cameraPosition = glm::vec3(1.f);
+    lightPosition = glm::vec3(1.f);
+    lightAmbient = glm::vec3(0.5);
+    lightDiffuse = glm::vec3(0.8);
+    lightSpecular = glm::vec3(1.0);
+    lightAttLin = 0.022f;  // vals from https://learnopengl.com/#!Lighting/Materials
+    lightAttQuad = 0.0019f;
 
 }
 
@@ -271,6 +308,7 @@ void TextureCylinderLight::update(const PathGenerator *path, Camera &cam ) {
         }
     }
 
+    // update uniforms
     time = glfwGetTime();
     mMatrix[0] = glm::vec4(tubeRadius, 0.0, 0.0, 0.0);
     mMatrix[1] = glm::vec4(0.0, tubeLength, 0.0, 0.0);
@@ -279,7 +317,12 @@ void TextureCylinderLight::update(const PathGenerator *path, Camera &cam ) {
     vpMatrix = cam.getProjection() * cam.getView();
     mvpMatrix = vpMatrix * mMatrix;
 
+    // update textures depending on path variables
     texture->update(path);
+
+    // update light position
+    lightPosition = path->positions[(path->firstElement+50) % 100];
+    cameraPosition = cam.getPosition();
 
 }
 
@@ -288,11 +331,29 @@ void TextureCylinderLight::draw() {
     // use our shader (makes programID "currently bound" shader?)
     shader->use();
 
-    // send our transformation to the currently bound shader, in the "MVP" uniform
+    // send data to vertex shader
     glUniformMatrix4fv(mMatrixID, 1, GL_FALSE, &mMatrix[0][0]);
     glUniformMatrix4fv(vpMatrixID, 1, GL_FALSE, &vpMatrix[0][0]);
     glUniformMatrix4fv(mvpMatrixID, 1, GL_FALSE, &mvpMatrix[0][0]);
     glUniform1f(timeParamID, time);
+
+    // send data to fragment shader
+    // material properties loaded by TextureGenerator object
+    // light properites
+    glUniform3fv(glGetUniformLocation(shader->programID, "cameraPosition"),
+                 1, &cameraPosition[0]);
+    glUniform3fv(glGetUniformLocation(shader->programID, "pointLight.position"),
+                 1, &lightPosition[0]);
+    glUniform3fv(glGetUniformLocation(shader->programID, "pointLight.ambient"),
+                 1, &lightAmbient[0]);
+    glUniform3fv(glGetUniformLocation(shader->programID, "pointLight.diffuse"),
+                 1, &lightDiffuse[0]);
+    glUniform3fv(glGetUniformLocation(shader->programID, "pointLight.specular"),
+                 1, &lightSpecular[0]);
+    glUniform1f(glGetUniformLocation(shader->programID, "pointLight.lin"),
+                 lightAttLin);
+    glUniform1f(glGetUniformLocation(shader->programID, "pointLight.quad"),
+                 lightAttQuad);
 
     for (int i = 0; i < texture->numTextures; ++i) {
 
