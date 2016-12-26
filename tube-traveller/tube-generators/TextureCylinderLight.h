@@ -14,6 +14,7 @@
 #include "../path-generators/PathGenerator.h"
 #include "../TubeTraveller.h"
 #include "Light.h"
+#include "../texture-generators/TextureGenerator.h"
 
 class TextureCylinderLight : public TubeGenerator {
 private:
@@ -26,6 +27,20 @@ public:
     TextureGenerator *texture;
     Shader *shader;
     Light *light;
+
+    enum TextureType {
+        TEXTURE_FILES_STATIC,
+        TEXTURE_RAINBOW,
+        TEXTURE_BINARY,
+        TEXTURE_NOISE,
+        MAX_NUM_TEXTURES
+    };
+
+    enum LightStyle {
+        LIGHTSTYLE_NONE,
+        LIGHTSTYLE_POINT,
+        MAX_NUM_LIGHTSTYLES
+    };
 
     GLint numCenters;
     GLint numVerticesPerInstance;
@@ -56,7 +71,8 @@ public:
     IOHandler &io;
 
     // constructor
-    TextureCylinderLight(GLint numCenters, TubeTraveller::TextureType);
+    TextureCylinderLight(GLint numCenters, TextureType textureType,
+                         LightStyle lightStyle);
     // update positions/angles of tube elements
     void update(const PathGenerator *path, Camera &cam);
     // draw tube elements

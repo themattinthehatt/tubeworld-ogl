@@ -23,13 +23,13 @@ set(SOURCE_FILES
         tube-traveller/path-generators/PathUserInput.cpp
         tube-traveller/path-generators/PathRandom.cpp
         tube-traveller/tube-generators/SimpleShapes.cpp
-        tube-traveller/tube-generators/TextureCylinder.cpp
         tube-traveller/tube-generators/TextureCylinderLight.cpp
+        tube-traveller/tube-generators/Light.cpp
         tube-traveller/texture-generators/StaticFiles.cpp
         tube-traveller/texture-generators/Rainbow.cpp
         tube-traveller/texture-generators/Binary.cpp
         tube-traveller/texture-generators/Noise.cpp
-        physic-spheres/PhysicSpheres.cpp tube-traveller/tube-generators/Light.cpp tube-traveller/tube-generators/Light.h)
+        physic-spheres/PhysicSpheres.cpp)
 
 
 add_executable(tubeworld ${SOURCE_FILES})

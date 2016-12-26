@@ -25,12 +25,17 @@ public:
     // define light properties
     glm::vec3 cameraPosition;
     glm::vec3 lightPosition;
+    glm::vec3 lightAmbientMax;
+    glm::vec3 lightDiffuseMax;
+    glm::vec3 lightSpecularMax;
     glm::vec3 lightAmbient;
     glm::vec3 lightDiffuse;
     glm::vec3 lightSpecular;
     GLfloat lightAttLin;
     GLfloat lightAttQuad;
+    glm::vec3 lampColorMax;
     glm::vec3 lampColor;
+    glm::vec3 lightIntensity;
 
     std::vector<glm::vec3> vertices;
     std::vector<glm::vec3> normals;

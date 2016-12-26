@@ -1,7 +1,7 @@
 % 12/03/16
 - (DONE) make cylinder tube option
 - (DONE) map images to inside of cylinder
-- put lighting ball in tube
+- (DONE) put lighting ball in tube
 - dynamically change origin in radial direction
     + user input
     + smoothed random walk
@@ -13,7 +13,7 @@
     + (DONE) different textures get mapped to different cylinders. Start w/
       blank/solid/static textures on all but current cylinder -> play with 
       binary counting?
-    + move to more dynamic maps; for instance, a single bit flowing down the 
+    + (DONE) move to more dynamic maps; for instance, a single bit flowing down 
       tube to increase the binary number by 1 at some [time interval] -> need to
       figure this out more
         - add a single bit in a random place

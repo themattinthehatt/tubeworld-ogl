@@ -16,7 +16,9 @@
 #include "../texture-generators/Binary.h"
 #include "../texture-generators/Noise.h"
 
-TextureCylinderLight::TextureCylinderLight(GLint numCenters_, TubeTraveller::TextureType textureType_)
+TextureCylinderLight::TextureCylinderLight(GLint numCenters_,
+        TextureType textureType,
+        LightStyle lightStyle)
         :
         io(IOHandler::getInstance()) {
 
@@ -24,27 +26,46 @@ TextureCylinderLight::TextureCylinderLight(GLint numCenters_, TubeTraveller::Tex
     tubeRadius = 10.f;
     tubeLength = 2.f;
 
-    // create and compile our GLSL program from the shaders
-    shader = new Shader("tube-traveller/shaders/Lights.vert",
-                        "tube-traveller/shaders/Lights.frag");
+    // initialize lights
+    switch (lightStyle) {
+        case LIGHTSTYLE_NONE:
+            // create and compile our GLSL program from the shaders
+            shader = new Shader("tube-traveller/shaders/SingleTexture.vert",
+                                "tube-traveller/shaders/SingleTexture.frag");
+            // no light
+            light = nullptr;
+            break;
+        case LIGHTSTYLE_POINT:
+            // create and compile our GLSL program from the shaders
+            shader = new Shader("tube-traveller/shaders/Lights.vert",
+                                "tube-traveller/shaders/Lights.frag");
+            // create light
+            light = new Light(shader->programID);
+            break;
+        default: // LIGHTSTYLE_NONE
+            // create and compile our GLSL program from the shaders
+            shader = new Shader("tube-traveller/shaders/SingleTexture.vert",
+                                "tube-traveller/shaders/SingleTexture.frag");
+            // no light
+            light = nullptr;
+    }
 
-    light = new Light(shader->programID);
 
     // -------------------------------------------------------------------------
     //                          Load Textures
     // -------------------------------------------------------------------------
 
-    switch (textureType_) {
-        case TubeTraveller::TEXTURE_FILES_STATIC:
+    switch (textureType) {
+        case TEXTURE_FILES_STATIC:
             texture = new StaticFiles(shader->programID);
             break;
-        case TubeTraveller::TEXTURE_RAINBOW:
+        case TEXTURE_RAINBOW:
             texture = new Rainbow(shader->programID);
             break;
-        case TubeTraveller::TEXTURE_BINARY:
+        case TEXTURE_BINARY:
             texture = new Binary(shader->programID);
             break;
-        case TubeTraveller::TEXTURE_NOISE:
+        case TEXTURE_NOISE:
             texture = new Noise(shader->programID);
             break;
         default:
@@ -314,20 +335,26 @@ void TextureCylinderLight::update(const PathGenerator *path, Camera &cam ) {
     texture->update(path);
 
     // update light position
-    light->update(path, cam);
+    if (light != nullptr) {
+        light->update(path, cam);
+    }
 
 }
 
 void TextureCylinderLight::draw() {
 
     // draw lamp
-    light->draw();
+    if (light != nullptr) {
+        light->draw();
+    }
 
     // use our shader (makes programID "currently bound" shader?)
     shader->use();
 
     // send data to fragment shader
-    light->setUniforms();
+    if (light != nullptr) {
+        light->setUniforms();
+    }
 
     // send data to vertex shader
     glUniformMatrix4fv(mMatrixID, 1, GL_FALSE, &mMatrix[0][0]);
@@ -395,7 +422,9 @@ void TextureCylinderLight::clean() {
     delete texture;
     shader->clean();
     delete shader;
-    light->clean();
-    delete light;
+    if (light != nullptr) {
+        light->clean();
+        delete light;
+    }
 
 }

@@ -4,9 +4,6 @@
 // use the standard vertex attributes for data per vertex and use the instanced
 // array for storing data that is unique per instance.
 
-// TODO
-// abstract a light class for texturecylinderlight
-//
 
 #ifndef TUBEWORLD_TUBETRAVELLER_H
 #define TUBEWORLD_TUBETRAVELLER_H
@@ -16,7 +13,7 @@
 #include <glm/glm.hpp>
 #include "path-generators/PathGenerator.h"
 #include "tube-generators/TubeGenerator.h"
-#include "texture-generators/TextureGenerator.h"
+#include "tube-generators/TextureCylinderLight.h"
 
 class TubeTraveller {
 private:
@@ -39,16 +36,8 @@ public:
         TUBE_CUBES_SQ,
         TUBE_CUBES_CIRC,
         TUBE_CYLINDER,
-        TUBE_TEXTURE_CYLINDER,
         TUBE_TEXTURE_CYLINDER_LIGHT,
         MAX_NUM_TUBES
-    };
-    enum TextureType {
-        TEXTURE_FILES_STATIC,
-        TEXTURE_RAINBOW,
-        TEXTURE_BINARY,
-        TEXTURE_NOISE,
-        MAX_NUM_TEXTURES
     };
 
     enum PlayerMode {
@@ -61,7 +50,11 @@ public:
 
 
     // constructor
-    TubeTraveller(GLint numCenters);
+    TubeTraveller(GLint numCenters,
+                  PathGeneratorType pathType,
+                  TubeType tubeType,
+                  TextureCylinderLight::TextureType textureType,
+                  TextureCylinderLight::LightStyle lightStyle);
     // update dynamics of cube array
     void update(Camera &cam, Player &player);
     // draw cube array

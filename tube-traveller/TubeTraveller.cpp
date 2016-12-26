@@ -8,48 +8,14 @@
 #include "path-generators/PathUserInput.h"
 #include "path-generators/PathRandom.h"
 #include "tube-generators/SimpleShapes.h"
-#include "tube-generators/TextureCylinder.h"
 #include "tube-generators/TextureCylinderLight.h"
 
-TubeTraveller::TubeTraveller(GLint numCenters) : io(IOHandler::getInstance()){
-
-// Copy of what is defined in header file
-//    enum PathGeneratorType {
-//        PATH_CIRCLE,
-//        PATH_USER,
-//        PATH_RANDOM,
-//        MAX_NUM_PATHS
-//    };
-//    enum TubeType {
-//        TUBE_CUBES_SQ,
-//        TUBE_CUBES_CIRC,
-//        TUBE_CYLINDER,
-//        TUBE_TEXTURE_CYLINDER,
-//        TUBE_TEXTURE_CYLINDER_LIGHT,
-//        MAX_NUM_TUBES
-//    };
-//    enum TextureType {
-//        TEXTURE_FILES_STATIC,
-//        TEXTURE_RAINBOW,
-//        TEXTURE_BINARY,
-//        TEXTURE_NOISE,
-//        MAX_NUM_TEXTURES
-//    };
-
-    PathGeneratorType pathType = PATH_RANDOM;
-    TubeType tubeType = TUBE_TEXTURE_CYLINDER_LIGHT;
-
-//    PathGeneratorType pathType = PATH_CIRCLE;
-//    TubeType tubeType = TUBE_CUBES_SQ;
-
-    // Notes
-    // TextureType only applies to a TubeType of TUBE_TEXTURE_CYLINDER
-    // TEXTURE_BINARY and TEXTURE NOISE only work with PATH_RANDOM
-//    TextureType textureType = TEXTURE_FILES_STATIC;
-//    TextureType textureType = TEXTURE_BINARY;
-//    TextureType textureType = TEXTURE_RAINBOW;
-    TextureType textureType = TEXTURE_NOISE;
-
+TubeTraveller::TubeTraveller(GLint numCenters,
+                             PathGeneratorType pathType,
+                             TubeType tubeType,
+                             TextureCylinderLight::TextureType textureType,
+                             TextureCylinderLight::LightStyle lightStyle)
+        : io(IOHandler::getInstance()){
 
     // select path type
     switch (pathType) {
@@ -77,11 +43,8 @@ TubeTraveller::TubeTraveller(GLint numCenters) : io(IOHandler::getInstance()){
         case TUBE_CYLINDER:
             tube = new SimpleShapes(numCenters, SimpleShapes::CYLINDER);
             break;
-        case TUBE_TEXTURE_CYLINDER:
-            tube = new TextureCylinder(numCenters, textureType);
-            break;
         case TUBE_TEXTURE_CYLINDER_LIGHT:
-            tube = new TextureCylinderLight(numCenters, textureType);
+            tube = new TextureCylinderLight(numCenters, textureType, lightStyle);
             break;
         default:
             tube = new SimpleShapes(numCenters, SimpleShapes::CIRCLE_OF_SQUARES);

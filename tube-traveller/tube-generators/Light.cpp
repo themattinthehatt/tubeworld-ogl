@@ -11,14 +11,15 @@ Light::Light(GLuint shaderID_) {
     shaderID = shaderID_;
 
     // define light properties
-    lampColor = glm::vec3(1.0f, 1.0f, 0.8f); // lamp is rendered with this color
+    lampColorMax = glm::vec3(1.0f, 1.0f, 0.8f); // lamp is rendered with this color
     cameraPosition = glm::vec3(1.f);
     lightPosition = glm::vec3(1.f);
-    lightAmbient = glm::vec3(1.0) * lampColor;
-    lightDiffuse = glm::vec3(1.0) * lampColor;
-    lightSpecular = glm::vec3(1.0);
+    lightAmbientMax = glm::vec3(1.0) * lampColorMax;
+    lightDiffuseMax = glm::vec3(1.0) * lampColorMax;
+    lightSpecularMax = glm::vec3(1.0);
     lightAttLin = 0.022f;  // vals from https://learnopengl.com/#!Lighting/Materials
     lightAttQuad = 0.0019f;
+    lightIntensity = glm::vec3(1.f);
 
     // -------------------------------------------------------------------------
     //                        Create light info
@@ -141,6 +142,14 @@ void Light::update(const PathGenerator *path, Camera &cam) {
     mMatrix = glm::mat4(1.0);
     vpMatrix = cam.getProjection() * cam.getView();
     mvpMatrix = vpMatrix * mMatrix;
+
+    // update light intensity
+//    lightIntensity = glm::vec3(1.f);
+    lightIntensity = glm::vec3(0.7f + 0.3*sin(glfwGetTime()));
+    lightAmbient = lightAmbientMax * lightIntensity;
+    lightDiffuse = lightDiffuseMax * lightIntensity;
+    lightSpecular = lightSpecularMax * lightIntensity;
+    lampColor = lampColorMax * lightIntensity;
 
 }
 

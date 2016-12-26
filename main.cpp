@@ -3,6 +3,8 @@
 //   of bitmaps - update this next time I start using textures
 // - get serious about "models", and move away from custom code? Should be soon,
 //   as ideally I'll update all old code to reflect this (ASSIMP?)
+// TUBETRAVELLER
+// - SimpleShapes should be updated to include new shader class
 
 // Include standard headers
 #include <cstdio>
@@ -48,11 +50,61 @@ int main() {
                                       "data/textures/box3/down.bmp"};
     Skybox skybox = Skybox(files, 1000.0f);
 
-    // set up tube
+    // set up tube traveller
+    /* TUBE TRAVELLER OPTIONS
+       PathGeneratorType:
+            PATH_CIRCLE,
+            PATH_USER,
+            PATH_RANDOM
+        TubeType:
+            TUBE_CUBES_SQ,
+            TUBE_CUBES_CIRC,
+            TUBE_CYLINDER,
+            TUBE_TEXTURE_CYLINDER_LIGHT
+        TextureType:
+            TEXTURE_FILES_STATIC,
+            TEXTURE_RAINBOW,
+            TEXTURE_BINARY,
+            TEXTURE_NOISE
+        LightStyle:
+            LIGHTSTYLE_NONE,
+            LIGHTSTYLE_POINT
+    */
+
+//    TubeTraveller::PathGeneratorType pathType =
+//          TubeTraveller::PATH_CIRCLE;
+    TubeTraveller::TubeType tubeType =
+          TubeTraveller::TUBE_CUBES_SQ;
+
+    TubeTraveller::PathGeneratorType pathType =
+            TubeTraveller::PATH_RANDOM;
+//    TubeTraveller::TubeType tubeType =
+//            TubeTraveller::TUBE_TEXTURE_CYLINDER_LIGHT;
+
+    // Notes
+    // TextureType only applies to a TubeType of TUBE_TEXTURE_CYLINDER
+    // TEXTURE_BINARY and TEXTURE NOISE only work with PATH_RANDOM
+//    TextureCylinderLight::TextureType textureType =
+//            TextureCylinderLight::TEXTURE_FILES_STATIC;
+//    TextureCylinderLight::TextureType textureType =
+//            TextureCylinderLight::TEXTURE_RAINBOW;
+    TextureCylinderLight::TextureType textureType =
+            TextureCylinderLight::TEXTURE_BINARY;
+//    TextureCylinderLight::TextureType textureType =
+//            TextureCylinderLight::TEXTURE_NOISE;
+
+    TextureCylinderLight::LightStyle lightStyle =
+            TextureCylinderLight::LIGHTSTYLE_POINT;
+
     GLint numCenters = 100;
-    TubeTraveller cubearray = TubeTraveller(numCenters);
+    TubeTraveller cubearray = TubeTraveller(numCenters, pathType, tubeType,
+                                            textureType, lightStyle);
+
+
 
 //    PhysicSpheres cubearray = PhysicSpheres();
+
+
 
     // initialize player
     Player player = Player();
