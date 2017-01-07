@@ -24,7 +24,6 @@
 // include tubeworld components
 #include "core/Debug.h"
 #include "core/Camera.h"
-#include "core/Skybox.h"
 #include "tube-traveller/TubeTraveller.h"
 #include "physic-spheres/PhysicSpheres.h"
 
@@ -41,14 +40,7 @@ int main() {
     // -------------------------------------------------------------------------
     // Set up scene
     // -------------------------------------------------------------------------
-    // set up skybox; +x, -x, +y, -y, +z, -z
-    std::vector<const char*> files = {"data/textures/box3/front.bmp",
-                                      "data/textures/box3/back.bmp",
-                                      "data/textures/box3/left.bmp",
-                                      "data/textures/box3/right.bmp",
-                                      "data/textures/box3/up.bmp",
-                                      "data/textures/box3/down.bmp"};
-    Skybox skybox = Skybox(files, 1000.0f);
+
 
     // set up tube traveller
     /* TUBE TRAVELLER OPTIONS
@@ -73,13 +65,13 @@ int main() {
 
 //    TubeTraveller::PathGeneratorType pathType =
 //          TubeTraveller::PATH_CIRCLE;
-    TubeTraveller::TubeType tubeType =
-          TubeTraveller::TUBE_CUBES_SQ;
+//    TubeTraveller::TubeType tubeType =
+//          TubeTraveller::TUBE_CUBES_SQ;
 
     TubeTraveller::PathGeneratorType pathType =
             TubeTraveller::PATH_RANDOM;
-//    TubeTraveller::TubeType tubeType =
-//            TubeTraveller::TUBE_TEXTURE_CYLINDER_LIGHT;
+    TubeTraveller::TubeType tubeType =
+            TubeTraveller::TUBE_TEXTURE_CYLINDER_LIGHT;
 
     // Notes
     // TextureType only applies to a TubeType of TUBE_TEXTURE_CYLINDER
@@ -88,10 +80,10 @@ int main() {
 //            TextureCylinderLight::TEXTURE_FILES_STATIC;
 //    TextureCylinderLight::TextureType textureType =
 //            TextureCylinderLight::TEXTURE_RAINBOW;
-    TextureCylinderLight::TextureType textureType =
-            TextureCylinderLight::TEXTURE_BINARY;
 //    TextureCylinderLight::TextureType textureType =
-//            TextureCylinderLight::TEXTURE_NOISE;
+//            TextureCylinderLight::TEXTURE_BINARY;
+    TextureCylinderLight::TextureType textureType =
+            TextureCylinderLight::TEXTURE_NOISE;
 
     TextureCylinderLight::LightStyle lightStyle =
             TextureCylinderLight::LIGHTSTYLE_POINT;
@@ -168,10 +160,6 @@ int main() {
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         }
 
-        // RENDER SKYBOX
-        skybox.update(cam);
-        skybox.draw();
-
         // RENDER CUBES
         cubearray.update(cam, player);
         cubearray.draw();
@@ -185,7 +173,6 @@ int main() {
              glfwWindowShouldClose(window) == 0);
 
     // clean up VAO, VBO, shader program and textures
-    skybox.clean();
     cubearray.clean();
 
     // close OpenGL window and terminate GLFW

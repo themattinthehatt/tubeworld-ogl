@@ -17,6 +17,15 @@ TubeTraveller::TubeTraveller(GLint numCenters,
                              TextureCylinderLight::LightStyle lightStyle)
         : io(IOHandler::getInstance()){
 
+    // create skybox; +x, -x, +y, -y, +z, -z
+    std::vector<const char*> files = {"data/textures/box3/front.bmp",
+                                      "data/textures/box3/back.bmp",
+                                      "data/textures/box3/left.bmp",
+                                      "data/textures/box3/right.bmp",
+                                      "data/textures/box3/up.bmp",
+                                      "data/textures/box3/down.bmp"};
+    skybox = new Skybox(files, 1000.0f);
+
     // select path type
     switch (pathType) {
         case PATH_CIRCLE:
@@ -78,15 +87,21 @@ void TubeTraveller::update(Camera &cam, Player &player) {
 
     // update tube
     tube->update(path, cam);
+
+    // update skybox
+    skybox->update(cam);
 }
 
 void TubeTraveller::draw() {
+    skybox->draw();
     tube->draw();
 }
 
 void TubeTraveller::clean() {
+    skybox->clean();
     path->clean();
     tube->clean();
+    delete skybox;
     delete path;
     delete tube;
 }

@@ -152,6 +152,7 @@ void Skybox::draw() {
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             break;
         default:
+            // render black
             glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     }
 

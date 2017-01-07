@@ -14,6 +14,7 @@
 #include "path-generators/PathGenerator.h"
 #include "tube-generators/TubeGenerator.h"
 #include "tube-generators/TextureCylinderLight.h"
+#include "../core/Skybox.h"
 
 class TubeTraveller {
 private:
@@ -21,6 +22,7 @@ private:
 
 public:
 
+    Skybox *skybox;
     PathGenerator *path;
     TubeGenerator *tube;
 
