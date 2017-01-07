@@ -36,8 +36,8 @@ PhysicSpheres::PhysicSpheres()
     alpha = 1.0f;
 
     // create and compile our GLSL program from the shaders
-    shaderID = loadShaders("physic-spheres/SolidShader.vert",
-                           "physic-spheres/PointLight.frag");
+    shaderID = loadShaders("src/physic-spheres/SolidShader.vert",
+                           "src/physic-spheres/PointLight.frag");
 
     // give the MVP matrix to GLSL; get a handle on our uniforms
     mMatrix = glm::mat4(1.0);

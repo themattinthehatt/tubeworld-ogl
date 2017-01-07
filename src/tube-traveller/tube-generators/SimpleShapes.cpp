@@ -20,8 +20,8 @@ SimpleShapes::SimpleShapes(GLint numCenters_, RingModelType ringModelType_)
     numCenters = numCenters_;
 
     // create and compile our GLSL program from the shaders
-    shaderID = loadShaders("tube-traveller/shaders/SolidPulsingShader.vert",
-                           "tube-traveller/shaders/SolidShader.frag");
+    shaderID = loadShaders("src/tube-traveller/shaders/SolidPulsingShader.vert",
+                           "src/tube-traveller/shaders/SolidShader.frag");
 
     // give the MVP matrix to GLSL; get a handle on our uniforms
     mMatrix = glm::mat4(1.0);

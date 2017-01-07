@@ -22,10 +22,10 @@
 #include <glm/glm.hpp>
 
 // include tubeworld components
-#include "core/Debug.h"
-#include "core/Camera.h"
-#include "tube-traveller/TubeTraveller.h"
-#include "physic-spheres/PhysicSpheres.h"
+#include "src/core/Debug.h"
+#include "src/core/Camera.h"
+#include "src/tube-traveller/TubeTraveller.h"
+#include "src/physic-spheres/PhysicSpheres.h"
 
 // forward declarations
 GLFWwindow* openGLInit();
@@ -89,13 +89,13 @@ int main() {
             TextureCylinderLight::LIGHTSTYLE_POINT;
 
     GLint numCenters = 100;
-    TubeTraveller cubearray = TubeTraveller(numCenters, pathType, tubeType,
+    TubeTraveller scene = TubeTraveller(numCenters, pathType, tubeType,
                                             textureType, lightStyle);
 
 
+//    PhysicSpheres scene = PhysicSpheres();
 
-//    PhysicSpheres cubearray = PhysicSpheres();
-
+//    Island scene = Island();
 
 
     // initialize player
@@ -161,9 +161,8 @@ int main() {
         }
 
         // RENDER CUBES
-        cubearray.update(cam, player);
-        cubearray.draw();
-
+        scene.update(cam, player);
+        scene.draw();
 
         // swap screen buffers - outputs the buffer we have been drawing to this
         // iteration to the screen
@@ -173,7 +172,7 @@ int main() {
              glfwWindowShouldClose(window) == 0);
 
     // clean up VAO, VBO, shader program and textures
-    cubearray.clean();
+    scene.clean();
 
     // close OpenGL window and terminate GLFW
     glfwTerminate();
@@ -265,11 +264,17 @@ GLFWwindow* openGLInit() {
 
 
     // OpenGL options
+    // gamma correction
+    glEnable(GL_FRAMEBUFFER_SRGB);
+    // enable stencil test
+//    glEnable(GL_STENCIL_TEST); // need to clear stencil buffer at each draw call
+    // accept fragment if its corresponding stencil buffer val is equal to 1
+//    glStencilFunc(GL_EQUAL, 1, 0xFF)
     // enable depth test
-    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST); // need to clear depth buffer at each draw call
     // accept fragment if it is closer to the camera than the former one
     glDepthFunc(GL_LESS);
-    // cull triangles which normal is not towards the camera
+    // cull triangles whose normals are not towards the camera
     glEnable(GL_CULL_FACE);
     // size of points in POINT mode
     glPointSize(3.f);

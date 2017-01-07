@@ -32,8 +32,8 @@ Skybox::Skybox(std::vector<const GLchar*> files_, GLfloat multiplier_) :
     textureID = Skybox::loadCubemap(files_);
 
     // create and compile shader programs for skybox
-    shaderID = loadShaders("core/SkyboxTextureShader.vert",
-                           "core/SkyboxTextureShader.frag");
+    shaderID = loadShaders("src/core/SkyboxTextureShader.vert",
+                           "src/core/SkyboxTextureShader.frag");
 
     // get a handle for our "skyboxSampler" uniform
     samplerID = glGetUniformLocation(shaderID, "skyboxSampler");

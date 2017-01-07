@@ -30,22 +30,22 @@ TextureCylinderLight::TextureCylinderLight(GLint numCenters_,
     switch (lightStyle) {
         case LIGHTSTYLE_NONE:
             // create and compile our GLSL program from the shaders
-            shader = new Shader("tube-traveller/shaders/SingleTexture.vert",
-                                "tube-traveller/shaders/SingleTexture.frag");
+            shader = new Shader("src/tube-traveller/shaders/SingleTexture.vert",
+                                "src/tube-traveller/shaders/SingleTexture.frag");
             // no light
             light = nullptr;
             break;
         case LIGHTSTYLE_POINT:
             // create and compile our GLSL program from the shaders
-            shader = new Shader("tube-traveller/shaders/Lights.vert",
-                                "tube-traveller/shaders/Lights.frag");
+            shader = new Shader("src/tube-traveller/shaders/Lights.vert",
+                                "src/tube-traveller/shaders/Lights.frag");
             // create light
             light = new Light(shader->programID);
             break;
         default: // LIGHTSTYLE_NONE
             // create and compile our GLSL program from the shaders
-            shader = new Shader("tube-traveller/shaders/SingleTexture.vert",
-                                "tube-traveller/shaders/SingleTexture.frag");
+            shader = new Shader("src/tube-traveller/shaders/SingleTexture.vert",
+                                "src/tube-traveller/shaders/SingleTexture.frag");
             // no light
             light = nullptr;
     }
@@ -351,7 +351,7 @@ void TextureCylinderLight::draw() {
     // use our shader (makes programID "currently bound" shader?)
     shader->use();
 
-    // send data to fragment shader
+    // send light data to fragment shader
     if (light != nullptr) {
         light->setUniforms();
     }
@@ -364,6 +364,7 @@ void TextureCylinderLight::draw() {
 
     for (int i = 0; i < texture->numTextures; ++i) {
 
+        // bind texture to texture unit
         texture->draw(i);
 
         // bind vertex array

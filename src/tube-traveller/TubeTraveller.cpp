@@ -93,8 +93,8 @@ void TubeTraveller::update(Camera &cam, Player &player) {
 }
 
 void TubeTraveller::draw() {
-    skybox->draw();
     tube->draw();
+    skybox->draw();
 }
 
 void TubeTraveller::clean() {

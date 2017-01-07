@@ -14,7 +14,7 @@ Light::Light(GLuint shaderID_) {
     lampColorMax = glm::vec3(1.0f, 1.0f, 0.8f); // lamp is rendered with this color
     cameraPosition = glm::vec3(1.f);
     lightPosition = glm::vec3(1.f);
-    lightAmbientMax = glm::vec3(1.0) * lampColorMax;
+    lightAmbientMax = glm::vec3(0.5) * lampColorMax;
     lightDiffuseMax = glm::vec3(1.0) * lampColorMax;
     lightSpecularMax = glm::vec3(1.0);
     lightAttLin = 0.022f;  // vals from https://learnopengl.com/#!Lighting/Materials
@@ -26,8 +26,8 @@ Light::Light(GLuint shaderID_) {
     // -------------------------------------------------------------------------
 
     // create and compile our GLSL program from the shaders
-    lampShader = new Shader("tube-traveller/shaders/LampShader.vert",
-                            "tube-traveller/shaders/LampShader.frag");
+    lampShader = new Shader("src/tube-traveller/shaders/LampShader.vert",
+                            "src/tube-traveller/shaders/LampShader.frag");
 
     // give the MVP matrix to GLSL; get a handle on our uniforms
     mMatrix = glm::mat4(1.0);

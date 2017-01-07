@@ -9,27 +9,27 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -std=c++11")
 set(SOURCE_FILES
         main.cpp
         lib/PerlinNoise.cpp
-        core/Player.cpp
-        core/Camera.cpp
-        core/Skybox.cpp
-        core/vboIndexer.cpp
-        core/loaders/loadShaders.cpp
-        core/loaders/loadTextures.cpp
-        core/loaders/loadCubemap.cpp
-        core/loaders/loadObj.cpp
-        core/loaders/loadObjIndexed.cpp
-        tube-traveller/TubeTraveller.cpp
-        tube-traveller/path-generators/PathCircle.cpp
-        tube-traveller/path-generators/PathUserInput.cpp
-        tube-traveller/path-generators/PathRandom.cpp
-        tube-traveller/tube-generators/SimpleShapes.cpp
-        tube-traveller/tube-generators/TextureCylinderLight.cpp
-        tube-traveller/tube-generators/Light.cpp
-        tube-traveller/texture-generators/StaticFiles.cpp
-        tube-traveller/texture-generators/Rainbow.cpp
-        tube-traveller/texture-generators/Binary.cpp
-        tube-traveller/texture-generators/Noise.cpp
-        physic-spheres/PhysicSpheres.cpp)
+        src/core/Player.cpp
+        src/core/Camera.cpp
+        src/core/Skybox.cpp
+        src/core/vboIndexer.cpp
+        src/core/loaders/loadShaders.cpp
+        src/core/loaders/loadTextures.cpp
+        src/core/loaders/loadCubemap.cpp
+        src/core/loaders/loadObj.cpp
+        src/core/loaders/loadObjIndexed.cpp
+        src/tube-traveller/TubeTraveller.cpp
+        src/tube-traveller/path-generators/PathCircle.cpp
+        src/tube-traveller/path-generators/PathUserInput.cpp
+        src/tube-traveller/path-generators/PathRandom.cpp
+        src/tube-traveller/tube-generators/SimpleShapes.cpp
+        src/tube-traveller/tube-generators/TextureCylinderLight.cpp
+        src/tube-traveller/tube-generators/Light.cpp
+        src/tube-traveller/texture-generators/StaticFiles.cpp
+        src/tube-traveller/texture-generators/Rainbow.cpp
+        src/tube-traveller/texture-generators/Binary.cpp
+        src/tube-traveller/texture-generators/Noise.cpp
+        src/physic-spheres/PhysicSpheres.cpp)
 
 
 add_executable(tubeworld ${SOURCE_FILES})

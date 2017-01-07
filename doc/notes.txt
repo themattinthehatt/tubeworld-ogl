@@ -1,3 +1,17 @@
+%-------------------------------------------------------------------------------
+% 01/07/2017
+- create basic world setup with 3 islands and tubes connecting them
+- create abstract class for islands; be sure to include
+    + final post-processing step (render to a quad)
+- island ideas:
+    + shape play
+        *map perlin noise onto a sphere, threshold, bloom the bright parts
+        *do something with normal vectors/geometry shaders?
+    + physics (collisions)
+    + reaction-diffusion
+
+
+%-------------------------------------------------------------------------------
 % 12/03/16
 - (DONE) make cylinder tube option
 - (DONE) map images to inside of cylinder
