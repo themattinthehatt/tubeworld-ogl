@@ -18,12 +18,12 @@ TubeTraveller::TubeTraveller(GLint numCenters,
         : io(IOHandler::getInstance()){
 
     // create skybox; +x, -x, +y, -y, +z, -z
-    std::vector<const char*> files = {"data/textures/box3/front.bmp",
-                                      "data/textures/box3/back.bmp",
-                                      "data/textures/box3/left.bmp",
-                                      "data/textures/box3/right.bmp",
-                                      "data/textures/box3/up.bmp",
-                                      "data/textures/box3/down.bmp"};
+    std::vector<const char*> files = {"data/textures/stars/front.bmp",
+                                      "data/textures/stars/back.bmp",
+                                      "data/textures/stars/left.bmp",
+                                      "data/textures/stars/right.bmp",
+                                      "data/textures/stars/up.bmp",
+                                      "data/textures/stars/down.bmp"};
     skybox = new Skybox(files, 1000.0f);
 
     // select path type

@@ -26,6 +26,8 @@
 #include "src/core/Camera.h"
 #include "src/tube-traveller/TubeTraveller.h"
 #include "src/physic-spheres/PhysicSpheres.h"
+#include "src/island-traveller/IslandTraveller.h"
+#include "src/map-navigator/MapNav.h"
 
 // forward declarations
 GLFWwindow* openGLInit();
@@ -89,14 +91,15 @@ int main() {
             TextureCylinderLight::LIGHTSTYLE_POINT;
 
     GLint numCenters = 100;
-    TubeTraveller scene = TubeTraveller(numCenters, pathType, tubeType,
-                                            textureType, lightStyle);
+//    TubeTraveller scene = TubeTraveller(numCenters, pathType, tubeType,
+//                                            textureType, lightStyle);
 
 
 //    PhysicSpheres scene = PhysicSpheres();
 
-//    Island scene = Island();
+//    IslandTraveller scene = IslandTraveller();
 
+    MapNav scene = MapNav();
 
     // initialize player
     Player player = Player();

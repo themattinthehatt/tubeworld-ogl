@@ -66,6 +66,7 @@ public:
     void incrementSpeed(GLfloat increment) { speed += increment; }
     void setSpeed(GLfloat new_speed) { speed = new_speed; }
     void incrementRotationSpeed(GLfloat increment) { rotationSpeed += increment; }
+    void setRotationSpeed(GLfloat new_speed) { rotationSpeed = new_speed; }
     void setVerticalAngle(GLfloat angle) { verticalAngle = angle; }
     void setHorizontalAngle(GLfloat angle) { horizontalAngle = angle; }
     void setLastTime(GLfloat time) { lastTime = time; }
@@ -84,6 +85,7 @@ public:
     void rotateRight(GLfloat rotationAngle);
     void rotateLeft(GLfloat rotationAngle);
     void moveTheta(GLfloat rotationAngle, glm::vec3 origin);
+
 };
 
 

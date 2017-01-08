@@ -18,6 +18,7 @@ set(SOURCE_FILES
         src/core/loaders/loadCubemap.cpp
         src/core/loaders/loadObj.cpp
         src/core/loaders/loadObjIndexed.cpp
+        src/map-navigator/MapNav.cpp
         src/tube-traveller/TubeTraveller.cpp
         src/tube-traveller/path-generators/PathCircle.cpp
         src/tube-traveller/path-generators/PathUserInput.cpp
@@ -29,7 +30,10 @@ set(SOURCE_FILES
         src/tube-traveller/texture-generators/Rainbow.cpp
         src/tube-traveller/texture-generators/Binary.cpp
         src/tube-traveller/texture-generators/Noise.cpp
-        src/physic-spheres/PhysicSpheres.cpp)
+        src/physic-spheres/PhysicSpheres.cpp
+        src/island-traveller/Island.cpp
+        src/island-traveller/IslandTraveller.cpp
+        )
 
 
 add_executable(tubeworld ${SOURCE_FILES})
