@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 #include "../core/Skybox.h"
 #include "Island.h"
+#include "../test-sketches/Sketch01.h"
 
 class IslandTraveller {
 private:
@@ -16,14 +17,22 @@ private:
 
 public:
 
-    Skybox *skybox;
-    Island *island;
+    // set up island info
+    GLint islandEndCount;
+    GLint islandCounter;
+    GLint stopIslandFlag;
 
+    GLint sketchEndCount;
+    GLint sketchCounter;
+    GLint stopSketchFlag;
+
+    Island *island;
+    Sketch01 *sketch;
     IOHandler &io;
 
     // constructor
     IslandTraveller();
-    // update dynamics of island
+    // update dynamics of island (output determines island/tube transition)
     bool update(Camera &cam, Player &player);
     // draw island
     void draw();

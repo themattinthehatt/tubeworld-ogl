@@ -31,8 +31,8 @@ set(SOURCE_FILES
         src/tube-traveller/texture-generators/Binary.cpp
         src/tube-traveller/texture-generators/Noise.cpp
         src/physic-spheres/PhysicSpheres.cpp
-        src/island-traveller/Island.cpp
         src/island-traveller/IslandTraveller.cpp
+        src/island-traveller/perlin-block/PerlinBlock.cpp
         )
 
 

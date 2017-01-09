@@ -72,6 +72,8 @@ public:
     void setLastTime(GLfloat time) { lastTime = time; }
     void setCurrentTime(GLfloat time) { currentTime = time; }
     void setDeltaTime(GLfloat time) { deltaTime = time; }
+    void setAttributes(glm::vec3 position, GLfloat horizontalAngle,
+                       GLfloat verticalAngle, GLfloat speed, GLfloat rotSpeed);
 
     // movement functions
     void moveForward(GLfloat distance);

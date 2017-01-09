@@ -201,3 +201,21 @@ void Player::moveTheta(GLfloat rotationAngle, glm::vec3 origin) {
 //    heading = glm::vec3(model * glm::vec4(heading, 0.0f));
     horizontalAngle += rotationAngle;
 }
+void Player::setAttributes(glm::vec3 position, GLfloat horizontalAngle,
+                           GLfloat verticalAngle, GLfloat speed,
+                           GLfloat rotSpeed) {
+    setPosition(position);
+    setHorizontalAngle(horizontalAngle);
+    setVerticalAngle(verticalAngle);
+    setHeading(glm::vec3(
+            cos(horizontalAngle) * sin(verticalAngle),
+            sin(horizontalAngle) * sin(verticalAngle),
+            cos(verticalAngle)));
+    setRight(glm::vec3(
+            cos(horizontalAngle - PI/2),
+            sin(horizontalAngle - PI/2),
+            0));
+    setUp(glm::cross(getRight(), getHeading()));
+    setSpeed(speed);
+    setRotationSpeed(rotSpeed);
+}

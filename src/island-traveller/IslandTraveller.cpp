@@ -5,51 +5,121 @@
 #include <iostream>
 #include <vector>
 #include "IslandTraveller.h"
+#include "perlin-block/PerlinBlock.h"
 
 IslandTraveller::IslandTraveller() : io(IOHandler::getInstance()) {
 
-    // create skybox; +x, -x, +y, -y, +z, -z
-    std::vector<const char*> files = {"data/textures/sky/front.bmp",
-                                      "data/textures/sky/back.bmp",
-                                      "data/textures/sky/left.bmp",
-                                      "data/textures/sky/right.bmp",
-                                      "data/textures/sky/up.bmp",
-                                      "data/textures/sky/down.bmp"};
-    skybox = new Skybox(files, 1000.0f);
+    islandEndCount = 100;
+    islandCounter = islandEndCount + 1; // start rendering with island
+    stopIslandFlag = false;
 
-    /*
-     * front -> back, rotate cw x 1
-     * back -> front, rotate ccw x 1
-     * left - fine
-     * right - ccw x 2
-     * up - cw x 1
-     * down - cw x 1
-     */
+    sketchEndCount = 100;
+    sketchCounter = 0;
+    stopSketchFlag = false;
 
-    island = new Island();
+    // start rendering with island
+    island = new PerlinBlock();
+    sketch = nullptr;
 
 }
 
 bool IslandTraveller::update(Camera &cam, Player &player) {
 
-    // update player
-    player.update();
+    // if rendering island
+    if (islandCounter > 0) {
+        if (islandCounter > islandEndCount) {
+            // render island normally
+            stopIslandFlag = island->update(cam, player);
+            island->draw();
+            // look for return flag
+            if (stopIslandFlag > 1) {
+                // begin transition to sketch
+                islandCounter = islandEndCount;
+                // if stopIslandFlag == 0, do nothing
+                // if stopIslandFlag == 1, return true below
+            }
+        } else if (islandCounter > 1) {
+            // rendering with fade
+            islandCounter--;
+            island->update(cam, player);
+            island->draw();
+        } else if (islandCounter == 1) {
+            // final rendering of island
+            islandCounter--; // now equal to zero
+            island->update(cam, player);
+            island->draw();
+            island->clean();
+            delete island;
+            island = nullptr;
 
-    // compute view and projection matrices from player info
-    cam.update(player);
+            // initialize sketch
+            switch (stopIslandFlag) {
+                case 10:
+                    sketch = new Sketch01(0);
+                    break;
+                case 11:
+                    sketch = new Sketch01(1);
+                    break;
+                case 12:
+                    sketch = new Sketch01(2);
+                    break;
+                default:
+                    sketch = new Sketch01(0);
+            }
+            sketchCounter = sketchEndCount + 1;
 
-    // update island
-    island->update(cam, player);
+            // set player position
+            glm::vec3 position = glm::vec3(0,0,0);
+            GLfloat horizontalAngle = PI/2;
+            GLfloat verticalAngle = PI/2;
+            GLfloat speed = 10.f;
+            GLfloat rotSpeed = 1.f;
+            player.setAttributes(position, horizontalAngle, verticalAngle,
+                                 speed, rotSpeed);
 
-    // update skybox
-    skybox->update(cam);
+        }
+    }
 
-    // decide if tube entry is valid
-    glm::vec3 posPlayer = player.getPosition();
-    glm::vec3 posPortal = glm::vec3(2.f, 10.f, 2.f);
-    GLfloat dist = glm::distance(posPlayer, posPortal);
-    std::cout << dist << std::endl;
-    if (dist < 2.f) {
+    // if rendering sketch
+    if (sketchCounter > 0) {
+        if (sketchCounter > sketchEndCount) {
+            stopSketchFlag = sketch->update(cam, player);
+            sketch->draw();
+            if (stopSketchFlag > 0) {
+                // begin transition to island
+                sketchCounter = sketchEndCount;
+                // if stopIslandFlag == 0, do nothing
+            }
+        } else if (sketchCounter > 1) {
+            sketchCounter--;
+            // dim lighting
+            sketch->update(cam, player);
+            sketch->draw();
+        } else if (sketchCounter == 1) {
+            // final rendering of sketch
+            sketchCounter--; // now equal to zero
+            sketch->update(cam, player);
+            sketch->draw();
+            sketch->clean();
+            delete sketch;
+            sketch = nullptr;
+
+            // initialize island
+            island = new PerlinBlock();
+            islandCounter = islandEndCount + 1;
+
+            // set player position
+            glm::vec3 position = glm::vec3(0,0,0);
+            GLfloat horizontalAngle = PI/2;
+            GLfloat verticalAngle = PI/2;
+            GLfloat speed = 10.f;
+            GLfloat rotSpeed = 1.f;
+            player.setAttributes(position, horizontalAngle, verticalAngle,
+                                 speed, rotSpeed);
+        }
+    }
+
+    if (stopIslandFlag == 1) {
         return true;
     } else {
         return false;
@@ -58,13 +128,15 @@ bool IslandTraveller::update(Camera &cam, Player &player) {
 }
 
 void IslandTraveller::draw() {
-    island->draw();
-    skybox->draw();
 }
 
 void IslandTraveller::clean() {
-    skybox->clean();
-    island->clean();
-    delete skybox;
+    if (island) {
+        island->clean();
+    }
     delete island;
+    if (sketch) {
+        sketch->clean();
+    }
+    delete sketch;
 }

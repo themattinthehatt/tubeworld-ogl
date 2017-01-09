@@ -1,13 +1,33 @@
 //
-// Created by mattw on 1/7/17.
+// Created by mattw on 1/8/17.
 //
 
 #include <iostream>
 #include <vector>
-#include "Island.h"
-#include "../core/loaders/loadObj.h"
+#include "PerlinBlock.h"
+#include "../../core/loaders/loadObj.h"
 
-Island::Island() : io(IOHandler::getInstance()) {
+PerlinBlock::PerlinBlock() : io(IOHandler::getInstance()) {
+
+    // create skybox; +x, -x, +y, -y, +z, -z
+    std::vector<const char*> files = {"data/textures/sky/front.bmp",
+                                      "data/textures/sky/back.bmp",
+                                      "data/textures/sky/left.bmp",
+                                      "data/textures/sky/right.bmp",
+                                      "data/textures/sky/up.bmp",
+                                      "data/textures/sky/down.bmp"};
+    skybox = new Skybox(files, 1000.0f);
+
+    /*
+     * front -> back, rotate cw x 1
+     * back -> front, rotate ccw x 1
+     * left - fine
+     * right - ccw x 2
+     * up - cw x 1
+     * down - cw x 1
+     */
+
+
 
     // create and compile our GLSL program from the shaders
     shader = new Shader("src/island-traveller/SolidShader.vert",
@@ -121,16 +141,56 @@ Island::Island() : io(IOHandler::getInstance()) {
 
 }
 
-void Island::update(Camera &cam, Player &player) {
+GLint PerlinBlock::update(Camera &cam, Player &player) {
 
+    // update player
+    player.update();
+
+    // compute view and projection matrices from player info
+    cam.update(player);
+
+    // update skybox
+    skybox->update(cam);
+
+    // update uniforms
     time = glfwGetTime();
     mMatrix = glm::mat4(1.0);
     vpMatrix = cam.getProjection() * cam.getView();
     mvpMatrix = vpMatrix * mMatrix;
 
+    // determine return condition
+    glm::vec3 posPlayer = player.getPosition();
+    glm::vec3 posPortal = glm::vec3(2.f, 10.f, 2.f);
+    GLfloat dist = glm::distance(posPlayer, posPortal);
+    if (dist < 2.f) {
+        // player is close to block. Where?
+        if (posPlayer.x < 2.f && posPlayer.z < 3.f && posPlayer.y > 9.f) {
+            // player is on left side - go to sketch 0
+            return 10;
+        } else if (posPlayer.x > 2.f && posPlayer.z < 3.f && posPlayer.y > 9.f) {
+            // player is on right side - go to sketch 1
+            return 11;
+        } else if (posPlayer.y < 10.f && posPlayer.z < 3.f) {
+            // player is in front - go to sketch 2
+            return 12;
+        } else if (posPlayer.z > 3.f) {
+            // player is on top - go to tube
+            return 1;
+        } else {
+            // player is close but not to portal entrance
+            return 0;
+        }
+    } else {
+        // player is not close to portal
+        return 0;
+    }
+
 }
 
-void Island::draw() {
+void PerlinBlock::draw() {
+
+    // render skybox
+    skybox->draw();
 
     // use our shader (makes programID currently bound shader)
     shader->use();
@@ -152,7 +212,7 @@ void Island::draw() {
 
 }
 
-void Island::clean() {
+void PerlinBlock::clean() {
 
     glDeleteVertexArrays(1, &vertexArrayID);
     glDeleteBuffers(1, &vertexBufferID);
@@ -161,5 +221,8 @@ void Island::clean() {
 
     shader->clean();
     delete shader;
+
+    skybox->clean();
+    delete skybox;
 
 }

@@ -17,13 +17,15 @@ MapNav::MapNav() {
     island = new IslandTraveller();
 
     // set up tube info
-    tubeEndCount = 2000; // sec
+    tubeEndCount = 1000; // TODO sec
     tubeCounter = 0;
+    tube = nullptr;
 
 }
 
 void MapNav::update(Camera &cam, Player &player) {
 
+    // if rendering island
     if (islandCounter > 0) {
         if (islandCounter > islandEndCount) {
             stopIslandFlag = island->update(cam, player);
@@ -33,15 +35,15 @@ void MapNav::update(Camera &cam, Player &player) {
             }
         } else if (islandCounter > 1) {
             islandCounter--;
+            // dim island
             island->update(cam, player);
             island->draw();
         } else if (islandCounter == 1) {
-            // final rendering of island
-            islandCounter--;
-            island->update(cam, player);
-            island->draw();
+            islandCounter--; // now equal to zero
+            // delete island
             island->clean();
             delete island;
+            island = nullptr;
 
             // initialize tube traveller
             //    TubeTraveller::PathGeneratorType pathType =
@@ -76,6 +78,7 @@ void MapNav::update(Camera &cam, Player &player) {
         }
     }
 
+    // if rendering tube
     if (tubeCounter > 0) {
         if (tubeCounter > tubeEndCount) {
             tubeCounter--;
@@ -86,33 +89,28 @@ void MapNav::update(Camera &cam, Player &player) {
             // dim lighting
             tube->update(cam, player);
             tube->draw();
-        } else if (tubeCounter == 1) {
+        } else if (tubeCounter ==1) {
+            tubeCounter--; // now equal to zero
             // final rendering of tube
-            tubeCounter--;
             tube->update(cam, player);
             tube->draw();
             tube->clean();
             delete tube;
+            tube = nullptr;
+
 
             // initialize island
             island = new IslandTraveller();
             islandCounter = islandEndCount + 1;
 
-            // reset player position
-            player.setPosition(glm::vec3(0,0,0));
-            player.setHorizontalAngle(PI/2);
-            player.setVerticalAngle(PI/2);
-            player.setHeading(glm::vec3(
-                    cos(player.getHorizontalAngle()) * sin(player.getVerticalAngle()),
-                    sin(player.getHorizontalAngle()) * sin(player.getVerticalAngle()),
-                    cos(player.getVerticalAngle())));
-            player.setRight(glm::vec3(
-                    cos(player.getHorizontalAngle() - PI/2),
-                    sin(player.getHorizontalAngle() - PI/2),
-                    0));
-            player.setUp(glm::cross(player.getRight(), player.getHeading()));
-            player.setSpeed(10.f);
-            player.setRotationSpeed(1.0f);
+            // set player position
+            glm::vec3 position = glm::vec3(0,0,0);
+            GLfloat horizontalAngle = PI/2;
+            GLfloat verticalAngle = PI/2;
+            GLfloat speed = 10.f;
+            GLfloat rotSpeed = 1.f;
+            player.setAttributes(position, horizontalAngle, verticalAngle,
+                                 speed, rotSpeed);
 
         }
     }
@@ -123,5 +121,12 @@ void MapNav::draw() {
 }
 
 void MapNav::clean() {
-
+    if (island) {
+        island->clean();
+    }
+    delete island;
+    if (tube) {
+        tube->clean();
+    }
+    delete tube;
 }
