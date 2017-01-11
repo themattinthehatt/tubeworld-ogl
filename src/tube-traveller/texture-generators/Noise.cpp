@@ -262,6 +262,7 @@ void Noise::draw(int index) {
 }
 
 void Noise::clean() {
+    glDeleteTextures(numTextures, textureIDs);
     delete[] textureIDs;
 }
 

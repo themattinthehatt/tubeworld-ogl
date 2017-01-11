@@ -190,6 +190,7 @@ void Binary::draw(int index) {
 }
 
 void Binary::clean() {
+    glDeleteTextures(numTextures, textureIDs);
     delete[] textureIDs;
 }
 

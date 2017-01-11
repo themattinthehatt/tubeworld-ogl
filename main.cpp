@@ -141,9 +141,6 @@ int main() {
         // check for mouse and keyboard events
         glfwPollEvents();
 
-        // clear the screen
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         // update render mode if tab key was just released
         if (io.keysToggled[GLFW_KEY_CAPS_LOCK] != polygonTrigger) {
             polygonTrigger = !polygonTrigger;
@@ -220,8 +217,10 @@ GLFWwindow* openGLInit() {
     int xResolution = mode->width;
     int yResolution = mode->height;
 
-    GLuint screenWidth = xResolution; //1200;
-    GLuint screenHeight = yResolution; //900;
+    GLuint screenWidth = xResolution;
+    GLuint screenHeight = yResolution;
+//    GLuint screenWidth = 1200;
+//    GLuint screenHeight = 900;
     GLFWwindow *window = glfwCreateWindow(screenWidth, screenHeight,
                                           "tubeworld 2.0", nullptr, nullptr);
 //  GLFWwindow * window = glfwCreateWindow(screenWidth, screenHeight,

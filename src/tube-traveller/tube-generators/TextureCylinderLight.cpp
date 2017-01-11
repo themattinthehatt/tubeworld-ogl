@@ -423,9 +423,9 @@ void TextureCylinderLight::clean() {
     delete texture;
     shader->clean();
     delete shader;
-    if (light != nullptr) {
+    if (light) {
         light->clean();
-        delete light;
     }
+    delete light;
 
 }

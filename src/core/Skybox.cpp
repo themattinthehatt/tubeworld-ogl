@@ -167,7 +167,6 @@ void Skybox::clean() {
     glDeleteVertexArrays(1, &vertexArrayID);
     glDeleteTextures(1, &textureID);
     glDeleteBuffers(1, &vertexBufferID);
-
 }
 
 /*

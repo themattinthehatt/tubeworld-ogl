@@ -1,6 +1,6 @@
 %-------------------------------------------------------------------------------
 % 01/07/2017
-- create basic world setup with 2 islands and tubes connecting them
+- (DONE) create basic world setup with 2 islands and tubes connecting them
   and 2 sketches per island
 - create abstract class for islands; be sure to include
     + final post-processing step (render to a quad/use framebuffers)

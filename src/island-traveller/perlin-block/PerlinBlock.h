@@ -18,6 +18,17 @@ private:
 
 public:
 
+    // Island.h contains parameters for fading
+
+    // framebuffer info
+    GLuint framebufferID;
+    GLuint fboColorTextureID;
+    GLuint renderbufferID;
+    GLuint screenVAOID;
+    GLuint screenVertexBufferID;
+    GLuint screenUVBufferID;
+    GLint numScreenVertices;
+
     Skybox *skybox;
 
     std::vector<glm::vec3> islandCoordinates;
@@ -26,6 +37,7 @@ public:
     GLint numVertices;
 
     Shader *shader;
+    Shader *postShader;
 //    Light *light;
 
     GLuint vertexArrayID;
@@ -47,8 +59,12 @@ public:
     PerlinBlock();
     // update dynamics of island
     GLint update(Camera &cam, Player &player);
-    // draw island
+    // draw island to screen
     void draw();
+    // draw island to framebuffer
+    void renderOffscreen();
+    // play with post-processing effects
+    void postProcess();
     // clean up VAOs, VBOs, etc.
     void clean();
 

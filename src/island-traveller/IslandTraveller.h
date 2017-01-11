@@ -18,6 +18,7 @@ private:
 public:
 
     // set up island info
+    GLint islandBegCount;
     GLint islandEndCount;
     GLint islandCounter;
     GLint stopIslandFlag;

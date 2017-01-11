@@ -9,8 +9,9 @@
 
 IslandTraveller::IslandTraveller() : io(IOHandler::getInstance()) {
 
-    islandEndCount = 100;
-    islandCounter = islandEndCount + 1; // start rendering with island
+    islandBegCount = 300; // TODO sec
+    islandEndCount = 300; // TODO sec
+    islandCounter = islandEndCount + islandBegCount + 1; // start rendering with island
     stopIslandFlag = false;
 
     sketchEndCount = 100;
@@ -27,26 +28,35 @@ bool IslandTraveller::update(Camera &cam, Player &player) {
 
     // if rendering island
     if (islandCounter > 0) {
-        if (islandCounter > islandEndCount) {
+        if (islandCounter > islandEndCount + 1) {
+            // rendering with fade in
+            islandCounter--;
+            island->update(cam, player);
+            island->setFadeStep(static_cast<GLfloat>(islandCounter - islandEndCount - 1));
+            island->setFadeTotal(static_cast<GLfloat>(islandBegCount));
+            island->draw();
+        } else if (islandCounter > islandEndCount) {
             // render island normally
             stopIslandFlag = island->update(cam, player);
             island->draw();
             // look for return flag
-            if (stopIslandFlag > 1) {
+            if (stopIslandFlag >= 1) {
                 // begin transition to sketch
                 islandCounter = islandEndCount;
                 // if stopIslandFlag == 0, do nothing
                 // if stopIslandFlag == 1, return true below
             }
         } else if (islandCounter > 1) {
-            // rendering with fade
+            // rendering with fade out; no player movement
             islandCounter--;
-            island->update(cam, player);
+            island->setFadeStep(static_cast<GLfloat>(islandEndCount - islandCounter + 1));
+            island->setFadeTotal(static_cast<GLfloat>(islandEndCount));
             island->draw();
         } else if (islandCounter == 1) {
-            // final rendering of island
+            // final rendering of island; no player movement
             islandCounter--; // now equal to zero
-            island->update(cam, player);
+            island->setFadeStep(static_cast<GLfloat>(islandEndCount - islandCounter + 1));
+            island->setFadeTotal(static_cast<GLfloat>(islandEndCount));
             island->draw();
             island->clean();
             delete island;
@@ -106,7 +116,7 @@ bool IslandTraveller::update(Camera &cam, Player &player) {
 
             // initialize island
             island = new PerlinBlock();
-            islandCounter = islandEndCount + 1;
+            islandCounter = islandEndCount + islandBegCount + 1;
 
             // set player position
             glm::vec3 position = glm::vec3(0,0,0);

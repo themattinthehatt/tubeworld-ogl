@@ -20,6 +20,7 @@ public:
     IslandTraveller *island;
 
     // set up island info
+    GLint islandBegCount;
     GLint islandEndCount;
     GLint islandCounter;
     bool stopIslandFlag;

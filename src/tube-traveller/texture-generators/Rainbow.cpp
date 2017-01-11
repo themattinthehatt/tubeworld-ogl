@@ -94,6 +94,7 @@ void Rainbow::draw(int index) {
 }
 
 void Rainbow::clean() {
+    glDeleteTextures(numTextures, textureIDs);
     delete[] textureIDs;
 }
 

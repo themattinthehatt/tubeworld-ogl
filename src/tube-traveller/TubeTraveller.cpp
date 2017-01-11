@@ -93,8 +93,16 @@ void TubeTraveller::update(Camera &cam, Player &player) {
 }
 
 void TubeTraveller::draw() {
-    tube->draw();
+
+    // set up framebuffer
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+
+    // draw
     skybox->draw();
+    tube->draw();
 }
 
 void TubeTraveller::clean() {

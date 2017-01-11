@@ -11,14 +11,17 @@
 MapNav::MapNav() {
 
     // set up island info
-    islandEndCount = 100;
-    islandCounter = islandEndCount + 1;
+    islandBegCount = 300;
+    islandEndCount = 300;
+    islandCounter = islandEndCount + islandBegCount + 1;
     stopIslandFlag = false;
-    island = new IslandTraveller();
 
     // set up tube info
     tubeEndCount = 1000; // TODO sec
     tubeCounter = 0;
+
+    // start rendering with island
+    island = new IslandTraveller();
     tube = nullptr;
 
 }
@@ -27,18 +30,29 @@ void MapNav::update(Camera &cam, Player &player) {
 
     // if rendering island
     if (islandCounter > 0) {
+        if (islandCounter > islandEndCount + 1) {
+            // rendering with fade in
+            islandCounter--;
+            island->update(cam, player);
+            island->draw();
+        }
         if (islandCounter > islandEndCount) {
+            // render island normally
             stopIslandFlag = island->update(cam, player);
             island->draw();
+            // look for return flag
             if (stopIslandFlag) {
+                // begin transition to sketch
                 islandCounter = islandEndCount;
             }
         } else if (islandCounter > 1) {
+            // rendering with fade out
             islandCounter--;
             // dim island
             island->update(cam, player);
             island->draw();
         } else if (islandCounter == 1) {
+            // no rendering of island
             islandCounter--; // now equal to zero
             // delete island
             island->clean();

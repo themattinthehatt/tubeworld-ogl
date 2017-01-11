@@ -82,6 +82,6 @@ void StaticFiles::draw(int index) {
 }
 
 void StaticFiles::clean() {
+    glDeleteTextures(numTextures, textureIDs);
     delete[] textureIDs;
 }
-
