@@ -9,13 +9,33 @@
 
 IslandTraveller::IslandTraveller() : io(IOHandler::getInstance()) {
 
-    islandBegCount = 300; // TODO sec
-    islandEndCount = 300; // TODO sec
-    islandCounter = islandEndCount + islandBegCount + 1; // start rendering with island
+    // keep track of time changes
+    timePrevious = 0.f;
+    timeCurrent = glfwGetTime();
+    timeDelta = 0.f;
+
+    stopIslandTraveller = false; // to return to MapNav class
+
+    // island flags/timers
+    renderIslandFadeIn = true;
+    renderIslandNormal = false;
+    renderIslandFadeOut = false;
+    renderIslandFinal = false;
+    renderIsland = true;
+    islandFadeInTime = 0.5f;     // sec
+    islandFadeOutTime = 0.5f;    // sec
+    islandTimeCumulative = 0.f;
     stopIslandFlag = false;
 
-    sketchEndCount = 100;
-    sketchCounter = 0;
+    // sketch flags/timers
+    renderSketchFadeIn = false;
+    renderSketchNormal = false;
+    renderSketchFadeOut = false;
+    renderSketchFinal = false;
+    renderSketch = false;
+    sketchFadeInTime = 0.5f;     // sec
+    sketchFadeOutTime = 0.5f;   // sec
+    sketchTimeCumulative = 0.f;
     stopSketchFlag = false;
 
     // start rendering with island
@@ -26,114 +46,157 @@ IslandTraveller::IslandTraveller() : io(IOHandler::getInstance()) {
 
 bool IslandTraveller::update(Camera &cam, Player &player) {
 
+    timePrevious = timeCurrent;
+    timeCurrent = glfwGetTime();
+    timeDelta = timeCurrent - timePrevious;
+
     // if rendering island
-    if (islandCounter > 0) {
-        if (islandCounter > islandEndCount + 1) {
+    if (renderIsland) {
+        if (renderIslandFadeIn) {
             // rendering with fade in
-            islandCounter--;
+            islandTimeCumulative += timeDelta;
+            if (islandTimeCumulative > islandFadeInTime) {
+                islandTimeCumulative = islandFadeInTime;
+                renderIslandFadeIn = false;
+                renderIslandNormal = true;
+            }
             island->update(cam, player);
-            island->setFadeStep(static_cast<GLfloat>(islandCounter - islandEndCount - 1));
-            island->setFadeTotal(static_cast<GLfloat>(islandBegCount));
+            island->setFadeStep(islandFadeInTime - islandTimeCumulative);
+            island->setFadeTotal(islandFadeInTime);
             island->draw();
-        } else if (islandCounter > islandEndCount) {
+        } else if (renderIslandNormal) {
             // render island normally
             stopIslandFlag = island->update(cam, player);
             island->draw();
             // look for return flag
             if (stopIslandFlag >= 1) {
                 // begin transition to sketch
-                islandCounter = islandEndCount;
-                // if stopIslandFlag == 0, do nothing
-                // if stopIslandFlag == 1, return true below
+                renderIslandNormal = false;
+                renderIslandFadeOut = true;
+                islandTimeCumulative = 0.f;
             }
-        } else if (islandCounter > 1) {
+        } else if (renderIslandFadeOut) {
             // rendering with fade out; no player movement
-            islandCounter--;
-            island->setFadeStep(static_cast<GLfloat>(islandEndCount - islandCounter + 1));
-            island->setFadeTotal(static_cast<GLfloat>(islandEndCount));
+            islandTimeCumulative += timeDelta;
+            if (islandTimeCumulative > islandFadeOutTime) {
+                islandTimeCumulative = islandFadeOutTime;
+                renderIslandFadeOut = false;
+                renderIslandFinal = true;
+            }
+            island->setFadeStep(islandTimeCumulative);
+            island->setFadeTotal(islandFadeOutTime);
             island->draw();
-        } else if (islandCounter == 1) {
-            // final rendering of island; no player movement
-            islandCounter--; // now equal to zero
-            island->setFadeStep(static_cast<GLfloat>(islandEndCount - islandCounter + 1));
-            island->setFadeTotal(static_cast<GLfloat>(islandEndCount));
-            island->draw();
+        } else if (renderIslandFinal) {
+            // no actual rendering; clean up for transition to sketch
             island->clean();
             delete island;
             island = nullptr;
 
-            // initialize sketch
-            switch (stopIslandFlag) {
-                case 10:
-                    sketch = new Sketch01(0);
-                    break;
-                case 11:
-                    sketch = new Sketch01(1);
-                    break;
-                case 12:
-                    sketch = new Sketch01(2);
-                    break;
-                default:
-                    sketch = new Sketch01(0);
+            // reset island flags/time
+            islandTimeCumulative = 0.f;
+            renderIsland = false;
+            renderIslandFinal = false;
+
+            if (stopIslandFlag == 1) {
+                // return to MapNav
+                stopIslandTraveller = true;
+            } else {
+                renderSketch = true;
+                renderSketchFadeIn = true;
+                // initialize sketch
+                switch (stopIslandFlag) {
+                    case 10:
+                        sketch = new Sketch01(0);
+                        break;
+                    case 11:
+                        sketch = new Sketch01(1);
+                        break;
+                    case 12:
+                        sketch = new Sketch01(2);
+                        break;
+                    default:
+                        sketch = new Sketch01(0);
+                }
+
+                // set player position
+                glm::vec3 position = glm::vec3(0, 0, 0);
+                GLfloat horizontalAngle = PI / 2;
+                GLfloat verticalAngle = PI / 2;
+                GLfloat speed = 10.f;
+                GLfloat rotSpeed = 1.f;
+                player.setAttributes(position, horizontalAngle, verticalAngle,
+                                     speed, rotSpeed);
             }
-            sketchCounter = sketchEndCount + 1;
-
-            // set player position
-            glm::vec3 position = glm::vec3(0,0,0);
-            GLfloat horizontalAngle = PI/2;
-            GLfloat verticalAngle = PI/2;
-            GLfloat speed = 10.f;
-            GLfloat rotSpeed = 1.f;
-            player.setAttributes(position, horizontalAngle, verticalAngle,
-                                 speed, rotSpeed);
-
         }
     }
 
     // if rendering sketch
-    if (sketchCounter > 0) {
-        if (sketchCounter > sketchEndCount) {
+    if (renderSketch) {
+        if (renderSketchFadeIn) {
+            // rendering with fade in
+            sketchTimeCumulative += timeDelta;
+            if (sketchTimeCumulative > sketchFadeInTime) {
+                sketchTimeCumulative = sketchFadeInTime;
+                renderSketchFadeIn = false;
+                renderSketchNormal = true;
+            }
+            sketch->update(cam, player);
+            sketch->setFadeStep(sketchFadeInTime - sketchTimeCumulative);
+            sketch->setFadeTotal(sketchFadeInTime);
+            sketch->draw();
+        } else if (renderSketchNormal) {
+            // render sketch normally
             stopSketchFlag = sketch->update(cam, player);
             sketch->draw();
+            // look for return flag
             if (stopSketchFlag > 0) {
                 // begin transition to island
-                sketchCounter = sketchEndCount;
-                // if stopIslandFlag == 0, do nothing
+                renderSketchNormal = false;
+                renderSketchFadeOut = true;
+                sketchTimeCumulative = 0.f;
             }
-        } else if (sketchCounter > 1) {
-            sketchCounter--;
-            // dim lighting
-            sketch->update(cam, player);
+        } else if (renderSketchFadeOut) {
+            // rendering with fade out; no player movement
+            sketchTimeCumulative += timeDelta;
+            if (sketchTimeCumulative > sketchFadeOutTime) {
+                sketchTimeCumulative = sketchFadeOutTime;
+                renderSketchFadeOut = false;
+                renderSketchFinal = true;
+            }
+            sketch->setFadeStep(sketchTimeCumulative);
+            sketch->setFadeTotal(sketchFadeOutTime);
             sketch->draw();
-        } else if (sketchCounter == 1) {
+        } else if (renderSketchFinal) {
             // final rendering of sketch
-            sketchCounter--; // now equal to zero
             sketch->update(cam, player);
             sketch->draw();
             sketch->clean();
             delete sketch;
             sketch = nullptr;
 
+            // reset island/sketch flags/time
+            sketchTimeCumulative = 0.f;
+            renderSketch = false;
+            renderSketchFinal = false;
+            renderIsland = true;
+            renderIslandFadeIn = true;
+
             // initialize island
             island = new PerlinBlock();
-            islandCounter = islandEndCount + islandBegCount + 1;
 
             // set player position
-            glm::vec3 position = glm::vec3(0,0,0);
-            GLfloat horizontalAngle = PI/2;
-            GLfloat verticalAngle = PI/2;
+            glm::vec3 position = glm::vec3(0, 0, 0);
+            GLfloat horizontalAngle = PI / 2;
+            GLfloat verticalAngle = PI / 2;
             GLfloat speed = 10.f;
             GLfloat rotSpeed = 1.f;
             player.setAttributes(position, horizontalAngle, verticalAngle,
                                  speed, rotSpeed);
+
         }
     }
 
-    if (stopIslandFlag == 1) {
-        return true;
-    } else {
-        return false;
-    }
+    return stopIslandTraveller;
 
 }
 

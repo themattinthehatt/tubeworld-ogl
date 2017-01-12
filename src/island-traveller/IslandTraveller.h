@@ -17,14 +17,33 @@ private:
 
 public:
 
-    // set up island info
-    GLint islandBegCount;
-    GLint islandEndCount;
-    GLint islandCounter;
+    // time info
+    GLfloat timePrevious;
+    GLfloat timeCurrent;
+    GLfloat timeDelta;
+
+    bool stopIslandTraveller;
+
+    // island info
+    bool renderIslandFadeIn;
+    bool renderIslandNormal;
+    bool renderIslandFadeOut;
+    bool renderIslandFinal;
+    bool renderIsland;
+    GLfloat islandFadeInTime;
+    GLfloat islandFadeOutTime;
+    GLfloat islandTimeCumulative;
     GLint stopIslandFlag;
 
-    GLint sketchEndCount;
-    GLint sketchCounter;
+    // sketch info
+    bool renderSketchFadeIn;
+    bool renderSketchNormal;
+    bool renderSketchFadeOut;
+    bool renderSketchFinal;
+    bool renderSketch;
+    GLfloat sketchFadeInTime;
+    GLfloat sketchFadeOutTime;
+    GLfloat sketchTimeCumulative;
     GLint stopSketchFlag;
 
     Island *island;

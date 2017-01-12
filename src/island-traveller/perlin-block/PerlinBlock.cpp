@@ -208,7 +208,7 @@ void PerlinBlock::draw() {
     // render scene to offscreen framebuffer
     renderOffscreen();
 
-    // do final post processing to color buffer of offscreen framebuffer
+    // do final post-processing to color buffer of offscreen framebuffer
     postProcess();
 
 }
@@ -283,6 +283,9 @@ void PerlinBlock::clean() {
 
     skybox->clean();
     delete skybox;
+
+    fbo->clean();
+    delete fbo;
 
     postShader->clean();
     delete postShader;

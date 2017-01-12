@@ -12,6 +12,7 @@
 #include "../core/Skybox.h"
 #include "../core/Shader.h"
 #include "../core/loaders/loadObj.h"
+#include "../core/FramebufferObject.h"
 
 class Sketch01 {
 
@@ -41,6 +42,18 @@ public:
     GLint mvpMatrixID;
     GLfloat time;
     GLint timeParamID;
+
+    // for fading into and out of island
+    GLfloat fadeStep;
+    GLfloat fadeTotal;
+    glm::vec3 fadeColor;
+    GLint fadeStepID;
+    GLint fadeTotalID;
+    GLint fadeColorID;
+
+    // for post-processing
+    FramebufferObject *fbo;
+    Shader *postShader;
 
     IOHandler &io;
 
@@ -87,9 +100,8 @@ public:
                 break;
         }
 
-
         // -------------------------------------------------------------------------
-        //                          Initialize buffers
+        //                          Create VAO
         // -------------------------------------------------------------------------
 
         // load cylinder model
@@ -97,9 +109,6 @@ public:
                            islandCoordinates, uvs, normals);
         numVertices = static_cast<GLuint>(islandCoordinates.size());
 
-        // -------------------------------------------------------------------------
-        //                          Create VAO
-        // -------------------------------------------------------------------------
         // create VAO to store:
         // - calls to glEnableVertexAttribArray or glDisableVertexAttribArray
         // - vertex attribute configurations via glVertexAttribPointer
@@ -194,6 +203,26 @@ public:
         mvpMatrixID = glGetUniformLocation(shader->programID, "mvpMatrix");
         timeParamID = glGetUniformLocation(shader->programID, "time");
 
+        // -------------------------------------------------------------------------
+        //                          Postprocessing
+        // -------------------------------------------------------------------------
+
+        fbo  = new FramebufferObject();
+
+        postShader = new Shader("src/island-traveller/perlin-block/PostProcessingShader.vert",
+                                "src/island-traveller/perlin-block/PostProcessingShader.frag");
+
+        // post processing uniforms
+        fadeStep = 0.f;
+        fadeTotal = 1.f;
+        fadeColor = glm::vec3(0.f, 0.f, 0.f);
+        fadeStepID = glGetUniformLocation(postShader->programID, "fadeStep");
+        fadeTotalID = glGetUniformLocation(postShader->programID, "fadeTotal");
+        fadeColorID = glGetUniformLocation(postShader->programID, "targetColor");
+        glUniform3fv(fadeColorID, 1, &fadeColor[0]);
+        glUniform1f(fadeStepID, fadeStep);
+        glUniform1f(fadeTotalID, fadeTotal);
+
     }
 
     GLint update(Camera &cam, Player &player) {
@@ -222,6 +251,26 @@ public:
 
     void draw() {
 
+        // render scene to offscreen framebuffer
+        renderOffscreen();
+
+        // do final post-processing to color buffer of offscreen framebuffer
+        postProcess();
+
+    }
+
+    void renderOffscreen() {
+
+        // FIRST PASS: OFF-SCREEN RENDERING
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo->getFramebufferID());
+        // now all subsequent rendering operations will render to the attachments of
+        // the currently bound framebuffer, but will have no impact on the visual
+        // output of the application since we are not rendering to the default
+        // framebuffer
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // no stencil buffer now
+        glEnable(GL_DEPTH_TEST);
+
         // render skybox
         skybox->draw();
 
@@ -245,6 +294,29 @@ public:
 
     }
 
+    void postProcess() {
+
+        // SECOND PASS: ON-SCREEN RENDERING
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        // now all subsequent rendering operations will render to the attachments of
+        // the default framebuffer, and as such will be rendered to the scene
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glDisable(GL_DEPTH_TEST);
+
+        // use post-processing shader
+        postShader->use();
+
+        // send uniforms to fragment shader
+        glUniform3fv(fadeColorID, 1, &fadeColor[0]);
+        glUniform1f(fadeStepID, fadeStep);
+        glUniform1f(fadeTotalID, fadeTotal);
+
+        // render fbo color texture attachment to screen
+        fbo->render();
+
+    }
+
     void clean() {
 
         glDeleteVertexArrays(1, &vertexArrayID);
@@ -258,7 +330,17 @@ public:
         skybox->clean();
         delete skybox;
 
+        fbo->clean();
+        delete fbo;
+
+        postShader->clean();
+        delete postShader;
+
     }
+
+    // setters
+    void setFadeStep(GLfloat fadeStep_) {fadeStep = fadeStep_; };
+    void setFadeTotal(GLfloat fadeTotal_) {fadeTotal = fadeTotal_; };
 
 };
 

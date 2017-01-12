@@ -1,9 +1,5 @@
 TODO:
 - use shader class in skybox
-- create offscreen framebuffer class
-    inputs: see learnopengl ex.; try to make as general as possible
-- change island counters to seconds instead of frames
-- update sketch - render to offscreen framebuffer, change counters, fade in/out
 - update tubetravellers - render to offscreen buffer (just light?), change 
   counters, fade in/out
 - bloom on TextureCylinderLight class
@@ -11,3 +7,10 @@ TODO:
   classes?)
 - make first round of perlin-block updates - put island generation (block 
   centers and model matrices) in own function to be called from constructor
+
+
+
+- (DONE 01/11/16) create offscreen framebuffer class
+- (DONE 01/11/16) change island counters to seconds instead of frames
+- (DONE 01/11/16) update sketch - render to offscreen framebuffer, change 
+    counters, fade in/out

@@ -17,7 +17,7 @@ MapNav::MapNav() {
     stopIslandFlag = false;
 
     // set up tube info
-    tubeEndCount = 1000; // TODO sec
+    tubeEndCount = 10000; // TODO sec
     tubeCounter = 0;
 
     // start rendering with island
@@ -43,17 +43,11 @@ void MapNav::update(Camera &cam, Player &player) {
             // look for return flag
             if (stopIslandFlag) {
                 // begin transition to sketch
-                islandCounter = islandEndCount;
+                islandCounter = 1;
             }
-        } else if (islandCounter > 1) {
-            // rendering with fade out
-            islandCounter--;
-            // dim island
-            island->update(cam, player);
-            island->draw();
         } else if (islandCounter == 1) {
             // no rendering of island
-            islandCounter--; // now equal to zero
+            islandCounter = 0; // now equal to zero
             // delete island
             island->clean();
             delete island;
