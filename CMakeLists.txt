@@ -11,6 +11,7 @@ set(SOURCE_FILES
         lib/PerlinNoise.cpp
         src/core/Player.cpp
         src/core/Camera.cpp
+        src/core/FramebufferObject.cpp
         src/core/Skybox.cpp
         src/core/vboIndexer.cpp
         src/core/loaders/loadShaders.cpp

@@ -10,6 +10,7 @@
 #include "../../core/Skybox.h"
 #include "../../core/Shader.h"
 #include "../Island.h"
+#include "../../core/FramebufferObject.h"
 
 class PerlinBlock : public Island {
 
@@ -20,15 +21,6 @@ public:
 
     // Island.h contains parameters for fading
 
-    // framebuffer info
-    GLuint framebufferID;
-    GLuint fboColorTextureID;
-    GLuint renderbufferID;
-    GLuint screenVAOID;
-    GLuint screenVertexBufferID;
-    GLuint screenUVBufferID;
-    GLint numScreenVertices;
-
     Skybox *skybox;
 
     std::vector<glm::vec3> islandCoordinates;
@@ -37,7 +29,6 @@ public:
     GLint numVertices;
 
     Shader *shader;
-    Shader *postShader;
 //    Light *light;
 
     GLuint vertexArrayID;
@@ -52,6 +43,10 @@ public:
     GLint mvpMatrixID;
     GLfloat time;
     GLint timeParamID;
+
+    // for post-processing
+    FramebufferObject *fbo;
+    Shader *postShader;
 
     IOHandler &io;
 
