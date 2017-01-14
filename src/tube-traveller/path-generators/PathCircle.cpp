@@ -8,7 +8,7 @@
 
 #include "PathCircle.h"
 
-PathCircle::PathCircle(GLint numCenters_)
+PathCircle::PathCircle(GLint numCenters_, GLfloat spacing_)
         :
         io(IOHandler::getInstance()){
 
@@ -16,7 +16,7 @@ PathCircle::PathCircle(GLint numCenters_)
     numCenters = numCenters_;
 
     // distance between slice centers
-    spacing = 20.f;
+    spacing = spacing_;
 
     // radius of circle
     radius = 100.f;

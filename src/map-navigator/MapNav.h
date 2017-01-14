@@ -19,15 +19,26 @@ public:
     TubeTraveller *tube;
     IslandTraveller *island;
 
+    // keep track of time changes
+    GLfloat timePrevious;
+    GLfloat timeCurrent;
+    GLfloat timeDelta;
+
     // set up island info
-    GLint islandBegCount;
-    GLint islandEndCount;
-    GLint islandCounter;
+    bool renderIsland;
     bool stopIslandFlag;
 
     // set up tube info
-    GLint tubeEndCount;
-    GLint tubeCounter;
+    bool renderTubeFadeIn;
+    bool renderTubeNormal;
+    bool renderTubeFadeOut;
+    bool renderTubeFinal;
+    bool renderTube;
+    GLfloat tubeFadeInTime;
+    GLfloat tubeFadeOutTime;
+    GLfloat tubeTotalTime;
+    GLfloat tubeTimeCumulative;
+    bool stopTubeFlag;
 
     // constructor
     MapNav();

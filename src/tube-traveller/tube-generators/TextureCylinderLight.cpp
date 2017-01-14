@@ -344,7 +344,7 @@ void TextureCylinderLight::update(const PathGenerator *path, Camera &cam ) {
 void TextureCylinderLight::draw() {
 
     // draw lamp
-    if (light != nullptr) {
+    if (light) {
         light->draw();
     }
 
@@ -352,7 +352,7 @@ void TextureCylinderLight::draw() {
     shader->use();
 
     // send light data to fragment shader
-    if (light != nullptr) {
+    if (light) {
         light->setUniforms();
     }
 

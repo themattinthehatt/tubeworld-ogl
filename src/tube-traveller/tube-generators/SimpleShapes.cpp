@@ -20,7 +20,7 @@ SimpleShapes::SimpleShapes(GLint numCenters_, RingModelType ringModelType_)
     numCenters = numCenters_;
 
     // create and compile our GLSL program from the shaders
-    shaderID = loadShaders("src/tube-traveller/shaders/SolidPulsingShader.vert",
+    shaderID = loadShaders("src/tube-traveller/shaders/SolidShader.vert",
                            "src/tube-traveller/shaders/SolidShader.frag");
 
     // give the MVP matrix to GLSL; get a handle on our uniforms
@@ -46,11 +46,11 @@ SimpleShapes::SimpleShapes(GLint numCenters_, RingModelType ringModelType_)
             numVertices = static_cast<GLuint>(cubeModelCoordinates.size());
             GLint numCubesHorizontal = 5;
             GLint numCubesVertical = 5;
-            spacing = 8.0f;     // distance between cube centers
+            spacing = 4.0f;     // distance between cube centers
             numModelsPerRing = 2*numCubesHorizontal + 2*(numCubesVertical-2);
             numVerticesPerInstance = numVertices;
 
-            sideLength = 2.0f;
+            sideLength = 10.0f;
 
             modelOffsets = new glm::vec3[numModelsPerRing];
             // get radial offsets

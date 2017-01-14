@@ -253,11 +253,11 @@ void Noise::update(const PathGenerator *path) {
 void Noise::draw(int index) {
 
     // Activate the texture unit first before binding texture
-    glActiveTexture(GL_TEXTURE0 + index);
+    glActiveTexture(GL_TEXTURE0);
     // bind texture to the currently active texture unit
     glBindTexture(GL_TEXTURE_2D, textureIDs[index]);
     // puts the texture in texture unit 0
-    glUniform1i(samplerID, index);
+    glUniform1i(samplerID, 0);
 
 }
 

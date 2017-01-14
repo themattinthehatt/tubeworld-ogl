@@ -29,7 +29,7 @@ public:
     IOHandler &io;
 
     // constructor
-    PathUserInput(GLint numCenters);
+    PathUserInput(GLint numCenters, GLfloat spacing);
     // update dynamics of tube positions
     void update(Player &player);
     // clean up dynamically allocated memory

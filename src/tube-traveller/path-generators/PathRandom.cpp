@@ -15,7 +15,7 @@
 
 #include "PathRandom.h"
 
-PathRandom::PathRandom(GLint numCenters_)
+PathRandom::PathRandom(GLint numCenters_, GLfloat spacing_)
         :
         io(IOHandler::getInstance()){
 
@@ -23,7 +23,7 @@ PathRandom::PathRandom(GLint numCenters_)
     numCenters = numCenters_;
 
     // distance between slice centers
-    spacing = 1.8f;
+    spacing = spacing_;
 
     // initial changes to changes in horizontal and vertical angles
     deltaHorzAngleUpdate = 0.f;

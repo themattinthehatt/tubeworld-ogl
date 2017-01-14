@@ -17,7 +17,7 @@ public:
     IOHandler &io;
 
     // constructor
-    PathCircle(GLint numCenters);
+    PathCircle(GLint numCenters, GLfloat spacing);
     // update dynamics of tube positions
     void update(Player &player);
     // clean up dynamically allocated memory

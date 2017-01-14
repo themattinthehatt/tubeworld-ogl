@@ -15,6 +15,7 @@
 #include "tube-generators/TubeGenerator.h"
 #include "tube-generators/TextureCylinderLight.h"
 #include "../core/Skybox.h"
+#include "../core/FramebufferObject.h"
 
 class TubeTraveller {
 private:
@@ -22,9 +23,20 @@ private:
 
 public:
 
+    // for drawing tube
     Skybox *skybox;
     PathGenerator *path;
     TubeGenerator *tube;
+
+    // for post-processing
+    FramebufferObject *fbo;
+    Shader *postShader;
+    GLfloat fadeStep;
+    GLfloat fadeTotal;
+    glm::vec3 fadeColor;
+    GLint fadeStepID;
+    GLint fadeTotalID;
+    GLint fadeColorID;
 
     IOHandler &io;
 
@@ -57,12 +69,20 @@ public:
                   TubeType tubeType,
                   TextureCylinderLight::TextureType textureType,
                   TextureCylinderLight::LightStyle lightStyle);
-    // update dynamics of cube array
+    // update dynamics of tube
     void update(Camera &cam, Player &player);
-    // draw cube array
+    // draw tube
     void draw();
+    // draw tube to framebuffer
+    void renderOffscreen();
+    // play with post-processing effects
+    void postProcess();
     // clean up VAOs, VBOs, etc.
     void clean();
+
+    // setters
+    void setFadeStep(GLfloat fadeStep_) {fadeStep = fadeStep_; };
+    void setFadeTotal(GLfloat fadeTotal_) {fadeTotal = fadeTotal_; };
 
 };
 

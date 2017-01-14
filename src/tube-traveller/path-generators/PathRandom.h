@@ -49,7 +49,7 @@ public:
     IOHandler &io;
 
     // constructor
-    PathRandom(GLint numCenters);
+    PathRandom(GLint numCenters, GLfloat spacing);
     // update dynamics of tube positions
     void update(Player &player);
     // clean up dynamically allocated memory
