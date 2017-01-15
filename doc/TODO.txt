@@ -1,20 +1,16 @@
 TODO:
 - use shader class in skybox
 - use shader class in SimpleShapes
-
 - bloom on TextureCylinderLight class
+
 
 - make first round of perlin-block updates - put island generation (block 
   centers and model matrices) in own function to be called from constructor
 
-- make first pass at portal class (abstract w/ different tube/sketch derived 
-  classes?)
-
+- (DONE 01/14/17) make first pass at portal class
 - (DONE 01/14/16) update tubetravellers - render to offscreen buffer, change
     counters to seconds, fade in/out
 - (DONE 01/11/16) update sketch - render to offscreen framebuffer, change 
     counters, fade in/out
 - (DONE 01/11/16) change island counters to seconds instead of frames
 - (DONE 01/11/16) create offscreen framebuffer class
-
-

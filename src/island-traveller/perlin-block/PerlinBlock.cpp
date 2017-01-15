@@ -6,10 +6,11 @@
 #include <vector>
 #include <glm/gtc/matrix_transform.hpp>
 #include "PerlinBlock.h"
-#include "../../core/loaders/loadObj.h"
-#include "PerlinBlockPortal.h"
 
 PerlinBlock::PerlinBlock() : io(IOHandler::getInstance()) {
+
+    // create island
+    island = new PerlinBlockIsland();
 
     // create skybox; +x, -x, +y, -y, +z, -z
     std::vector<const char*> files = {"data/textures/sky/front.bmp",
@@ -29,29 +30,32 @@ PerlinBlock::PerlinBlock() : io(IOHandler::getInstance()) {
      * down - cw x 1
      */
 
-    // create and compile our GLSL program from the shaders
-    shader = new Shader("src/island-traveller/perlin-block/SolidShader.vert",
-                        "src/island-traveller/perlin-block/SolidShader.frag");
 
     // -------------------------------------------------------------------------
     //                          Create portals
     // -------------------------------------------------------------------------
 
-    // create sketch portals
     numSketchPortals = 3;
-    std::vector<glm::vec3> sketchPortalCenters = {
-                                    glm::vec3(4.95f, 10.f, 1.f),
-                                    glm::vec3(15.05f, 10.f, 1.f),
-                                    glm::vec3(10.f, 4.95f, 1.f)};
-    std::vector<glm::vec3> sketchPortalHeadings = {
-                                    glm::vec3(-1.f, 0.f, 0.f),
-                                    glm::vec3(1.f, 0.f, 0.f),
-                                    glm::vec3(0.f, -1.f, 0.f)};
-    std::vector<const char*> sketchPortalFileLocs = {
-                                    "data/textures/cave2.bmp",
-                                    "data/textures/cave2.bmp",
-                                    "data/textures/cave2.bmp"};
+    numTubePortals = 1;
 
+    // placeholders for island->getPortalInfo return values
+    std::vector<glm::vec3> sketchPortalCenters;
+    std::vector<glm::vec3> sketchPortalHeadings;
+    std::vector<const char*> sketchPortalFileLocs;
+    std::vector<glm::vec3> tubePortalCenters;
+    std::vector<glm::vec3> tubePortalHeadings;
+    std::vector<const char*> tubePortalFileLocs;
+
+    // fill placeholders
+    island->getPortalInfo(numSketchPortals, numTubePortals,
+                          sketchPortalCenters,
+                          sketchPortalHeadings,
+                          sketchPortalFileLocs,
+                          tubePortalCenters,
+                          tubePortalHeadings,
+                          tubePortalFileLocs);
+
+    // create sketch portals
     for (int i = 0; i < numSketchPortals; ++i) {
         sketchPortals.push_back(PerlinBlockPortal(
                                     sketchPortalCenters[i],
@@ -60,129 +64,12 @@ PerlinBlock::PerlinBlock() : io(IOHandler::getInstance()) {
     }
 
     // create tube portals
-    numTubePortals = 1;
-    std::vector<glm::vec3> tubePortalCenters = {
-            glm::vec3(10.f, 10.f, 4.05f)};
-    std::vector<glm::vec3> tubePortalHeadings = {
-            glm::vec3(0.f, 0.f, 1.f)};
-    std::vector<const char*> tubePortalFileLocs = {
-            "data/textures/temp2.bmp"};
-
     for (int i = 0; i < numTubePortals; ++i) {
         tubePortals.push_back(PerlinBlockPortal(
                 tubePortalCenters[i],
                 tubePortalHeadings[i],
                 tubePortalFileLocs[i]));
     }
-
-    // -------------------------------------------------------------------------
-    //                          Create scene VAO
-    // -------------------------------------------------------------------------
-
-    // load cylinder model
-    bool res = loadObj("data/obj/cube.obj",
-                       islandCoordinates, uvs, normals);
-    numVertices = static_cast<GLuint>(islandCoordinates.size());
-
-
-    // create VAO to store:
-    // - calls to glEnableVertexAttribArray or glDisableVertexAttribArray
-    // - vertex attribute configurations via glVertexAttribPointer
-    // - VBOs assocatiated with vertex attributes by calls to glVertexAttribPointer
-    glGenVertexArrays(1, &vertexArrayID);
-    // use a VAO by binding it
-    glBindVertexArray(vertexArrayID);
-    // from here we bind/config corresponding VBO(s) and attribute pointers
-
-
-    // ISLAND COORDINATES
-    // generate 1 buffer, put the resulting identifier in vertexBufferID
-    glGenBuffers(1, &vertexBufferID);
-    // bind newly created buffer to GL_ARRAY_BUFFER target
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
-    // copy data into buffer's memory
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * numVertices,
-                 &islandCoordinates[0], GL_STATIC_DRAW);
-
-    // set vertex attribute pointers
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(
-            0,         // attribute 0; must match "layout" in shader
-            3,         // size (# vertices)
-            GL_FLOAT,  // type
-            GL_FALSE,  // normalized?
-            0,         // stride
-            (GLvoid*)0 // array buffer offset
-    );
-    // break buffer binding
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-
-    // ISLAND NORMALS
-    // generate 1 buffer, put the resulting identifier in uvBufferID
-    glGenBuffers(1, &normalBufferID);
-    // bind newly created buffer to GL_ARRAY_BUFFER target
-    glBindBuffer(GL_ARRAY_BUFFER, normalBufferID);
-    // copy data into buffer's memory
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * numVertices,
-                 &normals[0], GL_STATIC_DRAW);
-
-    // set vertex attribute pointers
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(
-            1,         // attribute 2; must match "layout" in shader
-            3,         // size (# vertices)
-            GL_FLOAT,  // type
-            GL_FALSE,  // normalized?
-            0,         // stride
-            (GLvoid*)0 // array buffer offset
-    );
-    // break buffer binding
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-
-    // ISLAND UV COORDINATES
-    // generate 1 buffer, put the resulting identifier in uvBufferID
-    glGenBuffers(1, &uvBufferID);
-    // bind newly created buffer to GL_ARRAY_BUFFER target
-    glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
-    // copy data into buffer's memory
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * numVertices,
-                 &uvs[0], GL_STATIC_DRAW);
-
-    // set vertex attribute pointers
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(
-            2,         // attribute 2; must match "layout" in shader
-            2,         // size (# vertices)
-            GL_FLOAT,  // type
-            GL_FALSE,  // normalized?
-            0,         // stride
-            (GLvoid*)0 // array buffer offset
-    );
-    // break buffer binding
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    // unbind the VAO
-    glBindVertexArray(0);
-
-    // -------------------------------------------------------------------------
-    //                          Initialize scene uniforms
-    // -------------------------------------------------------------------------
-
-    // vertex shader uniforms
-    mMatrix = glm::mat4(1.0);
-    vpMatrix = glm::mat4(1.0);
-    mvpMatrix = glm::mat4(1.0);
-    mMatrixID = glGetUniformLocation(shader->programID, "mMatrix");
-    vpMatrixID = glGetUniformLocation(shader->programID, "vpMatrix");
-    mvpMatrixID = glGetUniformLocation(shader->programID, "mvpMatrix");
-    timeParamID = glGetUniformLocation(shader->programID, "time");
-
-    glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.f), glm::vec3(5.f, 5.f, 2.f));
-    glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(10.f, 10.f, 2.f));
-    mMatrix = translateMatrix * scaleMatrix * mMatrix;
-
 
     // -------------------------------------------------------------------------
     //                          Postprocessing
@@ -217,6 +104,9 @@ GLint PerlinBlock::update(Camera &cam, Player &player) {
     // update skybox
     skybox->update(cam);
 
+    // update island
+    island->update(cam, player);
+
     // update sketch portals
     for (int i = 0; i < numSketchPortals; ++i) {
         sketchPortals[i].update(cam, player);
@@ -227,11 +117,6 @@ GLint PerlinBlock::update(Camera &cam, Player &player) {
         tubePortals[i].update(cam, player);
     }
 
-    // update uniforms
-    time = glfwGetTime();
-//    mMatrix = glm::mat4(1.0);
-    vpMatrix = cam.getProjection() * cam.getView();
-    mvpMatrix = vpMatrix * mMatrix;
 
     // determine return condition
     glm::vec3 posPlayer = player.getPosition();
@@ -252,32 +137,8 @@ GLint PerlinBlock::update(Camera &cam, Player &player) {
         }
     }
 
+    // otherwise, no transition
     return 0;
-
-//    glm::vec3 posPortal = glm::vec3(2.f, 10.f, 2.f);
-//    GLfloat dist = glm::distance(posPlayer, posPortal);
-//    if (dist < 2.f) {
-//        // player is close to block. Where?
-//        if (posPlayer.x < 2.f && posPlayer.z < 3.f && posPlayer.y > 9.f) {
-//            // player is on left side - go to sketch 0
-//            return 10;
-//        } else if (posPlayer.x > 2.f && posPlayer.z < 3.f && posPlayer.y > 9.f) {
-//            // player is on right side - go to sketch 1
-//            return 11;
-//        } else if (posPlayer.y < 10.f && posPlayer.z < 3.f) {
-//            // player is in front - go to sketch 2
-//            return 12;
-//        } else if (posPlayer.z > 3.f) {
-//            // player is on top - go to tube
-//            return 1;
-//        } else {
-//            // player is close but not to portal entrance
-//            return 0;
-//        }
-//    } else {
-//        // player is not close to portal
-//        return 0;
-//    }
 
 }
 
@@ -307,6 +168,9 @@ void PerlinBlock::renderOffscreen() {
     // render skybox
     skybox->draw();
 
+    // render island
+    island->draw();
+
     // draw sketch portals
     for (int i = 0; i < numSketchPortals; ++i) {
         sketchPortals[i].draw();
@@ -316,22 +180,6 @@ void PerlinBlock::renderOffscreen() {
     for (int i = 0; i < numTubePortals; ++i) {
         tubePortals[i].draw();
     }
-
-    // use our shader (makes programID currently bound shader)
-    shader->use();
-
-    // send data to vertex shader
-    glUniformMatrix4fv(mMatrixID, 1, GL_FALSE, &mMatrix[0][0]);
-    glUniformMatrix4fv(vpMatrixID, 1, GL_FALSE, &vpMatrix[0][0]);
-    glUniformMatrix4fv(mvpMatrixID, 1, GL_FALSE, &mvpMatrix[0][0]);
-    glUniform1f(timeParamID, time);
-
-    // bind vertex array
-    glBindVertexArray(vertexArrayID);
-    // draw arrays using currently active shaders
-    glDrawArrays(GL_TRIANGLES, 0, numVertices);
-    // break vertex array object binding
-    glBindVertexArray(0);
 
 }
 
@@ -361,17 +209,11 @@ void PerlinBlock::postProcess() {
 
 void PerlinBlock::clean() {
 
-    // scene
-    glDeleteVertexArrays(1, &vertexArrayID);
-    glDeleteBuffers(1, &vertexBufferID);
-    glDeleteBuffers(1, &normalBufferID);
-    glDeleteBuffers(1, &uvBufferID);
-
-    shader->clean();
-    delete shader;
-
     skybox->clean();
     delete skybox;
+
+    island->clean();
+    delete island;
 
     fbo->clean();
     delete fbo;

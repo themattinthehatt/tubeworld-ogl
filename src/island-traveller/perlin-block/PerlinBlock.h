@@ -7,12 +7,11 @@
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
-#include "../../core/Skybox.h"
-#include "../../core/Shader.h"
 #include "../Island.h"
-#include "../../core/FramebufferObject.h"
-#include "../Portal.h"
+#include "../../core/Skybox.h"
 #include "PerlinBlockPortal.h"
+#include "PerlinBlockIsland.h"
+#include "../../core/FramebufferObject.h"
 
 class PerlinBlock : public Island {
 
@@ -23,32 +22,15 @@ public:
 
     // Island.h contains parameters for fading
 
-    Skybox *skybox;
+    // island components
     std::vector<PerlinBlockPortal> sketchPortals;
-    GLint numSketchPortals;
     std::vector<PerlinBlockPortal> tubePortals;
+
+    PerlinBlockIsland *island;
+    Skybox *skybox;
+    GLint numSketchPortals;
     GLint numTubePortals;
-
-    std::vector<glm::vec3> islandCoordinates;
-    std::vector<glm::vec2> uvs;
-    std::vector<glm::vec3> normals;
-    GLint numVertices;
-
-    Shader *shader;
-//    Light *light;
-
-    GLuint vertexArrayID;
-    GLuint vertexBufferID;
-    GLuint normalBufferID;
-    GLuint uvBufferID;
-    glm::mat4 mMatrix;
-    glm::mat4 vpMatrix;
-    glm::mat4 mvpMatrix;
-    GLint mMatrixID;
-    GLint vpMatrixID;
-    GLint mvpMatrixID;
-    GLfloat time;
-    GLint timeParamID;
+    // Light *light;
 
     // for post-processing
     FramebufferObject *fbo;
