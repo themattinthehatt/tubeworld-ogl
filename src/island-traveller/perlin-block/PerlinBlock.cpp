@@ -4,8 +4,10 @@
 
 #include <iostream>
 #include <vector>
+#include <glm/gtc/matrix_transform.hpp>
 #include "PerlinBlock.h"
 #include "../../core/loaders/loadObj.h"
+#include "PerlinBlockPortal.h"
 
 PerlinBlock::PerlinBlock() : io(IOHandler::getInstance()) {
 
@@ -30,6 +32,48 @@ PerlinBlock::PerlinBlock() : io(IOHandler::getInstance()) {
     // create and compile our GLSL program from the shaders
     shader = new Shader("src/island-traveller/perlin-block/SolidShader.vert",
                         "src/island-traveller/perlin-block/SolidShader.frag");
+
+    // -------------------------------------------------------------------------
+    //                          Create portals
+    // -------------------------------------------------------------------------
+
+    // create sketch portals
+    numSketchPortals = 3;
+    std::vector<glm::vec3> sketchPortalCenters = {
+                                    glm::vec3(4.95f, 10.f, 1.f),
+                                    glm::vec3(15.05f, 10.f, 1.f),
+                                    glm::vec3(10.f, 4.95f, 1.f)};
+    std::vector<glm::vec3> sketchPortalHeadings = {
+                                    glm::vec3(-1.f, 0.f, 0.f),
+                                    glm::vec3(1.f, 0.f, 0.f),
+                                    glm::vec3(0.f, -1.f, 0.f)};
+    std::vector<const char*> sketchPortalFileLocs = {
+                                    "data/textures/cave2.bmp",
+                                    "data/textures/cave2.bmp",
+                                    "data/textures/cave2.bmp"};
+
+    for (int i = 0; i < numSketchPortals; ++i) {
+        sketchPortals.push_back(PerlinBlockPortal(
+                                    sketchPortalCenters[i],
+                                    sketchPortalHeadings[i],
+                                    sketchPortalFileLocs[i]));
+    }
+
+    // create tube portals
+    numTubePortals = 1;
+    std::vector<glm::vec3> tubePortalCenters = {
+            glm::vec3(10.f, 10.f, 4.05f)};
+    std::vector<glm::vec3> tubePortalHeadings = {
+            glm::vec3(0.f, 0.f, 1.f)};
+    std::vector<const char*> tubePortalFileLocs = {
+            "data/textures/temp2.bmp"};
+
+    for (int i = 0; i < numTubePortals; ++i) {
+        tubePortals.push_back(PerlinBlockPortal(
+                tubePortalCenters[i],
+                tubePortalHeadings[i],
+                tubePortalFileLocs[i]));
+    }
 
     // -------------------------------------------------------------------------
     //                          Create scene VAO
@@ -135,6 +179,11 @@ PerlinBlock::PerlinBlock() : io(IOHandler::getInstance()) {
     mvpMatrixID = glGetUniformLocation(shader->programID, "mvpMatrix");
     timeParamID = glGetUniformLocation(shader->programID, "time");
 
+    glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.f), glm::vec3(5.f, 5.f, 2.f));
+    glm::mat4 translateMatrix = glm::translate(glm::mat4(1.f), glm::vec3(10.f, 10.f, 2.f));
+    mMatrix = translateMatrix * scaleMatrix * mMatrix;
+
+
     // -------------------------------------------------------------------------
     //                          Postprocessing
     // -------------------------------------------------------------------------
@@ -168,38 +217,67 @@ GLint PerlinBlock::update(Camera &cam, Player &player) {
     // update skybox
     skybox->update(cam);
 
+    // update sketch portals
+    for (int i = 0; i < numSketchPortals; ++i) {
+        sketchPortals[i].update(cam, player);
+    }
+
+    // update tube portals
+    for (int i = 0; i < numTubePortals; ++i) {
+        tubePortals[i].update(cam, player);
+    }
+
     // update uniforms
     time = glfwGetTime();
-    mMatrix = glm::mat4(1.0);
+//    mMatrix = glm::mat4(1.0);
     vpMatrix = cam.getProjection() * cam.getView();
     mvpMatrix = vpMatrix * mMatrix;
 
     // determine return condition
     glm::vec3 posPlayer = player.getPosition();
-    glm::vec3 posPortal = glm::vec3(2.f, 10.f, 2.f);
-    GLfloat dist = glm::distance(posPlayer, posPortal);
-    if (dist < 2.f) {
-        // player is close to block. Where?
-        if (posPlayer.x < 2.f && posPlayer.z < 3.f && posPlayer.y > 9.f) {
-            // player is on left side - go to sketch 0
-            return 10;
-        } else if (posPlayer.x > 2.f && posPlayer.z < 3.f && posPlayer.y > 9.f) {
-            // player is on right side - go to sketch 1
-            return 11;
-        } else if (posPlayer.y < 10.f && posPlayer.z < 3.f) {
-            // player is in front - go to sketch 2
-            return 12;
-        } else if (posPlayer.z > 3.f) {
-            // player is on top - go to tube
-            return 1;
-        } else {
-            // player is close but not to portal entrance
-            return 0;
+    glm::vec3 headingPlayer = player.getHeading();
+
+    // loop through sketch portals
+    for (int i = 0; i < numSketchPortals; ++i) {
+        GLfloat dist = glm::distance(posPlayer, sketchPortals[i].center);
+        if (dist < 1.f && glm::dot(headingPlayer, sketchPortals[i].heading) < 0.f) {
+            return (10 + i);
         }
-    } else {
-        // player is not close to portal
-        return 0;
     }
+    // loop through tube portals
+    for (int i = 0; i < numTubePortals; ++i) {
+        GLfloat dist = glm::distance(posPlayer, tubePortals[i].center);
+        if (dist < 1.f && glm::dot(headingPlayer, tubePortals[i].heading) < 0.f) {
+            return (1 + i);
+        }
+    }
+
+    return 0;
+
+//    glm::vec3 posPortal = glm::vec3(2.f, 10.f, 2.f);
+//    GLfloat dist = glm::distance(posPlayer, posPortal);
+//    if (dist < 2.f) {
+//        // player is close to block. Where?
+//        if (posPlayer.x < 2.f && posPlayer.z < 3.f && posPlayer.y > 9.f) {
+//            // player is on left side - go to sketch 0
+//            return 10;
+//        } else if (posPlayer.x > 2.f && posPlayer.z < 3.f && posPlayer.y > 9.f) {
+//            // player is on right side - go to sketch 1
+//            return 11;
+//        } else if (posPlayer.y < 10.f && posPlayer.z < 3.f) {
+//            // player is in front - go to sketch 2
+//            return 12;
+//        } else if (posPlayer.z > 3.f) {
+//            // player is on top - go to tube
+//            return 1;
+//        } else {
+//            // player is close but not to portal entrance
+//            return 0;
+//        }
+//    } else {
+//        // player is not close to portal
+//        return 0;
+//    }
 
 }
 
@@ -217,6 +295,7 @@ void PerlinBlock::renderOffscreen() {
 
     // FIRST PASS: OFF-SCREEN RENDERING
     glBindFramebuffer(GL_FRAMEBUFFER, fbo->getFramebufferID());
+//    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     // now all subsequent rendering operations will render to the attachments of
     // the currently bound framebuffer, but will have no impact on the visual
     // output of the application since we are not rendering to the default
@@ -227,6 +306,16 @@ void PerlinBlock::renderOffscreen() {
 
     // render skybox
     skybox->draw();
+
+    // draw sketch portals
+    for (int i = 0; i < numSketchPortals; ++i) {
+        sketchPortals[i].draw();
+    }
+
+    // draw tube portals
+    for (int i = 0; i < numTubePortals; ++i) {
+        tubePortals[i].draw();
+    }
 
     // use our shader (makes programID currently bound shader)
     shader->use();

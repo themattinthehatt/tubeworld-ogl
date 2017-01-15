@@ -11,6 +11,8 @@
 #include "../../core/Shader.h"
 #include "../Island.h"
 #include "../../core/FramebufferObject.h"
+#include "../Portal.h"
+#include "PerlinBlockPortal.h"
 
 class PerlinBlock : public Island {
 
@@ -22,6 +24,10 @@ public:
     // Island.h contains parameters for fading
 
     Skybox *skybox;
+    std::vector<PerlinBlockPortal> sketchPortals;
+    GLint numSketchPortals;
+    std::vector<PerlinBlockPortal> tubePortals;
+    GLint numTubePortals;
 
     std::vector<glm::vec3> islandCoordinates;
     std::vector<glm::vec2> uvs;

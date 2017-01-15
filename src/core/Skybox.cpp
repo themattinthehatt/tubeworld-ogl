@@ -138,6 +138,7 @@ void Skybox::draw() {
             glDrawArrays(GL_TRIANGLES, 0, numVertices);
             // break vertex array object binding
             glBindVertexArray(0);
+
             // binds texture to the currently active texture unit
             glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 

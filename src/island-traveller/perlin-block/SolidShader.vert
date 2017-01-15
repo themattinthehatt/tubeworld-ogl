@@ -10,6 +10,5 @@ uniform mat4 mvpMatrix;
 
 void main() // main function
 {
-    vec3 center = vec3(2.f, 10.f, 2.f);
-    gl_Position = vpMatrix * vec4(center + vertexPos, 1);
+    gl_Position = vpMatrix * mMatrix * vec4(vertexPos, 1);
 }

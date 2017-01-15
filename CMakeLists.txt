@@ -34,6 +34,7 @@ set(SOURCE_FILES
         src/physic-spheres/PhysicSpheres.cpp
         src/island-traveller/IslandTraveller.cpp
         src/island-traveller/perlin-block/PerlinBlock.cpp
+        src/island-traveller/perlin-block/PerlinBlockPortal.cpp
         )
 
 
