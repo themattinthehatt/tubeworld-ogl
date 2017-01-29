@@ -2,7 +2,33 @@ TODO:
 - use shader class in skybox
 - use shader class in SimpleShapes
 - bloom on TextureCylinderLight class
-
+- make SmoothRandomWalker class
+- use SmoothRandomWalker class in PathRandom class
+- light intensity guided by random walk rather than sinusoid (make option)
+- move to HDR lighting in TextureCylinderLight
+- fix aliasing issues in textures rendered to offscreen framebuffer/can dot mode
+  and line mode be used when rendering to offscreen buffer?
+- add (sun)light to island
+- make input struct to TextureCylinderLight
+    *tubeRadius             [10.f]
+    *tubeLength             [2.f]
+    *textureType            [TEXTURE_RAINBOW]
+    *numTextures            100
+    *grayscaleTex           [false]
+    *noise properties (could this go somewhere else?)
+        *interpLinear       [true]
+        *woodGrain          [false]
+        *mirrorTex          [true]
+    *lighting properties
+        *lightStyle         [LIGHTSTYLE_POINT]
+        *thresh_val         [0]
+        *lampColorMax       (1.f, 1.f, 0.8f)
+        *lightAmbientMax    (0.5)
+        *lightDiffuseMax    (1.f)
+        *lightSpecularMax   (1.f)
+        *lightAttLin        (0.022f)
+        *lightAttQuad       (0.0019f)
+        *lightIntensity     (1.f)            
 
 - make first round of perlin-block updates - put island generation (block 
   centers and model matrices) in own function to be called from constructor

@@ -30,6 +30,8 @@ PerlinBlock::PerlinBlock() : io(IOHandler::getInstance()) {
      * down - cw x 1
      */
 
+    // create light
+    light = new PerlinBlockLight(island->shader->programID);
 
     // -------------------------------------------------------------------------
     //                          Create portals
@@ -107,6 +109,9 @@ GLint PerlinBlock::update(Camera &cam, Player &player) {
     // update island
     island->update(cam, player);
 
+    // update light
+    light->update(cam);
+
     // update sketch portals
     for (int i = 0; i < numSketchPortals; ++i) {
         sketchPortals[i].update(cam, player);
@@ -148,15 +153,15 @@ void PerlinBlock::draw() {
     renderOffscreen();
 
     // do final post-processing to color buffer of offscreen framebuffer
-    postProcess();
+//    postProcess();
 
 }
 
 void PerlinBlock::renderOffscreen() {
 
     // FIRST PASS: OFF-SCREEN RENDERING
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo->getFramebufferID());
-//    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//    glBindFramebuffer(GL_FRAMEBUFFER, fbo->getFramebufferID());
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     // now all subsequent rendering operations will render to the attachments of
     // the currently bound framebuffer, but will have no impact on the visual
     // output of the application since we are not rendering to the default
@@ -167,6 +172,13 @@ void PerlinBlock::renderOffscreen() {
 
     // render skybox
     skybox->draw();
+
+    // render lamp
+//    light->draw();
+
+    // set uniforms for light
+    island->shader->use();
+    light->setUniforms();
 
     // render island
     island->draw();
@@ -214,6 +226,9 @@ void PerlinBlock::clean() {
 
     island->clean();
     delete island;
+
+    light->clean();
+    delete light;
 
     fbo->clean();
     delete fbo;

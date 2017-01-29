@@ -11,7 +11,9 @@
 #include "../../core/Skybox.h"
 #include "PerlinBlockPortal.h"
 #include "PerlinBlockIsland.h"
+#include "PerlinBlockLight.h"
 #include "../../core/FramebufferObject.h"
+
 
 class PerlinBlock : public Island {
 
@@ -30,7 +32,7 @@ public:
     Skybox *skybox;
     GLint numSketchPortals;
     GLint numTubePortals;
-    // Light *light;
+    PerlinBlockLight *light;
 
     // for post-processing
     FramebufferObject *fbo;

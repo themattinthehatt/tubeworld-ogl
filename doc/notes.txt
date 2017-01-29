@@ -1,4 +1,17 @@
 %-------------------------------------------------------------------------------
+% 01/28/2017
+- make perlin noise in textureCylinderLight grayscale - change color of light to 
+  change overall color of tube
+- threshold intensities so that floating blobs of color define tube boundaries
+- new tubetraveller class - Canyon
+- new path-generator class? RandomSmoothedNoise (low-pass filter N(0,1) values;
+  how to rescale to maintain some sort of constant stddev for different filters?
+- first island - tube development (and guided tour)?
+- colliding cirlces governing gaussian blobs resting on top of them; height/std
+  determined by frequency
+- nighttime island...
+
+%-------------------------------------------------------------------------------
 % 01/07/2017
 - (DONE) create basic world setup with 2 islands and tubes connecting them
   and 2 sketches per island

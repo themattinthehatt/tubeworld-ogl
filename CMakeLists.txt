@@ -35,7 +35,8 @@ set(SOURCE_FILES
         src/island-traveller/IslandTraveller.cpp
         src/island-traveller/perlin-block/PerlinBlock.cpp
         src/island-traveller/perlin-block/PerlinBlockPortal.cpp
-        src/island-traveller/perlin-block/PerlinBlockIsland.cpp)
+        src/island-traveller/perlin-block/PerlinBlockIsland.cpp
+        src/island-traveller/perlin-block/PerlinBlockLight.cpp)
 
 
 add_executable(tubeworld ${SOURCE_FILES})
