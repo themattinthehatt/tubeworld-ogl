@@ -64,29 +64,12 @@ int main() {
             LIGHTSTYLE_NONE,
             LIGHTSTYLE_POINT
     */
-
-//    TubeTraveller::PathGeneratorType pathType =
-//          TubeTraveller::PATH_CIRCLE;
-//    TubeTraveller::TubeType tubeType =
-//          TubeTraveller::TUBE_CUBES_SQ;
-
     TubeTraveller::PathGeneratorType pathType =
             TubeTraveller::PATH_RANDOM;
     TubeTraveller::TubeType tubeType =
             TubeTraveller::TUBE_TEXTURE_CYLINDER_LIGHT;
-
-    // Notes
-    // TextureType only applies to a TubeType of TUBE_TEXTURE_CYLINDER
-    // TEXTURE_BINARY and TEXTURE NOISE only work with PATH_RANDOM
-//    TextureCylinderLight::TextureType textureType =
-//            TextureCylinderLight::TEXTURE_FILES_STATIC;
-//    TextureCylinderLight::TextureType textureType =
-//            TextureCylinderLight::TEXTURE_RAINBOW;
-//    TextureCylinderLight::TextureType textureType =
-//            TextureCylinderLight::TEXTURE_BINARY;
     TextureCylinderLight::TextureType textureType =
-            TextureCylinderLight::TEXTURE_NOISE;
-
+            TextureCylinderLight::TEXTURE_BINARY;
     TextureCylinderLight::LightStyle lightStyle =
             TextureCylinderLight::LIGHTSTYLE_POINT;
 

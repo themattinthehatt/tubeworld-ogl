@@ -86,17 +86,22 @@ void main() {
 vec3 calcDirLight(DirLight light, vec3 normal, vec3 viewDir) {
 
     // calculate ambient lighting
-    vec3 ambient = light.ambient * vec3(texture(material.loadedTexture, textureCoords));
+    vec3 ambient = light.ambient
+                   * vec3(texture(material.loadedTexture, textureCoords));
 
     // calculate diffuse lighting
     vec3 lightDir = normalize(-light.direction);
     float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = light.diffuse * diff * vec3(texture(material.loadedTexture, textureCoords));
+    vec3 diffuse = light.diffuse
+                   * diff
+                   * vec3(texture(material.loadedTexture, textureCoords));
 
     // calculate specular lighting
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-    vec3 specular = light.specular * spec * vec3(1.0f); // full spec highlights for now
+    vec3 specular = light.specular
+                    * spec
+                    * vec3(1.f); //vec3(texture(material.loadedTexture, textureCoords)); // full spec highlights for now
 
     return (ambient + diffuse + specular);
 }
@@ -104,17 +109,22 @@ vec3 calcDirLight(DirLight light, vec3 normal, vec3 viewDir) {
 vec3 calcPointLight(PointLight light, vec3 normalVec, vec3 viewDir, vec3 fragPos) {
 
     // calculate ambient lighting
-    vec3 ambient = light.ambient * vec3(texture(material.loadedTexture, textureCoords));
+    vec3 ambient = light.ambient
+                   * vec3(texture(material.loadedTexture, textureCoords));
 
     // calculate diffuse lighting
     vec3 lightDir = normalize(light.position - fragPos);
     float diff = max(dot(normalVec, lightDir), 0.0);
-    vec3 diffuse = light.diffuse * diff * vec3(texture(material.loadedTexture, textureCoords));
+    vec3 diffuse = light.diffuse
+                   * diff
+                   * vec3(texture(material.loadedTexture, textureCoords));
 
     // calculate specular lighting
     vec3 reflectDir = reflect(-lightDir, normalVec);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32); //material.shininess);
-    vec3 specular = light.specular * spec * vec3(1.0f); // full spec highlights for now
+    vec3 specular = light.specular
+                    * spec
+                    * vec3(texture(material.loadedTexture, textureCoords));
 
     // calculate attenuation
     float distance = length(light.position - fragPos);

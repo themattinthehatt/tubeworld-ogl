@@ -62,12 +62,27 @@ TextureCylinderLight::TextureCylinderLight(GLint numCenters_,
         case TEXTURE_RAINBOW:
             texture = new Rainbow(shader->programID);
             break;
-        case TEXTURE_BINARY:
-            texture = new Binary(shader->programID);
+        case TEXTURE_BINARY: {
+            Binary::TexProperties texProps;
+            texProps.numBits = 12;              // width of texture
+            texProps.height = 3;                // height of texture
+            texProps.interpLinear = false;      // 1 for yes, 0 for nearest neighbor
+            texProps.grayscale = false;         // render image in grayscale
+            texture = new Binary(shader->programID, texProps);
             break;
-        case TEXTURE_NOISE:
-            texture = new Noise(shader->programID);
+        }
+        case TEXTURE_NOISE: {
+            Noise::TexProperties texProps;
+            texProps.width = 128;               // width of noise texture
+            texProps.height = 128;              // height of noise texture
+            texProps.interpLinear = true;       // 1 for yes, 0 for nearest neighbor
+            texProps.woodGrain = false;         // render "woodGrain" style
+            texProps.mirrorTex = true;          // mirror tex around tube centerline
+            texProps.grayscale = false;         // render grayscale noise
+            texProps.threshVal = 0.0f;          // values below threshVal rendered black
+            texture = new Noise(shader->programID, texProps);
             break;
+        }
         default:
             texture = new Rainbow(shader->programID);
     }

@@ -31,6 +31,9 @@ PerlinBlockPortal::PerlinBlockPortal(glm::vec3 center_, glm::vec3 heading_,
     int width, height;
     unsigned char *image = loadBMP(fileLoc, &width, &height);
 
+    for (int i = 0; i < height*width; ++i) {
+        image[i] = 0;
+    }
     // generate 1 texture ID, put the resutling identifier in textureID
     glGenTextures(1, &textureID);
     glActiveTexture(GL_TEXTURE0);
@@ -58,8 +61,8 @@ PerlinBlockPortal::PerlinBlockPortal(glm::vec3 center_, glm::vec3 heading_,
     delete[] image;
 
     // Set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
     // Set texture filtering parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

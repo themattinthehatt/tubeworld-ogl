@@ -57,6 +57,10 @@ public:
     GLint mvpMatrixID;
     GLint lampColorID;
 
+    // light properties
+    bool changeIntensity;
+    bool changeHue;
+
     // constructor
     Light(GLuint shaderID);
     // update

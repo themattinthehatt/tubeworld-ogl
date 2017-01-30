@@ -28,7 +28,7 @@ public:
     };
 
     // define light properties
-    struct lightProperties {
+    struct LightProperties {
         LightType type;
         glm::vec3 cameraPosition;
         glm::vec3 position;
@@ -47,7 +47,7 @@ public:
         GLfloat innerTheta;
         GLfloat outerTheta;
     };
-    lightProperties lightProps;
+    LightProperties lightProps;
 
     std::vector<glm::vec3> vertices;
     std::vector<glm::vec3> normals;

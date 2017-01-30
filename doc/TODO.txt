@@ -8,7 +8,8 @@ TODO:
 - move to HDR lighting in TextureCylinderLight
 - fix aliasing issues in textures rendered to offscreen framebuffer/can dot mode
   and line mode be used when rendering to offscreen buffer?
-- add (sun)light to island
+- turn PerlinBlockLight into a base class; have PerlinBlockLight and Light class 
+  from TubeTextureLight derive from it
 - make input struct to TextureCylinderLight
     *tubeRadius             [10.f]
     *tubeLength             [2.f]
@@ -30,9 +31,10 @@ TODO:
         *lightAttQuad       (0.0019f)
         *lightIntensity     (1.f)            
 
-- make first round of perlin-block updates - put island generation (block 
-  centers and model matrices) in own function to be called from constructor
-
+- (DONE 01/29/17) add (sun)light to island
+- (DONE 01/29/17) make first round of perlin-block updates - put island 
+    generation (block centers and model matrices) in own function to be called 
+    from constructor
 - (DONE 01/14/17) make first pass at portal class
 - (DONE 01/14/16) update tubetravellers - render to offscreen buffer, change
     counters to seconds, fade in/out

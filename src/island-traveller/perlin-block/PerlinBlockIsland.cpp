@@ -365,14 +365,14 @@ void PerlinBlockIsland::getPortalInfo(
     for (int i = 0; i < numSketchPortals; ++i) {
         sketchPortalCenters.push_back(boundaryCenters[i]);
         sketchPortalHeadings.push_back(boundaryNormals[i]);
-        sketchPortalFileLocs.push_back("data/textures/cave2.bmp");
+        sketchPortalFileLocs.push_back("data/textures/cave1.bmp");
     }
 
     // randomly choose locations for tube portals from boundary cubes
     for (int i = numSketchPortals; i < numSketchPortals + numTubePortals; ++i) {
         tubePortalCenters.push_back(boundaryCenters[i]);
         tubePortalHeadings.push_back(boundaryNormals[i]);
-        tubePortalFileLocs.push_back("data/textures/temp2.bmp");
+        tubePortalFileLocs.push_back("data/textures/cave1.bmp");
     }
 
     // clear up memory - boundary info no longer needed

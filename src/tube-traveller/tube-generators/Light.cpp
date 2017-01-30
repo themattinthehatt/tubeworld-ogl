@@ -4,6 +4,7 @@
 
 #include "Light.h"
 #include "../../core/loaders/loadObjIndexed.h"
+#include "../texture-generators/Noise.h"
 
 Light::Light(GLuint shaderID_) {
 
@@ -20,6 +21,9 @@ Light::Light(GLuint shaderID_) {
     lightAttLin = 0.022f;  // vals from https://learnopengl.com/#!Lighting/Materials
     lightAttQuad = 0.0019f;
     lightIntensity = glm::vec3(1.f);
+
+    changeIntensity = true;
+    changeHue = false;
 
     // -------------------------------------------------------------------------
     //                        Create light info
@@ -143,8 +147,20 @@ void Light::update(const PathGenerator *path, Camera &cam) {
     mvpMatrix = vpMatrix * mMatrix;
 
     // update light intensity
-//    lightIntensity = glm::vec3(1.f);
-    lightIntensity = glm::vec3(0.7f + 0.3*sin(glfwGetTime()));
+    if (changeIntensity) {
+        lightIntensity = glm::vec3(0.7f + 0.3*sin(glfwGetTime()));
+    } else {
+        lightIntensity = glm::vec3(1.f);
+    }
+    if (changeHue) {
+        float r, g, b;
+        Noise::hsvToRgb(static_cast<float>(0.5 + 0.5*sin(0.3*glfwGetTime())),
+                        1.f, 1.f, &r, &g, &b);
+        lampColorMax = glm::vec3(r, g, b);
+        lightAmbientMax = glm::vec3(1.0) * lampColorMax;
+        lightDiffuseMax = glm::vec3(1.0) * lampColorMax;
+        lightSpecularMax = glm::vec3(0.0);
+    }
     lightAmbient = lightAmbientMax * lightIntensity;
     lightDiffuse = lightDiffuseMax * lightIntensity;
     lightSpecular = lightSpecularMax * lightIntensity;

@@ -41,11 +41,11 @@ PerlinBlock::PerlinBlock() : io(IOHandler::getInstance()) {
     numTubePortals = 1;
 
     // placeholders for island->getPortalInfo return values
-    std::vector<glm::vec3> sketchPortalCenters;
-    std::vector<glm::vec3> sketchPortalHeadings;
+    std::vector<glm::vec3>   sketchPortalCenters;
+    std::vector<glm::vec3>   sketchPortalHeadings;
     std::vector<const char*> sketchPortalFileLocs;
-    std::vector<glm::vec3> tubePortalCenters;
-    std::vector<glm::vec3> tubePortalHeadings;
+    std::vector<glm::vec3>   tubePortalCenters;
+    std::vector<glm::vec3>   tubePortalHeadings;
     std::vector<const char*> tubePortalFileLocs;
 
     // fill placeholders
@@ -60,17 +60,17 @@ PerlinBlock::PerlinBlock() : io(IOHandler::getInstance()) {
     // create sketch portals
     for (int i = 0; i < numSketchPortals; ++i) {
         sketchPortals.push_back(PerlinBlockPortal(
-                                    sketchPortalCenters[i],
-                                    sketchPortalHeadings[i],
-                                    sketchPortalFileLocs[i]));
+                          sketchPortalCenters[i],
+                          sketchPortalHeadings[i],
+                          sketchPortalFileLocs[i]));
     }
 
     // create tube portals
     for (int i = 0; i < numTubePortals; ++i) {
         tubePortals.push_back(PerlinBlockPortal(
-                tubePortalCenters[i],
-                tubePortalHeadings[i],
-                tubePortalFileLocs[i]));
+                          tubePortalCenters[i],
+                          tubePortalHeadings[i],
+                          tubePortalFileLocs[i]));
     }
 
     // -------------------------------------------------------------------------
