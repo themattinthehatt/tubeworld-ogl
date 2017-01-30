@@ -16,6 +16,7 @@ class PerlinBlockIsland {
 private:
 public:
 
+    // for drawing island
     std::vector<glm::vec3> blockCoordinates;
     std::vector<glm::vec2> blockUVs;
     std::vector<glm::vec3> blockNormals;
@@ -33,6 +34,7 @@ public:
     GLint vpMatrixID;
     GLfloat time;
     GLint timeParamID;
+    GLuint textureID;
 
     struct material {
         glm::vec3 ambient;  // ambient light color of material (RGB)
@@ -46,6 +48,10 @@ public:
 
     Shader *shader;
 
+    // for locating portals
+    std::vector<glm::vec3> boundaryCenters;
+    std::vector<glm::vec3> boundaryNormals;
+
     // constructor
     PerlinBlockIsland();
     // update island
@@ -56,7 +62,7 @@ public:
     void clean();
 
     // initialize island
-    void initializeIslandCoordinates(
+    void initializeIslandCoordinates(GLfloat &blockScale,
                        std::vector<glm::vec4> &bufferDataCentersHeights);
     // get portal info
     void getPortalInfo(GLint numSketchPortals, GLint numTubePortals,

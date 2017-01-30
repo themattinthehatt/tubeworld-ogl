@@ -85,12 +85,12 @@ void main() {
 vec3 calcDirLight(vec3 normal, vec3 viewDir) {
 
     // calculate ambient lighting
-    vec3 ambient = dirLight.ambient * material.ambient; //vec3(texture(material.loadedTexture, texCoords));
+    vec3 ambient = dirLight.ambient * vec3(texture(material.loadedTexture, texCoords));
 
     // calculate diffuse lighting
     vec3 lightDir = normalize(-dirLight.direction);
     float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = dirLight.diffuse * diff * material.diffuse; // * vec3(texture(material.loadedTexture, texCoords));
+    vec3 diffuse = dirLight.diffuse * diff * vec3(texture(material.loadedTexture, texCoords));
 
     // calculate specular lighting
     vec3 reflectDir = reflect(-lightDir, normal);

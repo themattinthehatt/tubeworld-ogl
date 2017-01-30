@@ -24,7 +24,7 @@ PerlinBlockLight::PerlinBlockLight(GLuint shaderID_) {
     lightProps.direction = glm::vec3(0.f);
     lightProps.ambientMax = glm::vec3(0.8) * lightProps.lampColorMax;
     lightProps.diffuseMax = glm::vec3(1.0) * lightProps.lampColorMax;
-    lightProps.specularMax = glm::vec3(1.0);
+    lightProps.specularMax = glm::vec3(0.05);
 
     // for point and spotlight attenuation
     lightProps.attLin = 0.022f;  // vals from https://learnopengl.com/#!Lighting/Materials
@@ -63,10 +63,6 @@ PerlinBlockLight::PerlinBlockLight(GLuint shaderID_) {
 //             indxVertices, indxUVs, indxNormals);
 //    LnumVerticesPerInstance = static_cast<GLuint>(LindxVertices.size());
 
-    // free up memory by swapping vectors with empty temporary vectors
-    std::vector<glm::vec3>().swap(vertices);
-    std::vector<glm::vec2>().swap(uvs);
-    std::vector<glm::vec3>().swap(normals);
 
     // get all vertices
     g_center_buffer_data = new glm::vec3(0.f);
@@ -135,6 +131,10 @@ PerlinBlockLight::PerlinBlockLight(GLuint shaderID_) {
     // unbind the VAO
     glBindVertexArray(0);
 
+    // free up memory by swapping vectors with empty temporary vectors
+    std::vector<glm::vec3>().swap(vertices);
+    std::vector<glm::vec2>().swap(uvs);
+    std::vector<glm::vec3>().swap(normals);
 
 }
 
@@ -143,7 +143,7 @@ void PerlinBlockLight::update(Camera &cam) {
 
     // update lamp position
     lightProps.cameraPosition = cam.getPosition();
-    lightProps.position = glm::vec3(-100.f, 100.f, 100.f);
+    lightProps.position = glm::vec3(-50.f, 50.f, 50.f);
     lightProps.direction = glm::vec3(1.f, -1.f, -1.f);
 
     // update buffer that holds lamp position

@@ -49,11 +49,6 @@ Light::Light(GLuint shaderID_) {
 //             indxVertices, indxUVs, indxNormals);
 //    LnumVerticesPerInstance = static_cast<GLuint>(LindxVertices.size());
 
-    // free up memory by swapping vectors with empty temporary vectors
-    std::vector<glm::vec3>().swap(vertices);
-    std::vector<glm::vec2>().swap(uvs);
-    std::vector<glm::vec3>().swap(normals);
-
     // get all vertices
     g_center_buffer_data = new glm::vec3(0.f);
 
@@ -121,6 +116,10 @@ Light::Light(GLuint shaderID_) {
     // unbind the VAO
     glBindVertexArray(0);
 
+    // free up memory by swapping vectors with empty temporary vectors
+    std::vector<glm::vec3>().swap(vertices);
+    std::vector<glm::vec2>().swap(uvs);
+    std::vector<glm::vec3>().swap(normals);
 
 }
 

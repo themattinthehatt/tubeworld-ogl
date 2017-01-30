@@ -153,15 +153,15 @@ void PerlinBlock::draw() {
     renderOffscreen();
 
     // do final post-processing to color buffer of offscreen framebuffer
-//    postProcess();
+    postProcess();
 
 }
 
 void PerlinBlock::renderOffscreen() {
 
     // FIRST PASS: OFF-SCREEN RENDERING
-//    glBindFramebuffer(GL_FRAMEBUFFER, fbo->getFramebufferID());
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo->getFramebufferID());
+//    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     // now all subsequent rendering operations will render to the attachments of
     // the currently bound framebuffer, but will have no impact on the visual
     // output of the application since we are not rendering to the default

@@ -15,7 +15,9 @@ PerlinBlockIsland::PerlinBlockIsland() {
     shader = new Shader("src/island-traveller/perlin-block/IslandShader.vert",
                         "src/island-traveller/perlin-block/IslandShaderLight.frag");
 
-    // create material properties for island; interacts with PerlinBlockLight
+    // -------------------------------------------------------------------------
+    //                 Create material properties for island
+    // -------------------------------------------------------------------------
     islandMaterial.ambient = glm::vec3(0.1f, 0.1f, 0.f);
     islandMaterial.diffuse = glm::vec3(0.1f, 0.1f, 0.f);
     islandMaterial.specular = glm::vec3(1.f, 1.f, 1.f);
@@ -40,17 +42,82 @@ PerlinBlockIsland::PerlinBlockIsland() {
     glUniform1i(glGetUniformLocation(shader->programID, "material.loadedTexture"),
                 islandMaterial.texUnit);
 
+    // make texture
+    int height = 8;
+    int width = 8;
+    GLubyte image[height][width][4];
+
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
+            if (j < 2) {
+                // top; green
+                image[i][j][0] = (GLubyte) 8;
+                image[i][j][1] = (GLubyte) 54;
+                image[i][j][2] = (GLubyte) 4;
+                image[i][j][3] = (GLubyte) 255;
+            } else {
+                // bottom; brown
+                // top; green
+                image[i][j][0] = (GLubyte) 26; //179
+                image[i][j][1] = (GLubyte) 13; //89
+                image[i][j][2] = (GLubyte) 0;
+                image[i][j][3] = (GLubyte) 255;
+            }
+        }
+    }
+
+    // send texture to texture unit
+    // generate 1 texture ID, put the resutling identifier in textureID
+    glGenTextures(1, &textureID);
+    glActiveTexture(GL_TEXTURE0);
+
+    // bind newly created texture to GL_TEXTURE_2D target; subsequent texture
+    // commands will configure the currently bound texture
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    // generate the texture by using the previously loaded image data
+    glTexImage2D(
+            GL_TEXTURE_2D,     // texture target; will gen texture on textureIDs[i]
+            0,                 // mipmap level; use base of 0
+            GL_RGBA,           // type of format we want to store the texture
+            width,
+            height,
+            0,                 // legacy bs
+            GL_RGBA,           // format of source image
+            GL_UNSIGNED_BYTE,  // format of source image
+            image              // source image
+    );
+    // textureIDs[i] now has texture image attached to it
+    // glGenerateMipmap here if desired
+
+    // Set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    // Set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    // puts the texture in texture unit 0
+    glUniform1i(glGetUniformLocation(shader->programID, "material.loadedTexture"),
+                islandMaterial.texUnit);
+
+    // unbind the texture object
+    glBindTexture(GL_TEXTURE_2D, 0);
+
     // -------------------------------------------------------------------------
     //                        Buffer Data
     // -------------------------------------------------------------------------
 
+    // get block centers and heights
+    initializeIslandCoordinates(blockScale, bufferDataCentersHeights);
+    numBlocks = static_cast<GLint>(bufferDataCentersHeights.size());
+
     // load block model
-    bool res = loadObj("data/obj/cube.obj",
+    bool res = loadObj("data/obj/cube2.obj",
                        blockCoordinates, blockUVs, blockNormals);
     numVerticesPerBlock = static_cast<GLuint>(blockCoordinates.size());
 
     // scale block model
-    blockScale = 0.5f;
     glm::mat4 scaleMat = glm::scale(glm::mat4(1.f),
                                     glm::vec3(blockScale, blockScale, 1.f));
     for (int i = 0; i < numVerticesPerBlock; ++i) {
@@ -58,9 +125,6 @@ PerlinBlockIsland::PerlinBlockIsland() {
                 scaleMat * glm::vec4(blockCoordinates[i], 1.f));
     }
 
-    // get block centers and heights
-    initializeIslandCoordinates(bufferDataCentersHeights);
-    numBlocks = static_cast<GLint>(bufferDataCentersHeights.size());
 
     // -------------------------------------------------------------------------
     //                          Create scene VAO
@@ -202,6 +266,11 @@ void PerlinBlockIsland::draw() {
     // use our shader (makes programID currently bound shader)
     shader->use();
 
+    // Activate the texture unit first before binding texture
+    glActiveTexture(GL_TEXTURE0);
+    // bind texture to the currently active texture unit
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
     // send data to vertex shader
     glUniformMatrix4fv(vpMatrixID, 1, GL_FALSE, &vpMatrix[0][0]);
     glUniform1f(timeParamID, time);
@@ -222,24 +291,26 @@ void PerlinBlockIsland::clean() {
     glDeleteBuffers(1, &normalBufferID);
     glDeleteBuffers(1, &uvBufferID);
     glDeleteBuffers(1, &centersHeightsBufferID);
+    glDeleteTextures(1, &textureID);
 
     shader->clean();
     delete shader;
 
 }
 
-void PerlinBlockIsland::initializeIslandCoordinates(
+void PerlinBlockIsland::initializeIslandCoordinates(GLfloat &blockScale,
                     std::vector<glm::vec4> &bufferDataCentersHeights) {
 
-    GLint numXBlocks = 10;
-    GLint numYBlocks = 10;
+    blockScale = 0.51f;
+    GLint numXBlocks = 100;
+    GLint numYBlocks = 100;
 
     // set up perlin noise generator
     unsigned int seed = 236;
     PerlinNoise pn = PerlinNoise(seed);
-    float scale = 0.1;
-    float heightMultiplier = 10.f;
-    int numLevels = 10;             // 0 for no leveling
+    float scale = 0.05;                 // scale of perlin noise space to sample
+    float heightMultiplier = 10.f;      // higher numbers result in more cliffs
+    int numLevels = 8;                  // 0 for no leveling
 
     for (int i = 0; i < numXBlocks; ++i) {
         for (int j = 0; j < numYBlocks; ++j) {
@@ -254,6 +325,12 @@ void PerlinBlockIsland::initializeIslandCoordinates(
                 height = floor(numLevels * height) / numLevels;
             }
 
+            if (height > 0.5) {
+                heightMultiplier = 12.f;
+            } else {
+                heightMultiplier = 10.f;
+            }
+
             // load data into buffer
             bufferDataCentersHeights.push_back(
                     glm::vec4(xLoc,
@@ -262,6 +339,17 @@ void PerlinBlockIsland::initializeIslandCoordinates(
                               height * heightMultiplier));
         }
     }
+
+    boundaryCenters.push_back(glm::vec3(4.95f, 10.f, 1.f));
+    boundaryCenters.push_back(glm::vec3(5.55f + numXBlocks, 10.f, 1.f));
+    boundaryCenters.push_back(glm::vec3(10.f, 4.95f, 1.f));
+    boundaryCenters.push_back(glm::vec3(10.f, 10.f, -0.05f));
+
+    boundaryNormals.push_back(glm::vec3(-1.f, 0.f, 0.f));
+    boundaryNormals.push_back(glm::vec3(1.f, 0.f, 0.f));
+    boundaryNormals.push_back(glm::vec3(0.f, -1.f, 0.f));
+    boundaryNormals.push_back(glm::vec3(0.f, 0.f, -1.f));
+
 }
 
 void PerlinBlockIsland::getPortalInfo(
@@ -273,23 +361,22 @@ void PerlinBlockIsland::getPortalInfo(
                    std::vector<glm::vec3> &tubePortalHeadings,
                    std::vector<const char*> &tubePortalFileLocs) {
 
+    // randomly choose locations for sketch portals from boundary cubes
+    for (int i = 0; i < numSketchPortals; ++i) {
+        sketchPortalCenters.push_back(boundaryCenters[i]);
+        sketchPortalHeadings.push_back(boundaryNormals[i]);
+        sketchPortalFileLocs.push_back("data/textures/cave2.bmp");
+    }
 
-    sketchPortalCenters.push_back(glm::vec3(4.95f, 10.f, 1.f));
-    sketchPortalCenters.push_back(glm::vec3(15.05f, 10.f, 1.f));
-    sketchPortalCenters.push_back(glm::vec3(10.f, 4.95f, 1.f));
+    // randomly choose locations for tube portals from boundary cubes
+    for (int i = numSketchPortals; i < numSketchPortals + numTubePortals; ++i) {
+        tubePortalCenters.push_back(boundaryCenters[i]);
+        tubePortalHeadings.push_back(boundaryNormals[i]);
+        tubePortalFileLocs.push_back("data/textures/temp2.bmp");
+    }
 
-    sketchPortalHeadings.push_back(glm::vec3(-1.f, 0.f, 0.f));
-    sketchPortalHeadings.push_back(glm::vec3(1.f, 0.f, 0.f));
-    sketchPortalHeadings.push_back(glm::vec3(0.f, -1.f, 0.f));
-
-    sketchPortalFileLocs.push_back("data/textures/cave2.bmp");
-    sketchPortalFileLocs.push_back("data/textures/cave2.bmp");
-    sketchPortalFileLocs.push_back("data/textures/cave2.bmp");
-
-    tubePortalCenters.push_back(glm::vec3(10.f, 10.f, -0.05f));
-
-    tubePortalHeadings.push_back(glm::vec3(0.f, 0.f, -1.f));
-
-    tubePortalFileLocs.push_back("data/textures/temp2.bmp");
+    // clear up memory - boundary info no longer needed
+    std::vector<glm::vec3>().swap(boundaryCenters);
+    std::vector<glm::vec3>().swap(boundaryNormals);
 
 }
