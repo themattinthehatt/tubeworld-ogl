@@ -99,7 +99,7 @@ int main() {
     // -------------------------------------------------------------------------
 
     // for printing FPS
-    bool printFPS = false;
+    bool printFPS = true;
     int counter = 0;
     GLfloat currentTime = glfwGetTime();
     GLfloat lastTime;

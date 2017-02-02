@@ -22,12 +22,10 @@ TODO:
         *SpecularMax        (1.f)
         *AttLin             (0.022f)
         *AttQuad            (0.0019f)
-        *Intensity          (1.f)            
+        *Intensity          (1.f)
 
-- fix aliasing issues in textures rendered to offscreen framebuffer/can dot mode
-  and line mode be used when rendering to offscreen buffer?
-- use shader class in skybox and SimpleShapes
-
+- (DONE 02/02/17) fix aliasing issue in tex rendered to offscreen framebuffer
+- (DONE 02/01/17) use shader class in skybox and SimpleShapes
 - (DONE 01/29/17) add (sun)light to island
 - (DONE 01/29/17) make first round of perlin-block updates - put island 
     generation (block centers and model matrices) in own function to be called 

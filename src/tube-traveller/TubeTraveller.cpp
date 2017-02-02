@@ -69,7 +69,8 @@ TubeTraveller::TubeTraveller(GLint numCenters,
     //                          Postprocessing
     // -------------------------------------------------------------------------
 
-    fbo  = new FramebufferObject();
+    GLint numSamples = 4;
+    fbo = new FramebufferObject(numSamples);
 
     postShader = new Shader("src/tube-traveller/shaders/PostProcessingShader.vert",
                             "src/tube-traveller/shaders/PostProcessingShader.frag");
@@ -145,12 +146,7 @@ void TubeTraveller::renderOffscreen() {
 void TubeTraveller::postProcess() {
 
     // SECOND PASS: ON-SCREEN RENDERING
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    // now all subsequent rendering operations will render to the attachments of
-    // the default framebuffer, and as such will be rendered to the scene
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glDisable(GL_DEPTH_TEST);
+    fbo->transferMSFBO();
 
     // use post-processing shader
     postShader->use();

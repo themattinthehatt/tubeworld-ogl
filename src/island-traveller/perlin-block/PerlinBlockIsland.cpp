@@ -310,7 +310,7 @@ void PerlinBlockIsland::initializeIslandCoordinates(GLfloat &blockScale,
     PerlinNoise pn = PerlinNoise(seed);
     float scale = 0.05;                 // scale of perlin noise space to sample
     float heightMultiplier = 10.f;      // higher numbers result in more cliffs
-    int numLevels = 8;                  // 0 for no leveling
+    int numLevels = 0;                  // 0 for no leveling
 
     for (int i = 0; i < numXBlocks; ++i) {
         for (int j = 0; j < numYBlocks; ++j) {
