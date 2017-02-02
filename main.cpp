@@ -67,21 +67,16 @@ int main() {
     TubeTraveller::PathGeneratorType pathType =
             TubeTraveller::PATH_RANDOM;
     TubeTraveller::TubeType tubeType =
-            TubeTraveller::TUBE_TEXTURE_CYLINDER_LIGHT;
+            TubeTraveller::TUBE_CUBES_SQ;
     TextureCylinderLight::TextureType textureType =
             TextureCylinderLight::TEXTURE_BINARY;
     TextureCylinderLight::LightStyle lightStyle =
             TextureCylinderLight::LIGHTSTYLE_POINT;
 
     GLint numCenters = 100;
-//    TubeTraveller scene = TubeTraveller(numCenters, pathType, tubeType,
-//                                            textureType, lightStyle);
-
-
+//    TubeTraveller scene = TubeTraveller(numCenters, pathType, tubeType, textureType, lightStyle);
 //    PhysicSpheres scene = PhysicSpheres();
-
 //    IslandTraveller scene = IslandTraveller();
-
     MapNav scene = MapNav();
 
     // initialize player

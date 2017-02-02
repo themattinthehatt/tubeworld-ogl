@@ -47,6 +47,7 @@ TubeTraveller::TubeTraveller(GLint numCenters,
             break;
         default:
             tube = new SimpleShapes(numCenters, SimpleShapes::CIRCLE_OF_SQUARES);
+            pathSpacing = 20.f;
     }
 
     // select path type

@@ -32,14 +32,14 @@ Skybox::Skybox(std::vector<const GLchar*> files_, GLfloat multiplier_) :
     textureID = Skybox::loadCubemap(files_);
 
     // create and compile shader programs for skybox
-    shaderID = loadShaders("src/core/SkyboxTextureShader.vert",
-                           "src/core/SkyboxTextureShader.frag");
+    shader = new Shader("src/core/SkyboxTextureShader.vert",
+                        "src/core/SkyboxTextureShader.frag");
 
     // get a handle for our "skyboxSampler" uniform
-    samplerID = glGetUniformLocation(shaderID, "skyboxSampler");
+    samplerID = glGetUniformLocation(shader->programID, "skyboxSampler");
 
     // view matrix will keep skybox centered
-    viewMatrixID = glGetUniformLocation(shaderID, "viewMatrix");
+    viewMatrixID = glGetUniformLocation(shader->programID, "viewMatrix");
 
     // create VAO for skybox to store:
     // - calls to glEnableVertexAttribArray or glDisableVertexAttribArray
@@ -85,12 +85,6 @@ Skybox::Skybox(std::vector<const GLchar*> files_, GLfloat multiplier_) :
 }
 
 /*
- * ~Skybox();
- * Destructor method for Skybox class
- */
-Skybox::~Skybox() {}
-
-/*
  * update()
  * Update position of skybox
  */
@@ -120,7 +114,7 @@ void Skybox::draw() {
             glDepthMask(GL_FALSE);
 
             // use our shader
-            glUseProgram(shaderID);
+            shader->use();
 
             // send our transformation to the currently bound shader
             glUniformMatrix4fv(viewMatrixID, 1, GL_FALSE, &viewMatrix[0][0]);
@@ -164,10 +158,12 @@ void Skybox::draw() {
  * Clean up VAOs, VBOs, etc.
  */
 void Skybox::clean() {
-    glDeleteProgram(shaderID);
     glDeleteVertexArrays(1, &vertexArrayID);
-    glDeleteTextures(1, &textureID);
     glDeleteBuffers(1, &vertexBufferID);
+    glDeleteTextures(1, &textureID);
+
+    shader->clean();
+    delete shader;
 }
 
 /*

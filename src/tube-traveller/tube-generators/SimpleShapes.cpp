@@ -20,17 +20,17 @@ SimpleShapes::SimpleShapes(GLint numCenters_, RingModelType ringModelType_)
     numCenters = numCenters_;
 
     // create and compile our GLSL program from the shaders
-    shaderID = loadShaders("src/tube-traveller/shaders/SolidShader.vert",
-                           "src/tube-traveller/shaders/SolidShader.frag");
+    shader = new Shader("src/tube-traveller/shaders/SolidShader.vert",
+                        "src/tube-traveller/shaders/SolidShader.frag");
 
     // give the MVP matrix to GLSL; get a handle on our uniforms
     mMatrix = glm::mat4(1.0);
     vpMatrix = glm::mat4(1.0);
     mvpMatrix = glm::mat4(1.0);
-    mMatrixID = glGetUniformLocation(shaderID, "mMatrix");
-    vpMatrixID = glGetUniformLocation(shaderID, "vpMatrix");
-    mvpMatrixID = glGetUniformLocation(shaderID, "mvpMatrix");
-    timeParamID = glGetUniformLocation(shaderID, "time");
+    mMatrixID = glGetUniformLocation(shader->programID, "mMatrix");
+    vpMatrixID = glGetUniformLocation(shader->programID, "vpMatrix");
+    mvpMatrixID = glGetUniformLocation(shader->programID, "mvpMatrix");
+    timeParamID = glGetUniformLocation(shader->programID, "time");
 
 
     // -------------------------------------------------------------------------
@@ -341,7 +341,7 @@ void SimpleShapes::update(const PathGenerator *path, Camera &cam ) {
 void SimpleShapes::draw() {
 
     // use our shader (makes programID "currently bound" shader?)
-    glUseProgram(shaderID);
+    shader->use();
 
     // send our transformation to the currently bound shader, in the "MVP" uniform
     // This is done in the main loop since each model will have a different MVP matrix
@@ -382,7 +382,6 @@ void SimpleShapes::clean() {
     glDeleteBuffers(1, &centerBufferID);
     glDeleteBuffers(1, &radialBufferID);
     glDeleteBuffers(1, &rotationBufferID);
-    glDeleteProgram(shaderID);
 
     delete[] ringCenters;
     delete[] g_center_buffer_data;
@@ -390,5 +389,8 @@ void SimpleShapes::clean() {
     delete[] g_radial_buffer_data;
     delete[] rotationMatrix;
     delete[] g_rotation_buffer_data;
+
+    shader->clean();
+    delete shader;
 
 }

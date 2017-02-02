@@ -11,6 +11,7 @@
 #include "../../core/Global.h"
 #include "../../core/Camera.h"
 #include "../path-generators/PathGenerator.h"
+#include "../../core/Shader.h"
 
 class SimpleShapes : public TubeGenerator {
 private:
@@ -40,15 +41,16 @@ public:
     GLuint centerBufferID;
     GLuint radialBufferID;
     GLuint rotationBufferID;
-    GLuint shaderID;
     glm::mat4 mMatrix;
     glm::mat4 vpMatrix;
     glm::mat4 mvpMatrix;
-    GLuint mMatrixID;
-    GLuint vpMatrixID;
-    GLuint mvpMatrixID;
+    GLint mMatrixID;
+    GLint vpMatrixID;
+    GLint mvpMatrixID;
     GLfloat time;
-    GLuint timeParamID;
+    GLint timeParamID;
+
+    Shader *shader;
 
     IOHandler &io;
 

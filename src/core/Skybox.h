@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 #include "Camera.h"
 #include "IOHandler.h"
+#include "Shader.h"
 
 class Skybox {
 
@@ -28,19 +29,18 @@ public:
     GLuint vertexArrayID;       // ID of VAO
     GLuint vertexBufferID;      // ID of VBO
     GLuint textureID;           // ID of texture (for binding)
-    GLuint samplerID;           // ID of texture (for cube sampler)
-    GLuint shaderID;            // ID of shader program
+    GLint samplerID;            // ID of texture (for cube sampler)
     glm::mat4 viewMatrix;       // view matrix
-    GLuint viewMatrixID;        // ID of view matrix for shaders
+    GLint viewMatrixID;         // ID of view matrix for shaders
 
     IOHandler &io;              // pointer to keysPressed array
     bool renderTrigger = false; // returns true upon release of proper key
     GLuint renderMode = 0;      // specifies current mode of skybox rendering
 
+    Shader *shader;             // shader object for loading and rendering
+
     // constructor
     Skybox(std::vector<const GLchar*> files, GLfloat multiplier);
-    // destructor
-    ~Skybox();
     // update skybox position
     void update(const Camera &cam);
     // draw skybox

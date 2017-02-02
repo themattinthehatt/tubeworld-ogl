@@ -1,13 +1,8 @@
 TODO:
-- use shader class in skybox
-- use shader class in SimpleShapes
 - bloom on TextureCylinderLight class
-- make SmoothRandomWalker class
+- make SmoothRandomWalker class (two modes, smoothed walk and smoothed noise)
 - use SmoothRandomWalker class in PathRandom class
-- light intensity guided by random walk rather than sinusoid (make option)
 - move to HDR lighting in TextureCylinderLight
-- fix aliasing issues in textures rendered to offscreen framebuffer/can dot mode
-  and line mode be used when rendering to offscreen buffer?
 - turn PerlinBlockLight into a base class; have PerlinBlockLight and Light class 
   from TubeTextureLight derive from it
 - make input struct to TextureCylinderLight
@@ -15,21 +10,23 @@ TODO:
     *tubeLength             [2.f]
     *textureType            [TEXTURE_RAINBOW]
     *numTextures            100
-    *grayscaleTex           [false]
-    *noise properties (could this go somewhere else?)
+    *lightStyle             [LIGHTSTYLE_POINT]
+    *texture properties (for TextureGenerator class)
         *interpLinear       [true]
         *woodGrain          [false]
         *mirrorTex          [true]
-    *lighting properties
-        *lightStyle         [LIGHTSTYLE_POINT]
-        *thresh_val         [0]
+    *lighting properties (for Light class)      
         *lampColorMax       (1.f, 1.f, 0.8f)
-        *lightAmbientMax    (0.5)
-        *lightDiffuseMax    (1.f)
-        *lightSpecularMax   (1.f)
-        *lightAttLin        (0.022f)
-        *lightAttQuad       (0.0019f)
-        *lightIntensity     (1.f)            
+        *AmbientMax         (0.5)
+        *DiffuseMax         (1.f)
+        *SpecularMax        (1.f)
+        *AttLin             (0.022f)
+        *AttQuad            (0.0019f)
+        *Intensity          (1.f)            
+
+- fix aliasing issues in textures rendered to offscreen framebuffer/can dot mode
+  and line mode be used when rendering to offscreen buffer?
+- use shader class in skybox and SimpleShapes
 
 - (DONE 01/29/17) add (sun)light to island
 - (DONE 01/29/17) make first round of perlin-block updates - put island 
