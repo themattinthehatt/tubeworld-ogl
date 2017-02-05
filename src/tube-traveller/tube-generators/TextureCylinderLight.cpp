@@ -78,7 +78,7 @@ TextureCylinderLight::TextureCylinderLight(GLint numCenters_,
             texProps.interpLinear = true;       // 1 for yes, 0 for nearest neighbor
             texProps.woodGrain = false;         // render "woodGrain" style
             texProps.mirrorTex = true;          // mirror tex around tube centerline
-            texProps.grayscale = false;         // render grayscale noise
+            texProps.grayscale = true;         // render grayscale noise
             texProps.threshVal = 0.0f;          // values below threshVal rendered black
             texture = new Noise(shader->programID, texProps);
             break;

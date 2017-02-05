@@ -22,6 +22,7 @@ public:
     unsigned int seed;
     PerlinNoise pn;
     double pnVal;
+    double pnScale;
 
     // texture properties
     struct TexProperties {

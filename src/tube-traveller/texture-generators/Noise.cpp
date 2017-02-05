@@ -85,6 +85,7 @@ void Noise::generateImage(int index) {
         width = texProps.width;
     }
 
+    pnScale = 0.5f;
     double y;
     for (int j = 0; j < texProps.height; ++j) {
         pnVal += 0.2f * (1.f / texProps.height);
@@ -94,7 +95,7 @@ void Noise::generateImage(int index) {
             y = 5 * ((double) k + 1) / ((double) texProps.width);
 
             // get corresponding perlin noise value
-            hue = static_cast<float>(pn.noise(pnVal, y, 0.8));
+            hue = static_cast<float>(pn.noise(pnScale*pnVal, pnScale*y, 0.8));
             if (texProps.woodGrain) {
                 // first val must be >= second val
                 // first val controls how much detail there is

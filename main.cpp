@@ -28,6 +28,7 @@
 #include "src/physic-spheres/PhysicSpheres.h"
 #include "src/island-traveller/IslandTraveller.h"
 #include "src/map-navigator/MapNav.h"
+#include "src/torus-traveller/TorusTraveller.h"
 
 // forward declarations
 GLFWwindow* openGLInit();
@@ -67,9 +68,9 @@ int main() {
     TubeTraveller::PathGeneratorType pathType =
             TubeTraveller::PATH_RANDOM;
     TubeTraveller::TubeType tubeType =
-            TubeTraveller::TUBE_CUBES_SQ;
+            TubeTraveller::TUBE_TEXTURE_CYLINDER_LIGHT;
     TextureCylinderLight::TextureType textureType =
-            TextureCylinderLight::TEXTURE_BINARY;
+            TextureCylinderLight::TEXTURE_NOISE;
     TextureCylinderLight::LightStyle lightStyle =
             TextureCylinderLight::LIGHTSTYLE_POINT;
 
@@ -77,7 +78,8 @@ int main() {
 //    TubeTraveller scene = TubeTraveller(numCenters, pathType, tubeType, textureType, lightStyle);
 //    PhysicSpheres scene = PhysicSpheres();
 //    IslandTraveller scene = IslandTraveller();
-    MapNav scene = MapNav();
+//    MapNav scene = MapNav();
+    TorusTraveller scene = TorusTraveller();
 
     // initialize player
     Player player = Player();
@@ -99,7 +101,7 @@ int main() {
     // -------------------------------------------------------------------------
 
     // for printing FPS
-    bool printFPS = true;
+    bool printFPS = false;
     int counter = 0;
     GLfloat currentTime = glfwGetTime();
     GLfloat lastTime;
@@ -138,7 +140,7 @@ int main() {
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         }
 
-        // RENDER CUBES
+        // render scene
         scene.update(cam, player);
         scene.draw();
 

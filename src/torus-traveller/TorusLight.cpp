@@ -1,37 +1,47 @@
 //
-// Created by mattw on 12/18/16.
+// Created by mattw on 2/5/17.
 //
 
-#include "Light.h"
-#include "../../core/loaders/loadObjIndexed.h"
-#include "../texture-generators/Noise.h"
+#include "TorusLight.h"
+#include "../core/loaders/loadObjIndexed.h"
 
-Light::Light(GLuint shaderID_) {
+TorusLight::TorusLight(GLuint shaderID_) {
 
     // program ID associated with shader that implements light
     shaderID = shaderID_;
 
-    // define light properties
-    lampColorMax = glm::vec3(1.0f, 1.0f, 0.8f); // lamp is rendered with this color
-    cameraPosition = glm::vec3(1.f);
-    lightPosition = glm::vec3(1.f);
-    lightAmbientMax = glm::vec3(0.5) * lampColorMax;
-    lightDiffuseMax = glm::vec3(1.0) * lampColorMax;
-    lightSpecularMax = glm::vec3(1.0);
-    lightAttLin = 0.022f;  // vals from https://learnopengl.com/#!Lighting/Materials
-    lightAttQuad = 0.0019f;
-    lightIntensity = glm::vec3(1.f);
+    // -------------------------------------------------------------------------
+    //                    Create light properties
+    // -------------------------------------------------------------------------
 
-    changeIntensity = false;
-    changeHue = true;
+    // define light properties for ALL types - directional, point, spotlight
+    lightProps.type = LIGHTTYPE_DIR;
+    lightProps.lampColorMax = glm::vec3(1.0f, 1.0f, 0.8f); // lamp is rendered with this color
+    lightProps.cameraPosition = glm::vec3(1.f);
+
+    // for all types
+    lightProps.position = glm::vec3(1.f);
+    lightProps.direction = glm::vec3(0.f);
+    lightProps.ambientMax = glm::vec3(0.8) * lightProps.lampColorMax;
+    lightProps.diffuseMax = glm::vec3(1.0) * lightProps.lampColorMax;
+    lightProps.specularMax = glm::vec3(0.05);
+
+    // for point and spotlight attenuation
+    lightProps.attLin = 0.022f;  // vals from https://learnopengl.com/#!Lighting/Materials
+    lightProps.attQuad = 0.0019f;
+
+    // for spotlight
+    lightProps.innerTheta = 0.f; // cos of angle
+    lightProps.outerTheta = 1.f; // cos of angle
+    lightProps.intensity = glm::vec3(1.f);
 
     // -------------------------------------------------------------------------
-    //                        Create light info
+    //                        Create lamp
     // -------------------------------------------------------------------------
 
     // create and compile our GLSL program from the shaders
-    lampShader = new Shader("src/tube-traveller/shaders/LampShader.vert",
-                            "src/tube-traveller/shaders/LampShader.frag");
+    lampShader = new Shader("src/torus-traveller/PerlinLampShader.vert",
+                            "src/torus-traveller/PerlinLampShader.frag");
 
     // give the MVP matrix to GLSL; get a handle on our uniforms
     mMatrix = glm::mat4(1.0);
@@ -44,7 +54,7 @@ Light::Light(GLuint shaderID_) {
 
     // load sphere model
     bool res = loadObjIndexed("data/obj/ico_sphere_4.obj",
-                               vertices, uvs, normals);
+                              vertices, uvs, normals);
 
     numVerticesPerInstance = static_cast<GLuint>(vertices.size());
     // switch to indexing
@@ -52,6 +62,7 @@ Light::Light(GLuint shaderID_) {
 //             indxs,
 //             indxVertices, indxUVs, indxNormals);
 //    LnumVerticesPerInstance = static_cast<GLuint>(LindxVertices.size());
+
 
     // get all vertices
     g_center_buffer_data = new glm::vec3(0.f);
@@ -128,69 +139,98 @@ Light::Light(GLuint shaderID_) {
 }
 
 // update
-void Light::update(const PathGenerator *path, Camera &cam) {
+void TorusLight::update(Camera &cam) {
 
     // update lamp position
-    cameraPosition = cam.getPosition();
-    int offset = 50;
-    lightPosition = (1-path->propOfPathTraveled) *
-                    path->positions[((path->firstElement)+offset) % path->numCenters] +
-                    path->propOfPathTraveled *
-                    path->positions[((path->firstElement)+1+offset) % path->numCenters];
+    lightProps.cameraPosition = cam.getPosition();
+    lightProps.position = glm::vec3(0.f, 10.f, 0.f);
+    lightProps.direction = glm::vec3(1.f, -1.f, -1.f);
 
     // update buffer that holds lamp position
-    g_center_buffer_data[0] = lightPosition;
+    g_center_buffer_data[0] = lightProps.position;
 
     // update light uniforms
     mMatrix = glm::mat4(1.0);
     vpMatrix = cam.getProjection() * cam.getView();
     mvpMatrix = vpMatrix * mMatrix;
 
-    // update light intensity
-    if (changeIntensity) {
-        lightIntensity = glm::vec3(0.7f + 0.3*sin(glfwGetTime()));
-    } else {
-        lightIntensity = glm::vec3(1.f);
-    }
-    if (changeHue) {
-        float r, g, b;
-        Noise::hsvToRgb(static_cast<float>(0.5 + 0.5*sin(0.3*glfwGetTime())),
-                        1.f, 1.f, &r, &g, &b);
-        lampColorMax = glm::vec3(r, g, b);
-        lightAmbientMax = glm::vec3(1.0) * lampColorMax;
-        lightDiffuseMax = glm::vec3(1.0) * lampColorMax;
-        lightSpecularMax = glm::vec3(0.0);
-    }
-    lightAmbient = lightAmbientMax * lightIntensity;
-    lightDiffuse = lightDiffuseMax * lightIntensity;
-    lightSpecular = lightSpecularMax * lightIntensity;
-    lampColor = lampColorMax * lightIntensity;
+    // update light properties
+    lightProps.intensity = glm::vec3(1.f);
+    lightProps.ambient = lightProps.ambientMax * lightProps.intensity;
+    lightProps.diffuse = lightProps.diffuseMax * lightProps.intensity;
+    lightProps.specular = lightProps.specularMax * lightProps.intensity;
+    lightProps.lampColor = lightProps.lampColorMax * lightProps.intensity;
 
 }
 
-void Light::setUniforms() {
+void TorusLight::setUniforms() {
 
-    // material properties loaded by TextureGenerator object
+    // material properties loaded by PerlinBlockIsland object
 
-    // light properites
+    // send properites to shader program
     glUniform3fv(glGetUniformLocation(shaderID, "cameraPosition"),
-                 1, &cameraPosition[0]);
-    glUniform3fv(glGetUniformLocation(shaderID, "pointLight.position"),
-                 1, &lightPosition[0]);
-    glUniform3fv(glGetUniformLocation(shaderID, "pointLight.ambient"),
-                 1, &lightAmbient[0]);
-    glUniform3fv(glGetUniformLocation(shaderID, "pointLight.diffuse"),
-                 1, &lightDiffuse[0]);
-    glUniform3fv(glGetUniformLocation(shaderID, "pointLight.specular"),
-                 1, &lightSpecular[0]);
-    glUniform1f(glGetUniformLocation(shaderID, "pointLight.lin"),
-                lightAttLin);
-    glUniform1f(glGetUniformLocation(shaderID, "pointLight.quad"),
-                lightAttQuad);
+                 1, &lightProps.cameraPosition[0]);
+
+    switch (lightProps.type) {
+        case LIGHTTYPE_DIR:
+            glUniform3fv(glGetUniformLocation(shaderID, "dirLight.direction"),
+                         1, &lightProps.direction[0]);
+            glUniform3fv(glGetUniformLocation(shaderID, "dirLight.ambient"),
+                         1, &lightProps.ambient[0]);
+            glUniform3fv(glGetUniformLocation(shaderID, "dirLight.diffuse"),
+                         1, &lightProps.diffuse[0]);
+            glUniform3fv(glGetUniformLocation(shaderID, "dirLight.specular"),
+                         1, &lightProps.specular[0]);
+            break;
+        case LIGHTTYPE_POINT:
+            glUniform3fv(glGetUniformLocation(shaderID, "pointLight.position"),
+                         1, &lightProps.position[0]);
+            glUniform3fv(glGetUniformLocation(shaderID, "pointLight.ambient"),
+                         1, &lightProps.ambient[0]);
+            glUniform3fv(glGetUniformLocation(shaderID, "pointLight.diffuse"),
+                         1, &lightProps.diffuse[0]);
+            glUniform3fv(glGetUniformLocation(shaderID, "pointLight.specular"),
+                         1, &lightProps.specular[0]);
+            glUniform1f(glGetUniformLocation(shaderID, "pointLight.lin"),
+                        lightProps.attLin);
+            glUniform1f(glGetUniformLocation(shaderID, "pointLight.quad"),
+                        lightProps.attQuad);
+            break;
+        case LIGHTTYPE_SPOT:
+            glUniform3fv(glGetUniformLocation(shaderID, "spotLight.position"),
+                         1, &lightProps.position[0]);
+            glUniform3fv(glGetUniformLocation(shaderID, "spotLight.direction"),
+                         1, &lightProps.direction[0]);
+            glUniform1f(glGetUniformLocation(shaderID, "spotLight.innerTheta"),
+                        lightProps.innerTheta);
+            glUniform1f(glGetUniformLocation(shaderID, "spotLight.outerTheta"),
+                        lightProps.outerTheta);
+            glUniform3fv(glGetUniformLocation(shaderID, "spotLight.ambient"),
+                         1, &lightProps.ambient[0]);
+            glUniform3fv(glGetUniformLocation(shaderID, "spotLight.diffuse"),
+                         1, &lightProps.diffuse[0]);
+            glUniform3fv(glGetUniformLocation(shaderID, "spotLight.specular"),
+                         1, &lightProps.specular[0]);
+            glUniform1f(glGetUniformLocation(shaderID, "spotLight.lin"),
+                        lightProps.attLin);
+            glUniform1f(glGetUniformLocation(shaderID, "spotLight.quad"),
+                        lightProps.attQuad);
+            break;
+        default: // directional light
+            glUniform3fv(glGetUniformLocation(shaderID, "dirLight.direction"),
+                         1, &lightProps.direction[0]);
+            glUniform3fv(glGetUniformLocation(shaderID, "dirLight.ambient"),
+                         1, &lightProps.ambient[0]);
+            glUniform3fv(glGetUniformLocation(shaderID, "dirLight.diffuse"),
+                         1, &lightProps.diffuse[0]);
+            glUniform3fv(glGetUniformLocation(shaderID, "dirLight.specular"),
+                         1, &lightProps.specular[0]);
+    }
+
 }
 
 // draw lamp
-void Light::draw() {
+void TorusLight::draw() {
 
     // light model properties
     // use our shader (makes programID "currently bound" shader?)
@@ -201,7 +241,7 @@ void Light::draw() {
     glUniformMatrix4fv(mMatrixID, 1, GL_FALSE, &mMatrix[0][0]);
     glUniformMatrix4fv(vpMatrixID, 1, GL_FALSE, &vpMatrix[0][0]);
     glUniformMatrix4fv(mvpMatrixID, 1, GL_FALSE, &mvpMatrix[0][0]);
-    glUniform3fv(lampColorID, 1, &lampColor[0]);
+    glUniform3fv(lampColorID, 1, &lightProps.lampColor[0]);
 
     // bind vertex array
     glBindVertexArray(vertexArrayID);
@@ -222,7 +262,7 @@ void Light::draw() {
 }
 
 // clean up VAOs, VBOs, etc.
-void Light::clean() {
+void TorusLight::clean() {
 
     glDeleteVertexArrays(1, &vertexArrayID);
     glDeleteBuffers(1, &vertexBufferID);

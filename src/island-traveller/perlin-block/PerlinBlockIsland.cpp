@@ -325,7 +325,9 @@ void PerlinBlockIsland::initializeIslandCoordinates(GLfloat &blockScale,
                 height = floor(numLevels * height) / numLevels;
             }
 
-            if (height > 0.5) {
+            if (height > 0.7) {
+                heightMultiplier = 14.f;
+            } else if (height > 0.5) {
                 heightMultiplier = 12.f;
             } else {
                 heightMultiplier = 10.f;
