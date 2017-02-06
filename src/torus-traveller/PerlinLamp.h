@@ -2,15 +2,15 @@
 // Created by mattw on 2/5/17.
 //
 
-#ifndef TUBEWORLD_TORUSLIGHT_H
-#define TUBEWORLD_TORUSLIGHT_H
+#ifndef TUBEWORLD_PERLINLAMP_H
+#define TUBEWORLD_PERLINLAMP_H
 
 #include <glm/vec3.hpp>
 #include <GL/glew.h>
 #include "../core/Camera.h"
 #include "../core/Shader.h"
 
-class TorusLight {
+class PerlinLamp {
 private:
 public:
 
@@ -49,28 +49,42 @@ public:
     };
     LightProperties lightProps;
 
+    // other light info
+    bool changeIntensity;
+    bool changeHue;
+    bool useIndexing;
+
+    // information for rendering physical lamp
     std::vector<glm::vec3> vertices;
     std::vector<glm::vec3> normals;
     std::vector<glm::vec2> uvs;
     GLint numVerticesPerInstance;
+    GLint numIndxsPerElement;
 
-    glm::vec3 *g_center_buffer_data;
-
+    // buffer IDs
     GLuint vertexArrayID;
     GLuint vertexBufferID;
     GLuint normalBufferID;
     GLuint uvBufferID;
-    GLuint centerBufferID;
+    GLuint elementBufferID;
+
+    // texture IDs
+    GLuint textureID;
+    GLint samplerID;
+
+    // uniforms and their values
     glm::mat4 mMatrix;
     glm::mat4 vpMatrix;
     glm::mat4 mvpMatrix;
+    GLfloat threshold;
     GLint mMatrixID;
     GLint vpMatrixID;
     GLint mvpMatrixID;
+    GLint thresholdID;
     GLint lampColorID;
 
     // constructor
-    TorusLight(GLuint shaderID);
+    PerlinLamp(GLuint shaderID);
     // update
     void update(Camera &cam);
     // draw elements
@@ -79,8 +93,10 @@ public:
     void setUniforms();
     // clean up VAOs, VBOs, etc.
     void clean();
+    // generate perlin noise texture for sampling
+    void generateTexture();
 
 };
 
 
-#endif //TUBEWORLD_TORUSLIGHT_H
+#endif //TUBEWORLD_PERLINLAMP_H

@@ -2,6 +2,10 @@
 // Created by mattw on 2/5/17.
 //
 
+/* TODO
+ *
+ */
+
 #ifndef TUBEWORLD_TORUSTRAVELLER_H
 #define TUBEWORLD_TORUSTRAVELLER_H
 
@@ -11,7 +15,7 @@
 #include "../core/Shader.h"
 #include "../core/FramebufferObject.h"
 #include "../core/Skybox.h"
-#include "TorusLight.h"
+#include "PerlinLamp.h"
 #include "../test-sketches/Sketch01.h"
 
 class TorusTraveller {
@@ -20,7 +24,7 @@ public:
 
     // for drawing scene
     Skybox *skybox;
-    TorusLight *light;
+    PerlinLamp *light;
     Sketch01 *sketch;
 
     // for fading into and out of island

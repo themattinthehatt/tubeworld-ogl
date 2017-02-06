@@ -1,13 +1,23 @@
 #version 330 core
 
-// output data
-out vec3 color;
-
-// values that stay constant for the whole mesh
+// uniforms
+uniform float threshold;
 uniform vec3 lampColor;
+uniform sampler2D loadedTexture;
+
+// input data
+in vec2 texCoords;
+
+// output data
+out vec4 color;
 
 void main() {
-    // output color = color specified in the vertex shader,
-    // interpolated between all 3 surrounding vertices
-    color = lampColor;
+
+    color = texture(loadedTexture, texCoords);
+    if (color.x+color.y+color.z < 3*threshold) {
+        color = vec4(0.f, 0.f, 0.f, 1.f);
+    } else {
+        color = vec4(lampColor, 1.f);
+    }
+
 }

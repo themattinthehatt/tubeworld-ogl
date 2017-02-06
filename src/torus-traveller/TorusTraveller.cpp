@@ -26,7 +26,7 @@ TorusTraveller::TorusTraveller() : io(IOHandler::getInstance()) {
      */
 
     sketch = new Sketch01(1);
-    light = new TorusLight(sketch->shader->programID);
+    light = new PerlinLamp(sketch->shader->programID);
 
     // -------------------------------------------------------------------------
     //                          Postprocessing
@@ -35,8 +35,8 @@ TorusTraveller::TorusTraveller() : io(IOHandler::getInstance()) {
     GLint numSamples = 4;
     fbo = new FramebufferObject(numSamples);
 
-    postShader = new Shader("src/island-traveller/perlin-block/PostProcessingShader.vert",
-                            "src/island-traveller/perlin-block/PostProcessingShader.frag");
+    postShader = new Shader("src/torus-traveller/PostShader.vert",
+                            "src/torus-traveller/PostShader.frag");
 
     // post processing uniforms
     fadeStep = 0.f;
