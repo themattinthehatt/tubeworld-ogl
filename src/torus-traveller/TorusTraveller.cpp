@@ -26,7 +26,6 @@ TorusTraveller::TorusTraveller() : io(IOHandler::getInstance()) {
      */
 
     sketch = new Sketch01(1);
-    light = new PerlinLamp(sketch->shader->programID);
 
     // -------------------------------------------------------------------------
     //                          Postprocessing
@@ -48,6 +47,8 @@ TorusTraveller::TorusTraveller() : io(IOHandler::getInstance()) {
     glUniform3fv(fadeColorID, 1, &fadeColor[0]);
     glUniform1f(fadeStepID, fadeStep);
     glUniform1f(fadeTotalID, fadeTotal);
+
+    light = new PerlinLamp(sketch->shader->programID, fbo->framebufferID);
 
 }
 

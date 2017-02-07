@@ -17,7 +17,10 @@ public:
     // program ID associated with shader that implements light
     GLuint shaderID;
 
-    // program ID associate with rendering actual light
+    // ID of framebuffer that light will get rendered to
+    GLuint fboID;
+
+    // object that renders actual light
     Shader *lampShader;
 
     enum LightType {
@@ -84,7 +87,7 @@ public:
     GLint lampColorID;
 
     // constructor
-    PerlinLamp(GLuint shaderID);
+    PerlinLamp(GLuint shaderID, GLuint fboID);
     // update
     void update(Camera &cam);
     // draw elements

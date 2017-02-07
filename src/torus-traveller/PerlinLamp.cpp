@@ -10,18 +10,20 @@
 #include "../tube-traveller/texture-generators/Noise.h"
 #include "../core/vboIndexer.h"
 
-PerlinLamp::PerlinLamp(GLuint shaderID_) {
+PerlinLamp::PerlinLamp(GLuint shaderID_, GLuint fboID_) {
 
     // program ID associated with shader that implements light
     shaderID = shaderID_;
 
-    changeIntensity = false;
-    changeHue = true;
-    useIndexing = true;
+    // ID of framebuffer that light will get rendered to
+    fboID = fboID_;
 
     // -------------------------------------------------------------------------
     //                  Create light properties struct
     // -------------------------------------------------------------------------
+
+    changeIntensity = false;
+    changeHue = true;
 
     // define light properties for ALL types - directional, point, spotlight
     lightProps.type = LIGHTTYPE_DIR;
@@ -65,6 +67,7 @@ PerlinLamp::PerlinLamp(GLuint shaderID_) {
     lampColorID = glGetUniformLocation(lampShader->programID, "lampColor");
 
     // load sphere model
+    useIndexing = true;
     bool res = loadObjIndexed("data/obj/ico_sphere_4.obj",
                               vertices, uvs, normals);
 
@@ -381,7 +384,7 @@ void PerlinLamp::generateTexture() {
             y = ((double) k) / ((double) width);
 
             // get corresponding perlin noise value
-            hue = static_cast<float>(pn.noise(pnScale*x, pnScale*y, 0.8));
+            hue = static_cast<float>(pn.noise(pnScale*x, pnScale*y, 1.8));
             if (woodGrain) {
                 // first val must be >= second val
                 // first val controls how much detail there is

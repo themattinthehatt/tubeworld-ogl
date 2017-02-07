@@ -26,6 +26,8 @@ FramebufferObject::FramebufferObject(GLint numSamples) {
     //                     Create framebuffer
     // -------------------------------------------------------------------------
 
+    bool hdrEnabled = true;
+
     // create framebuffer for off-screen rendering
     glGenFramebuffers(1, &framebufferID);               // create framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, framebufferID);   // bind framebuffer
@@ -39,8 +41,15 @@ FramebufferObject::FramebufferObject(GLint numSamples) {
         // create multi-sampled texture
         glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, fboColorTextureID);
         // send texture data to texture unit (just initializing here)
-        glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, numSamples,
-                                GL_RGB, screenWidth, screenHeight, GL_TRUE);
+        if (hdrEnabled) {
+            glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, numSamples,
+                                    GL_RGBA16F, screenWidth, screenHeight,
+                                    GL_TRUE);
+        } else {
+            glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, numSamples,
+                                    GL_RGBA, screenWidth, screenHeight,
+                                    GL_TRUE);
+        }
         // Set texture filtering parameters
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -69,9 +78,18 @@ FramebufferObject::FramebufferObject(GLint numSamples) {
         glGenTextures(1, &fboColorTextureID);
         glBindTexture(GL_TEXTURE_2D, fboColorTextureID);
         // send texture data to texture unit (just initializing here)
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screenWidth, screenHeight, 0,
-                     GL_RGB,
-                     GL_UNSIGNED_BYTE, NULL);
+        if (hdrEnabled) {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, screenWidth,
+                         screenHeight, 0,
+                         GL_RGBA,
+                         GL_FLOAT, NULL);
+        } else {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, screenWidth,
+                         screenHeight, 0,
+                         GL_RGBA,
+                         GL_UNSIGNED_BYTE, NULL);
+        }
+
         // Set texture filtering parameters
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

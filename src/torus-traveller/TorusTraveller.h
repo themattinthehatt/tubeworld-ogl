@@ -3,7 +3,15 @@
 //
 
 /* TODO
- *
+ * - perlin lamp in black space
+ *      - (DONE) perlin noise mapping
+ *      - (DONE) HDR lighting
+ *      - bloom
+ * - make lamp rotate around in a torus
+ *      - how to close/render the torus?
+ *      - 2 level perlin noise mapping on inside of tube (optional)
+ * - lamp in torus in torus
+ * - torus transition (4 levels; in lowest level most of the time)
  */
 
 #ifndef TUBEWORLD_TORUSTRAVELLER_H
