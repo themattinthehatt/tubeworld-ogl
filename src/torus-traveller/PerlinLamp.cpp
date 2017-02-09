@@ -108,7 +108,7 @@ PerlinLamp::PerlinLamp(GLuint shaderID_, GLuint fboID_) {
         phi = acos(vertices[i].z / radius) / (PI);
         uvs[i] = glm::vec2(theta, phi);
 
-        std::cout << theta << " " << phi << std::endl;
+//        std::cout << theta << " " << phi << std::endl;
 
     }
 
@@ -206,9 +206,9 @@ void PerlinLamp::update(Camera &cam) {
 
     // update light properties
     if (changeIntensity) {
-        lightProps.intensity = glm::vec3(0.7f + 0.3*sin(glfwGetTime()));
+        lightProps.intensity = glm::vec3(5.0f + 2.0*sin(glfwGetTime()));
     } else {
-        lightProps.intensity = glm::vec3(1.f);
+        lightProps.intensity = glm::vec3(5.f);
     }
     if (changeHue) {
         float r, g, b;
@@ -448,8 +448,8 @@ void PerlinLamp::generateTexture() {
     // glGenerateMipmap here if desired
 
     // Set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     // Set texture filtering parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

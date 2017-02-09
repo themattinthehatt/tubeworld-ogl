@@ -32,7 +32,7 @@ TorusTraveller::TorusTraveller() : io(IOHandler::getInstance()) {
     // -------------------------------------------------------------------------
 
     GLint numSamples = 4;
-    fbo = new FramebufferObject(numSamples);
+    fbo = new FBOBloom(numSamples);
 
     postShader = new Shader("src/torus-traveller/PostShader.vert",
                             "src/torus-traveller/PostShader.frag");
@@ -108,6 +108,9 @@ void TorusTraveller::postProcess() {
     // SECOND PASS: ON-SCREEN RENDERING
     fbo->transferMSFBO();
 
+    // blur output
+    fbo->blur();
+
     // use post-processing shader
     postShader->use();
 
@@ -115,6 +118,8 @@ void TorusTraveller::postProcess() {
     glUniform3fv(fadeColorID, 1, &fadeColor[0]);
     glUniform1f(fadeStepID, fadeStep);
     glUniform1f(fadeTotalID, fadeTotal);
+    glUniform1i(glGetUniformLocation(postShader->programID, "scene"), 0);
+    glUniform1i(glGetUniformLocation(postShader->programID, "blur"), 1);
 
     // render fbo color texture attachment to screen
     fbo->render();

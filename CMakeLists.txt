@@ -14,6 +14,7 @@ set(SOURCE_FILES
         src/core/FramebufferObject.cpp
         src/core/Skybox.cpp
         src/core/vboIndexer.cpp
+        src/core/lighting/bloom/FBOBloom.cpp
         src/core/loaders/loadShaders.cpp
         src/core/loaders/loadTextures.cpp
         src/core/loaders/loadCubemap.cpp

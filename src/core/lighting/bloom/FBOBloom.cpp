@@ -1,14 +1,14 @@
 //
-// Created by mattw on 1/11/17.
+// Created by mattw on 2/8/17.
 //
 
 #include <iostream>
 #include <vector>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>         // for monitor stuff
-#include "FramebufferObject.h"
+#include "FBOBloom.h"
 
-FramebufferObject::FramebufferObject(GLint numSamples) {
+FBOBloom::FBOBloom(GLint numSamples) {
 
     // get screen info
     int count;
@@ -26,8 +26,6 @@ FramebufferObject::FramebufferObject(GLint numSamples) {
     //                     Create framebuffer
     // -------------------------------------------------------------------------
 
-    bool hdrEnabled = true;
-
     // create framebuffer for off-screen rendering
     glGenFramebuffers(1, &framebufferID);               // create framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, framebufferID);   // bind framebuffer
@@ -36,28 +34,25 @@ FramebufferObject::FramebufferObject(GLint numSamples) {
     if (numSamples > 1) {
         multiSamplingEnabled = true;
 
-        // create a texture for the color buffer
-        glGenTextures(1, &fboColorTextureID);
-        // create multi-sampled texture
-        glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, fboColorTextureID);
-        // send texture data to texture unit (just initializing here)
-        if (hdrEnabled) {
+        // create multiple textures for the color buffer
+        glGenTextures(2, fboColorTextureID);
+        for (int i = 0; i < 2; ++i) {
+            // create multi-sampled texture
+            glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, fboColorTextureID[i]);
+            // send texture data to texture unit (just initializing here)
             glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, numSamples,
                                     GL_RGBA16F, screenWidth, screenHeight,
                                     GL_TRUE);
-        } else {
-            glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, numSamples,
-                                    GL_RGBA, screenWidth, screenHeight,
-                                    GL_TRUE);
+            // Set texture filtering parameters
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0); // unbind texture
+            // attach the texture to the color attachment of the framebuffer
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
+                                   GL_TEXTURE_2D_MULTISAMPLE,
+                                   fboColorTextureID[i], 0);
+
         }
-        // Set texture filtering parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0); // unbind texture
-        // attach the texture to the color attachment of the framebuffer
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                               GL_TEXTURE_2D_MULTISAMPLE,
-                               fboColorTextureID, 0);
 
         // create a render buffer for depth and stencil testing
         glGenRenderbuffers(1, &renderbufferID);
@@ -68,48 +63,48 @@ FramebufferObject::FramebufferObject(GLint numSamples) {
         glBindRenderbuffer(GL_RENDERBUFFER, 0);     // unbind render buffer
 
         // attach the renderbuffer to the depth and stencil attachments of framebuffer
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER,
+                                  GL_DEPTH_STENCIL_ATTACHMENT,
                                   GL_RENDERBUFFER, renderbufferID);
 
     } else {
         multiSamplingEnabled = false;
 
-        // create a texture for the color buffer
-        glGenTextures(1, &fboColorTextureID);
-        glBindTexture(GL_TEXTURE_2D, fboColorTextureID);
-        // send texture data to texture unit (just initializing here)
-        if (hdrEnabled) {
+        // create multiple textures for the color buffer
+        glGenTextures(2, fboColorTextureID);
+        for (int i = 0; i < 2; ++i) {
+            glBindTexture(GL_TEXTURE_2D, fboColorTextureID[i]);
+            // send texture data to texture unit (just initializing here)
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, screenWidth,
-                         screenHeight, 0,
-                         GL_RGBA,
-                         GL_FLOAT, NULL);
-        } else {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, screenWidth,
-                         screenHeight, 0,
-                         GL_RGBA,
-                         GL_UNSIGNED_BYTE, NULL);
-        }
+                             screenHeight, 0,
+                             GL_RGBA,
+                             GL_FLOAT, NULL);
 
-        // Set texture filtering parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glBindTexture(GL_TEXTURE_2D, 0);             // unbind texture
-        // attach the texture to the color attachment of the framebuffer
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                               GL_TEXTURE_2D,
-                               fboColorTextureID, 0);
+            // Set texture filtering parameters
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glBindTexture(GL_TEXTURE_2D, 0);             // unbind texture
+            // attach the texture to the color attachment of the framebuffer
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
+                                   GL_TEXTURE_2D,
+                                   fboColorTextureID[i], 0);
+        }
 
         // create a render buffer for depth and stencil testing
         glGenRenderbuffers(1, &renderbufferID);
         glBindRenderbuffer(GL_RENDERBUFFER, renderbufferID);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
-                              mode->width, mode->height);
+                              screenWidth, screenHeight);
         glBindRenderbuffer(GL_RENDERBUFFER, 0);     // unbind render buffer
 
         // attach the renderbuffer to the depth and stencil attachments of framebuffer
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
                                   GL_RENDERBUFFER, renderbufferID);
     }
+
+    // specify which color attachments to use (of this framebuffer) for rendering
+    GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+    glDrawBuffers(2, attachments);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         std::cout << "ERROR::FRAMEBUFFER::Framebuffer is not complete!"
@@ -127,21 +122,23 @@ FramebufferObject::FramebufferObject(GLint numSamples) {
         glGenFramebuffers(1, &intFramebufferID);               // create framebuffer
         glBindFramebuffer(GL_FRAMEBUFFER, intFramebufferID);   // bind framebuffer
 
-        // create a texture for the color buffer
-        glGenTextures(1, &intFBOColorTextureID);
-        glBindTexture(GL_TEXTURE_2D, intFBOColorTextureID);
-        // send texture data to texture unit (just initializing here)
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, mode->width, mode->height, 0,
-                     GL_RGB,
-                     GL_UNSIGNED_BYTE, NULL);
-        // Set texture filtering parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glBindTexture(GL_TEXTURE_2D, 0);             // unbind texture
-        // attach the texture to the color attachment of the framebuffer
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                               GL_TEXTURE_2D,
-                               intFBOColorTextureID, 0);
+        // create multiple textures for the color buffer
+        glGenTextures(2, intFBOColorTextureID);
+        for (int i = 0; i < 2; ++i) {
+            glBindTexture(GL_TEXTURE_2D, intFBOColorTextureID[i]);
+            // send texture data to texture unit (just initializing here)
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screenWidth, screenHeight, 0,
+                         GL_RGB,
+                         GL_UNSIGNED_BYTE, NULL);
+            // Set texture filtering parameters
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glBindTexture(GL_TEXTURE_2D, 0);             // unbind texture
+            // attach the texture to the color attachment of the framebuffer
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
+                                   GL_TEXTURE_2D,
+                                   intFBOColorTextureID[i], 0);
+        }
 
         // create a render buffer for depth and stencil testing
         glGenRenderbuffers(1, &intRenderbufferID);
@@ -163,6 +160,44 @@ FramebufferObject::FramebufferObject(GLint numSamples) {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);       // unbind frame buffer
     }
 
+    // -------------------------------------------------------------------------
+    //                     Create ping-pong framebuffer
+    // -------------------------------------------------------------------------
+
+    // create ping-pong framebuffers for applying blur kernel
+    for (int i = 0; i < 2; ++i) {
+        glGenFramebuffers(1, &pingPongFBOID[i]);             // create framebuffer
+        glBindFramebuffer(GL_FRAMEBUFFER, pingPongFBOID[i]); // bind framebuffer
+
+        // create a texture for the ping-pong buffer
+        glGenTextures(1, &pingPongFBOColorTexID[i]);
+        glBindTexture(GL_TEXTURE_2D, pingPongFBOColorTexID[i]);
+        // send texture data to texture unit (just initializing here)
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, screenWidth, screenHeight, 0,
+                     GL_RGB,
+                     GL_FLOAT, NULL);
+        // Set texture filtering parameters
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        // attach the texture to the color attachment of the framebuffer
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                               GL_TEXTURE_2D,
+                               pingPongFBOColorTexID[i], 0);
+        glBindTexture(GL_TEXTURE_2D, 0);             // unbind texture
+
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) !=
+            GL_FRAMEBUFFER_COMPLETE) {
+            std::cout << "ERROR::FRAMEBUFFER::Framebuffer is not complete!"
+                      << std::endl;
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);       // unbind frame buffer
+    }
+
+    // create blur shader
+    blurShader = new Shader("src/core/lighting/bloom/GaussianBlur.vert",
+                            "src/core/lighting/bloom/GaussianBlur.frag");
 
     // -------------------------------------------------------------------------
     //                     Create post-processing VAO
@@ -241,23 +276,74 @@ FramebufferObject::FramebufferObject(GLint numSamples) {
 
 }
 
-void FramebufferObject::transferMSFBO() {
+void FBOBloom::transferMSFBO() {
 
     if (multiSamplingEnabled) {
+
+        // blit first color att
         glBindFramebuffer(GL_READ_FRAMEBUFFER, framebufferID);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, intFramebufferID);
         // now all subsequent rendering operations will render from the
         // multisampled framebuffer to the intermediate framebuffer
-        glBlitFramebuffer(0, 0, screenWidth, screenHeight,
-                          0, 0, screenWidth, screenHeight,
-                          GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+        // blit color attachments in FBO to color attachment in int FBO
+        for (int i = 0; i < 2; ++i) {
+            glReadBuffer(GL_COLOR_ATTACHMENT0 + i);
+            glDrawBuffer(GL_COLOR_ATTACHMENT0 + i);
+            glBlitFramebuffer(0, 0, screenWidth, screenHeight,
+                              0, 0, screenWidth, screenHeight,
+                              GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        }
         // now scene is stored in 2D texture image, so use that image for
         // post-processing
     }
 
 }
 
-void FramebufferObject::render() {
+void FBOBloom::blur() {
+
+    // begin blur in horizontal direction
+    horizontal = true;
+    bool firstIter = true;
+    iters = 6;
+    blurShader->use();
+
+    // make blur passes
+    for (int i = 0; i < iters; ++i) {
+
+        // bind framebuffer
+        glBindFramebuffer(GL_FRAMEBUFFER, pingPongFBOID[horizontal]);
+        // send over horizontal uniform
+        glUniform1i(glGetUniformLocation(blurShader->programID, "horizontal"),
+                    horizontal);
+        // bind texture
+        if (multiSamplingEnabled) {
+            glBindTexture(GL_TEXTURE_2D, firstIter ? intFBOColorTextureID[1] :
+                                         pingPongFBOColorTexID[!horizontal]);
+        } else {
+            glBindTexture(GL_TEXTURE_2D, firstIter ? fboColorTextureID[1] :
+                                         pingPongFBOColorTexID[!horizontal]);
+        }
+
+        // render quad
+        glBindVertexArray(screenVAOID);
+        glDrawArrays(GL_TRIANGLES, 0, numScreenVertices);
+        glBindVertexArray(0);
+
+        // switch blur direction for next pass
+        horizontal = !horizontal;
+
+        if (firstIter) {
+            firstIter = false;
+        }
+
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+}
+
+void FBOBloom::render() {
 
     /* calling function should:
      * bind default framebuffer
@@ -278,12 +364,20 @@ void FramebufferObject::render() {
 
     // bind vertex array
     glBindVertexArray(screenVAOID);
-    // bind texture
+
+    // bind the HDR texture
     if (multiSamplingEnabled) {
-        glBindTexture(GL_TEXTURE_2D, intFBOColorTextureID);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, intFBOColorTextureID[0]);
     } else {
-        glBindTexture(GL_TEXTURE_2D, fboColorTextureID);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, fboColorTextureID[0]);
     }
+
+    // bind the blur texture
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, pingPongFBOColorTexID[!horizontal]);
+
     // draw arrays using currently active shaders
     glDrawArrays(GL_TRIANGLES, 0, numScreenVertices);
     // break vertex array object binding
@@ -292,15 +386,20 @@ void FramebufferObject::render() {
 }
 
 
-void FramebufferObject::clean() {
+void FBOBloom::clean() {
 
     glDeleteFramebuffers(1, &framebufferID);
-    glDeleteTextures(1, &fboColorTextureID);
+    glDeleteTextures(2, fboColorTextureID);
     glDeleteRenderbuffers(1, &renderbufferID);
 
     glDeleteFramebuffers(1, &intFramebufferID);
-    glDeleteTextures(1, &intFBOColorTextureID);
+    glDeleteTextures(2, intFBOColorTextureID);
     glDeleteRenderbuffers(1, &intRenderbufferID);
+
+    glDeleteFramebuffers(2, pingPongFBOID);
+    glDeleteTextures(2, pingPongFBOColorTexID);
+    blurShader->clean();
+    delete blurShader;
 
     glDeleteVertexArrays(1, &screenVAOID);
     glDeleteBuffers(1, &screenVertexBufferID);

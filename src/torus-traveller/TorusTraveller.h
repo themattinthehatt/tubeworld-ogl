@@ -21,7 +21,7 @@
 #include "../core/Player.h"
 #include "../core/Camera.h"
 #include "../core/Shader.h"
-#include "../core/FramebufferObject.h"
+#include "../core/lighting/bloom/FBOBloom.h"
 #include "../core/Skybox.h"
 #include "PerlinLamp.h"
 #include "../test-sketches/Sketch01.h"
@@ -44,7 +44,7 @@ public:
     GLint fadeColorID;
 
     // for post-processing
-    FramebufferObject *fbo;
+    FBOBloom *fbo;
     Shader *postShader;
 
     IOHandler &io;
